@@ -18,18 +18,18 @@
         </div>
 
         <div class="text-h2 text-weight-bolder text-primary q-mb-xs tracking-tighter">
-          404
+          403
         </div>
         <div class="text-h5 text-weight-bold text-blue-grey-10 q-mb-md">
-          Página no encontrada
+          Acceso no autorizado
         </div>
 
         <div class="divider-elegant q-mx-auto q-mb-lg"></div>
 
         <p class="text-subtitle1 text-blue-grey-7 q-mb-xl px-md line-height-relaxed">
-          La página que estás buscando no existe o ha sido movida.
+          Tu perfil actual no cuenta con los privilegios necesarios para acceder a <span class="text-weight-bold text-primary">esta sección</span>.
           <br>
-          <span class="text-caption">Para solicitar ayuda, contacte a un administrador del sistema.</span>
+          <span class="text-caption">Si necesitas acceso, solicita una actualización de rol a tu supervisor.</span>
         </p>
 
         <div class="row justify-center q-gutter-md">

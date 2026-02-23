@@ -1,0 +1,238 @@
+<template>
+  <q-page class="q-pa-xl bg-slate-50">
+    <div class="row items-center q-mb-xl">
+      <div class="col">
+        <div class="text-h4 text-weight-bolder text-primary tracking-tight">
+          Bitácora de Auditoría
+        </div>
+        <div class="text-subtitle1 text-grey-7">
+          Historial detallado de movimientos y cambios en el sistema
+        </div>
+      </div>
+      <div class="col-auto">
+        <q-btn
+          flat
+          color="primary"
+          icon="refresh"
+          label="Actualizar"
+          rounded
+          @click="loadLogs"
+        />
+      </div>
+    </div>
+
+    <q-card class="table-container shadow-24">
+      <q-table
+        :rows="rows"
+        :columns="columns"
+        row-key="id"
+        flat
+        :loading="loading"
+        :filter="filter"
+        class="sicae-premium-table"
+      >
+        <template v-slot:top-right>
+          <q-input
+            outlined
+            dense
+            debounce="300"
+            v-model="filter"
+            placeholder="Buscar en el historial..."
+            class="bg-white shadow-1"
+            style="width: 350px"
+          >
+            <template v-slot:append><q-icon name="search" color="primary" /></template>
+          </q-input>
+        </template>
+
+        <template v-slot:header="props">
+          <q-tr :props="props" class="bg-primary text-white header-gradient">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-weight-bolder text-uppercase">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+        </template>
+
+        <template v-slot:body-cell-event="props">
+          <q-td :props="props" class="text-center">
+            <q-badge :color="getEventColor(props.row.description)" class="q-px-md q-py-xs text-weight-bold">
+              {{ props.row.description.toUpperCase() }}
+            </q-badge>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-causer="props">
+          <q-td :props="props">
+            <div v-if="props.row.causer" class="row items-center no-wrap">
+              <q-avatar size="28px" class="bg-blue-1 text-primary q-mr-sm">
+                {{ props.row.causer.name.charAt(0) }}
+              </q-avatar>
+              <div class="text-weight-medium">{{ props.row.causer.name }}</div>
+            </div>
+            <div v-else class="text-grey-5 italic">Sistema / Automático</div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-created_at="props">
+          <q-td :props="props">
+            <div class="text-weight-bold">{{ formatDate(props.row.created_at) }}</div>
+            <div class="text-caption text-grey-6">{{ formatTime(props.row.created_at) }}</div>
+          </q-td>
+        </template>
+
+        <template v-slot:body-cell-actions="props">
+          <q-td :props="props" class="text-center">
+            <q-btn
+              flat
+              round
+              color="primary"
+              icon="visibility"
+              size="sm"
+              @click="showDetails(props.row)"
+            >
+              <q-tooltip>Ver cambios realizados</q-tooltip>
+            </q-btn>
+          </q-td>
+        </template>
+      </q-table>
+    </q-card>
+
+    <q-dialog v-model="detailsDialog">
+  <q-card style="min-width: 500px; border-radius: 20px;">
+    <q-card-section class="bg-primary text-white row items-center">
+      <div class="text-h6">Análisis de Movimiento</div>
+      <q-space />
+      <q-btn icon="close" flat round dense v-close-popup />
+    </q-card-section>
+
+    <q-card-section class="q-pa-lg">
+      <div v-if="selectedLog.properties.antes || selectedLog.properties.rol_anterior">
+        <div class="row q-col-gutter-md">
+          <div class="col-6">
+            <div class="text-overline text-negative">Configuración Anterior</div>
+            <q-list bordered separator class="rounded-borders bg-red-1">
+              <q-item v-for="item in (selectedLog.properties.antes || [selectedLog.properties.rol_anterior])" :key="item">
+                <q-item-section>{{ item }}</q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+          <div class="col-6">
+            <div class="text-overline text-positive">Nueva Configuración</div>
+            <q-list bordered separator class="rounded-borders bg-green-1">
+              <q-item v-for="item in (selectedLog.properties.despues || [selectedLog.properties.rol_nuevo])" :key="item">
+                <q-item-section>{{ item }}</q-item-section>
+              </q-item>
+            </q-list>
+          </div>
+        </div>
+      </div>
+      <div v-else class="text-center text-grey-7">
+        <q-icon name="info" size="md" class="q-mb-sm" />
+        <p>No hay cambios estructurales que mostrar en este registro.</p>
+      </div>
+    </q-card-section>
+  </q-card>
+</q-dialog>
+  </q-page>
+</template>
+
+<script setup>
+  import { ref, onMounted } from 'vue'
+  import { api } from 'boot/axios'
+  import { date } from 'quasar'
+
+  const rows = ref([])
+  const loading = ref(false)
+  const filter = ref('')
+  const detailsDialog = ref(false)
+  const selectedLog = ref({})
+
+  const columns = [
+    { name: 'log_name', align: 'left', label: 'MÓDULO', field: 'log_name', sortable: true },
+    { name: 'event', align: 'center', label: 'ACCIÓN', field: 'description', sortable: true },
+    { name: 'causer', align: 'left', label: 'USUARIO', field: row => row.causer?.name },
+    { name: 'created_at', align: 'left', label: 'FECHA Y HORA', field: 'created_at', sortable: true },
+    { name: 'actions', align: 'center', label: 'DETALLES' }
+  ]
+
+  const loadLogs = async () => {
+    loading.value = true
+    try {
+      const response = await api.get('/api/activity-logs')
+      rows.value = response.data.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const getEventColor = (event) => {
+    const colors = {
+      created: 'positive',
+      updated: 'warning',
+      deleted: 'negative'
+    }
+    return colors[event] || 'blue-grey'
+  }
+
+  const formatDate = (val) => date.formatDate(val, 'DD/MM/YYYY')
+  const formatTime = (val) => date.formatDate(val, 'hh:mm:ss A')
+
+  const showDetails = (log) => {
+    selectedLog.value = log
+    detailsDialog.value = true
+  }
+
+  onMounted(loadLogs)
+</script>
+
+<style lang="scss">
+
+  .bg-slate-50 {
+    background-color: #f8fafc;
+  }
+
+  .table-container {
+    border-radius: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .shadow-btn-premium {
+    box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3), 0 4px 6px -2px rgba(30, 58, 138, 0.1);
+    transition: all 0.3s ease;
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.25);
+    }
+  }
+
+
+  .sicae-premium-table {
+    .q-table__top {
+      padding: 20px;
+    }
+
+
+
+    tbody tr {
+      transition: background-color 0.2s ease;
+      &:hover {
+        background-color: #f1f5f9 !important;
+      }
+    }
+
+    td {
+      padding: 12px 16px !important;
+      border-bottom: 1px solid #f1f5f9;
+    }
+  }
+
+  .border-white {
+    border: 2px solid white;
+  }
+
+  .tracking-tight { letter-spacing: -0.025em; }
+  .opacity-60 { opacity: 0.6; }
+
+
+</style>

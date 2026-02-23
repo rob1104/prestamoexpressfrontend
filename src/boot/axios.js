@@ -1,24 +1,49 @@
-import { defineBoot } from '#q-app/wrappers'
-import axios from 'axios'
+import axios from "axios"
+import { useAuthStore } from 'src/stores/auth'
+import { Notify } from 'quasar'
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
-
-export default defineBoot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
-
-  app.config.globalProperties.$axios = axios
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
-
-  app.config.globalProperties.$api = api
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
+const api = axios.create({
+  baseURL: 'http://localhost:8000',
+  withCredentials: true,
+  withXSRFToken: true
 })
+
+api.interceptors.request.use(
+  config => {
+    const authStore = useAuthStore()
+    if (authStore.token) {
+      config.headers.Authorization = `Bearer ${authStore.token}`
+    }
+    return config
+  },
+  error => Promise.reject(error)
+)
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    // Extraemos el mensaje del backend o usamos uno por defecto
+    const message = error.response?.data?.message || 'Ocurrió un error inesperado'
+
+    // Si el error es 403 (Seguridad) o 422 (Validación), mostramos el mensaje premium
+    if (error.response?.status === 403 || error.response?.status === 422) {
+      Notify.create({
+        type: 'negative',
+        message: message,
+        position: 'bottom',
+        icon: 'security', // Icono de seguridad para estos casos
+        actions: [{ icon: 'close', color: 'white' }]
+      });
+    }
+
+    // Manejo de sesión expirada (401)
+    if (error.response?.status === 401) {
+       Notify.create({ type: 'warning', message: 'Sesión expirada' })
+       // Aquí podrías redirigir al login
+    }
+
+    return Promise.reject(error)
+  }
+)
 
 export { api }
