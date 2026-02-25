@@ -52,8 +52,10 @@
                 <q-input
                   v-if="valores[k.subtipo]"
                   v-model="valores[k.subtipo].descripcion"
-                  dense outlined
-                  placeholder="..."
+                  dense
+                  outlined
+                  hide-bottom-space
+                  :rules="[ val => (valores[k.subtipo].cantidad > 0 && !val) ? 'La descripción es requerida!!!' : true ]"
                   class="full-width italic-placeholder"
                   @update:model-value="emitirCambios"
                 />
@@ -162,19 +164,28 @@
 
   const emitirCambios = () => {
     const partidas = []
+    let esValido = true
     Object.keys(valores).forEach(subtipo => {
-      if (valores[subtipo].cantidad > 0) {
+      const cant = valores[subtipo].cantidad || 0
+      const desc = valores[subtipo].descripcion || ''
+
+      if (cant > 0) {
+        if (desc.trim() === '') esValido = false
         partidas.push({
           tipo: valores[subtipo].tipo,
           subtipo: subtipo,
-          gramos_cantidad: valores[subtipo].cantidad,
-          costo_unitario: valores[subtipo].precio_unitario, // Ahora usa el valor editado
+          gramos_cantidad: cant,
+          costo_unitario: valores[subtipo].precio_unitario,
           valor: calcularRenglon(subtipo),
-          descripcion: valores[subtipo].descripcion || ''
+          descripcion: desc
         })
       }
     })
-    emit('update', { partidas, totalPrestamo: totalGramos.value + totalMonedas.value })
+    emit('update', {
+      partidas,
+      totalPrestamo: totalGramos.value + totalMonedas.value,
+      esValido: esValido
+    })
   }
 
   const formatMoney = (val) => Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })

@@ -14,6 +14,27 @@
       <q-item-section class="text-weight-medium">Panel Principal</q-item-section>
     </q-item>
 
+     <q-item-label header class="text-uppercase text-weight-bolder text-grey-6 letter-spacing-1">
+      Prestamo Tradicional
+    </q-item-label>
+
+    <q-item
+      v-if="authStore.can('ver boletas')"
+      clickable
+      v-ripple
+      to="/boletastradicional"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="money" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Nueva Boleta</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
     <q-separator class="q-my-md q-mx-lg opacity-30" />
 
     <q-item-label header class="text-uppercase text-weight-bolder text-grey-6 letter-spacing-1">

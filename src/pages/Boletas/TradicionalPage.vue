@@ -7,7 +7,6 @@
         </div>
       </div>
       <div class="col-auto q-gutter-sm">
-        <q-btn unelevated color="primary" icon="save" label="F6 Confirmar" @click="saveBoleta" class="shadow-3" />
         <q-btn outline color="secondary" icon="refresh" label="F7 Limpiar" @click="resetForm" />
         <q-btn outline color="grey-8" icon="logout" label="F9 Salir" to="/" />
       </div>
@@ -60,6 +59,11 @@
         />
       </div>
     </div>
+    <DialogDenominacion
+      ref="dialogoDenominacionRef"
+      :montoObjetivo="form.prestamo"
+      @confirmado="onDenominacionFinalizada"
+    />
   </q-page>
 </template>
 
@@ -67,12 +71,18 @@
   import { ref, onMounted, onUnmounted } from 'vue'
   import { date, useQuasar } from 'quasar'
   import { api } from 'boot/axios'
+  import { PrintService } from 'src/services/PrintService'
   import BoletaClienteHeader from 'components/Boletas/ComponenteBoletaCliente.vue'
   import BoletaValuacionGrid from 'components/Boletas/ComponenteValuacionGrid.vue'
   import BoletaResumenFinanciero from 'components/Boletas/ComponenteResumen.vue'
+  import DialogDenominacion from 'src/components/Caja/DialogDenominaciones.vue'
 
 
   const $q = useQuasar()
+
+  const valuacionEsValida = ref(true)
+  const dialogoDenominacionRef = ref(null)
+  const idReciente = ref(null) // Para almacenar el ID de la boleta recién creada y usarlo al registrar el movimiento de caja
 
   // 1. ESTADO INICIAL DEL FORMULARIO
   const form = ref({
@@ -122,6 +132,7 @@
     form.value.comision = form.value.prestamo * (form.value.p_interes / 100)
     form.value.iva_comision = form.value.comision * 0.16
     form.value.total_pagar = form.value.prestamo + form.value.comision //+ form.value.iva_comision
+    valuacionEsValida.value = data.esValido
   }
 
   const onClienteUpdate = (cliente) => {
@@ -133,20 +144,112 @@
 
   // 3. PERSISTENCIA (GUARDADO F6)
   const saveBoleta = async () => {
+
+    if (!form.value.no_bolsa) {
+      $q.notify({ type: 'warning', message: 'El Número de Bolsa es requerido.' });
+      return;
+    }
+
     if (!form.value.cliente_id || form.value.prestamo <= 0) {
       $q.notify({ type: 'warning', message: 'Seleccione un cliente y valúe al menos una prenda.' })
       return
     }
 
-    $q.loading.show({ message: 'Procesando boleta...' })
+    if (!valuacionEsValida.value) {
+      $q.notify({
+        type: 'warning',
+        message: 'Todas las prendas con gramos deben tener una descripción.'
+      })
+      return
+    }
+
+    $q.dialog({
+      title: 'Confirmar Operación',
+      message: '¿Los datos son correctos? Se procederá a generar la boleta e imprimir el ticket.',
+      cancel: true,
+      persistent: true
+    }).onOk(async () => {
+      await procesarBoleta()
+    })
+  }
+
+  const procesarBoleta = async () => {
+    $q.loading.show({ message: 'Guardando boleta en el sistema...' })
     try {
-      await api.post('/api/boletas', form.value)
-      $q.notify({ type: 'positive', message: 'BOLETA REGISTRADA EXITOSAMENTE', position: 'top' })
-      resetForm()
+      // Guardamos la boleta y obtenemos el ID generado
+      const res = await api.post('/api/boletas', form.value)
+      const boletaGuardada = res.data.boleta
+      idReciente.value = boletaGuardada.id
+
+      $q.loading.show({ message: 'Enviando a la impresora...' })
+      try {
+        await PrintService.imprimirBoleta(boletaGuardada)
+      }
+      catch (printerror) {
+        $q.notify({
+          type: 'warning',
+          message: 'Boleta guardada, pero la IMPRESIÓN FALLÓ.',
+          timeout: 3000
+        });
+      }
+
+      $q.loading.hide()
+
+      const confirmarReimpresion = () => {
+        return new Promise((resolve) => {
+          $q.dialog({
+            title: 'Ticket Impreso',
+            message: '¿Desea imprimir una COPIA ADICIONAL del ticket?',
+            ok: { label: 'SÍ, REIMPRIMIR', color: 'primary', unelevated: true },
+            cancel: { label: 'NO, CONTINUAR', flat: true, color: 'grey-7' },
+            persistent: true
+          }).onOk(async () => {
+            try {
+              $q.loading.show({ message: 'Imprimiendo copia...' })
+              await PrintService.imprimirBoleta(boletaGuardada)
+              $q.loading.hide();
+            } catch (e) {
+              $q.loading.hide();
+              $q.notify({ type: 'negative', message: 'Fallo al imprimir la copia.' })
+            }
+            resolve();
+          }).onCancel(() => {
+            resolve()
+          })
+        })
+      }
+      await confirmarReimpresion()
+
+      $q.dialog({
+        title: '<div class="text-orange text-h4 text-weight-bolder">PRESTAMO TRADICIONAL</div>',
+        message: `
+          <div class="text-center">
+            <div class="text-h6">El Número de Folio asignado a la Boleta es</div>
+            <div class="text-h2 text-orange text-weight-bolder q-my-md">${boletaGuardada.id}</div>
+            <div class="text-h6">Importe del Préstamo</div>
+            <div class="text-h3 text-orange text-weight-bolder">$ ${boletaGuardada.prestamo}</div>
+          </div>
+        `,
+        html: true,
+        ok: { label: 'Aceptar', color: 'grey-4', textColor: 'black' }
+      }).onOk(() => {
+        dialogoDenominacionRef.value.show()
+      })
+
     } catch (e) {
       $q.notify({ type: 'negative', message: 'Error: ' + e.response.data.message })
     } finally {
       $q.loading.hide()
+    }
+  }
+
+  const onDenominacionFinalizada = async (data) => {
+    try {
+      await api.post(`/api/movimientoscaja/${idReciente.value}/registrar-efectivo`, data)
+      $q.notify({ type: 'positive', message: 'Movimiento de caja registrado. Proceso finalizado.' })
+      resetForm()
+    } catch (error) {
+      $q.notify({ type: 'negative', message: 'Error al registrar efectivo: ' + error.message })
     }
   }
 
@@ -159,6 +262,7 @@
     if (e.key === 'F6') { e.preventDefault(); saveBoleta(); }
     if (e.key === 'F7') { e.preventDefault(); resetForm(); }
   }
+
 
   const formatMoney = (val) => val.toLocaleString('en-US', { minimumFractionDigits: 2 })
 
