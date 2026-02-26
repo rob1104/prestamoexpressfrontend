@@ -1,225 +1,273 @@
 <template>
-  <q-card flat bordered class="shadow-2 rounded-borders">
-    <q-card-section class="q-pa-md">
-      <div class="row q-col-gutter-md items-start">
+  <q-card flat bordered class="header-compact-card shadow-1">
+    <q-card-section class="bg-blue-grey-1 text-blue-grey-10 q-py-xs border-bottom">
+      <div class="row items-center">
+        <q-icon name="person" size="xs" class="q-mr-xs text-primary" />
+        <div class="text-caption text-weight-bolder uppercase tracking-tight">Datos Generales del Empeño</div>
+      </div>
+    </q-card-section>
 
-        <div class="col-12 col-md-3">
-          <div class="row q-col-gutter-sm">
+    <q-card-section class="q-pa-sm">
+      <div class="row q-col-gutter-sm">
+
+        <div class="col-12 col-md-3 q-gutter-y-xs">
+          <div class="row items-center no-wrap">
+            <div class="label-fixed text-caption text-weight-bold">FECHA:</div>
             <q-input
               v-model="modelValue.fecha_boleta"
-              label="Fecha de la Boleta:"
-              outlined
-              dense
-              readonly
+              outlined dense readonly
               bg-color="grey-1"
-              class="col-12"
+              class="col input-premium-compact"
+              input-class="text-weight-bold"
             />
+          </div>
+          <div class="row items-center no-wrap">
+            <div class="label-fixed text-caption text-weight-bold">ID CLIENTE:</div>
             <q-input
+              autofocus
               v-model.number="modelValue.cliente_id"
-              label="No. Cliente:"
-              outlined
-              dense
-              readonly
+              outlined dense readonly
               bg-color="grey-2"
-              class="col-12"
+              class="col input-premium-compact"
+              input-class="text-weight-bold text-primary"
             />
           </div>
         </div>
 
         <div class="col-12 col-md-6">
-          <div class="row q-col-gutter-sm">
+          <div class="row q-col-gutter-xs">
+            <div class="col-12">
+              <q-select
+                autofocus
+                ref="selectClienteRef"
+                v-model="selectedCliente"
+                label="Nombre del Cliente (ENTER p/Búsqueda)"
+                outlined dense use-input hide-selected fill-input
+                :options="clientesOptions"
+                @filter="filterClientes"
+                @input-value="val => searchInput = val"
+                @keyup.enter.stop.prevent="abrirBusquedaAvanzada"
+                @update:model-value="onClienteSelect"
+                class="input-premium-search"
+              >
+                <template v-slot:prepend><q-icon name="search" size="xs" /></template>
+              </q-select>
+            </div>
 
-            <q-select
-              autofocus
-              ref="selectClienteRef"
-              v-model="selectedCliente"
-              label="Nombre del Cliente (ENTER para búsqueda avanzada)"
-              outlined
-              dense
-              use-input
-              hide-selected
-              fill-input
-              :options="clientesOptions"
-              @filter="filterClientes"
-              @input-value="val => searchInput = val"
-              @keyup.enter.stop.prevent="abrirBusquedaAvanzada"
-              @update:model-value="onClienteSelect"
-              class="col-12"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">
-                    Presione ENTER para búsqueda avanzada de "{{ searchInput }}"
-                  </q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-
-            <q-input
-              v-model="identificacionDisplay"
-              label="Identificación:"
-              outlined
-              dense
-              readonly
-              bg-color="grey-1"
-              class="col-12"
-            />
+            <div class="col-12">
+              <q-input
+                v-model="identificacionDisplay"
+                label="Identificación / Documentos:"
+                outlined dense readonly
+                bg-color="blue-grey-1"
+                class="input-premium-compact"
+                input-class="text-caption italic"
+              />
+            </div>
 
             <div class="col-6">
               <q-input
                 v-model.number="modelValue.no_bolsa"
-                label="Número de Bolsa:"
-                outlined
-                dense
-                type="number"
+                label="No. de Bolsa"
+                outlined dense type="number"
+                class="input-premium-compact"
+                input-class="text-weight-bold text-orange-9"
               />
             </div>
             <div class="col-6">
               <q-select
                 v-model="modelValue.categoria_id"
-                label="Categoría:"
+                label="Categoría"
                 :options="categoriasOptions"
                 option-label="label"
                 option-value="id"
-                map-options
-                emit-value
-                outlined
-                dense
+                map-options emit-value
+                outlined dense
+                class="input-premium-compact"
               />
             </div>
           </div>
         </div>
 
-        <div class="col-12 col-md-3 bg-blue-grey-1 q-pa-sm rounded-borders border-dashed min-height-plan">
-          <slot name="plan-info">
-            </slot>
+        <div class="col-12 col-md-3 bg-blue-grey-1 rounded-borders border-subtle">
+          <slot name="plan-info"></slot>
         </div>
 
       </div>
     </q-card-section>
 
+
+
     <q-dialog v-model="showSearchDialog" @show="onDialogShow" persistent>
-      <q-card style="width: 700px; max-width: 90vw; border-radius: 12px">
-        <q-card-section class="bg-primary text-white q-py-sm">
-          <div class="text-subtitle1 text-weight-bold uppercase tracking-widest">Búsqueda Avanzada de Clientes</div>
+      <q-card style="width: 700px; max-width: 95vw; border-radius: 4px;">
+        <q-card-section class="bg-primary text-white q-py-xs">
+          <div class="text-caption text-weight-bolder uppercase">Localizador de Clientes - SICAE Modern</div>
         </q-card-section>
 
-        <q-card-section class="q-pa-md">
+        <q-card-section class="q-pa-sm">
           <q-input
             ref="dialogInputRef"
             v-model="dialogSearchInput"
-            label="Nombre del cliente..."
-            outlined
-            clearable
-            autofocus
+            label="Escriba el nombre para buscar..."
+            outlined dense clearable autofocus
             @update:model-value="ejecutarBusquedaFiltrada"
             @keydown.down.prevent="navigateDown"
             @keydown.up.prevent="navigateUp"
             @keydown.enter.prevent="confirmarSeleccion"
-          >
-            <template v-slot:prepend>
-              <q-icon name="person_search" color="primary" />
-            </template>
-          </q-input>
+          />
         </q-card-section>
 
-        <q-card-section class="q-pa-none" style="max-height: 400px; overflow-y: auto">
-          <q-list separator>
+        <q-card-section class="q-pa-none" style="max-height: 350px; overflow-y: auto">
+          <q-list separator dense>
             <q-item
               v-for="(c, index) in dialogResults"
               :key="c.id"
-              clickable
-              v-ripple
+              clickable v-ripple
               :active="index === activeIndex"
               active-class="bg-blue-1 text-primary text-weight-bold"
               @click="seleccionarDesdeDialogo(c)"
               @mouseenter="activeIndex = index"
             >
               <q-item-section avatar>
-                <q-avatar color="primary" text-color="white" size="sm">{{ c.id }}</q-avatar>
+                <q-avatar color="primary" text-color="white" size="xs">{{ c.id }}</q-avatar>
               </q-item-section>
               <q-item-section>
-                <q-item-label>{{ c.nombre }}</q-item-label>
-                <q-item-label caption class="text-uppercase">{{ c.identificacion }}</q-item-label>
-              </q-item-section>
-              <q-item-section side v-if="index === activeIndex">
-                <q-icon name="keyboard_return" color="primary" />
+                <q-item-label class="text-caption text-weight-bold">{{ c.nombre }}</q-item-label>
+                <q-item-label caption class="text-uppercase" style="font-size: 10px">{{ c.identificacion }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
-
-          <div v-if="dialogResults.length === 0" class="q-pa-xl text-center text-grey-6">
-            No se encontraron coincidencias para "{{ dialogSearchInput }}"
-          </div>
         </q-card-section>
 
-        <q-separator />
-
-        <q-card-actions align="right" class="bg-grey-1 q-pa-sm">
-          <div class="text-caption text-grey-7 q-mr-md">↑ ↓ Navegar • ENTER Seleccionar • ESC Cerrar</div>
-          <q-btn flat label="Cancelar" color="grey-8" v-close-popup />
+        <q-card-actions align="right" class="bg-grey-2 q-pa-xs">
+          <div class="text-caption text-grey-7 q-mr-md" style="font-size: 10px">↑ ↓ Navegar • ENTER Seleccionar • ESC Cerrar</div>
+          <q-btn flat label="Cerrar" color="grey-9" v-close-popup dense size="sm" />
         </q-card-actions>
       </q-card>
     </q-dialog>
   </q-card>
+  <q-dialog v-model="showClienteForm" persistent>
+  <ClienteForm
+    :is-edit="false"
+    :initial-data="nuevoClienteData"
+    @save="guardarNuevoCliente"
+  />
+</q-dialog>
 </template>
 
 <script setup>
   import { ref, computed, nextTick } from 'vue'
-  import { api } from 'boot/axios'
   import { useQuasar } from 'quasar'
+  import { api } from 'boot/axios'
+  import ClienteForm from '../Clientes/ClienteForm.vue'
 
-  const $q = useQuasar()
   const props = defineProps({ modelValue: { type: Object, required: true } })
   const emit = defineEmits(['update:modelValue', 'cliente-cambiado'])
 
-  // Estado de Búsqueda
   const searchInput = ref('')
   const dialogSearchInput = ref('')
   const selectedCliente = ref(null)
   const clientesOptions = ref([])
-
-  // Estado del Diálogo
   const showSearchDialog = ref(false)
   const dialogResults = ref([])
   const activeIndex = ref(0)
   const dialogInputRef = ref(null)
 
+  const showClienteForm = ref(false)
+  const nuevoClienteData = ref({})
+
+  const $q = useQuasar()
+
+
+  const abrirFormularioNuevo = () => {
+    // Pre-llenamos el nombre con lo que el usuario ya escribió en el buscador
+    nuevoClienteData.value = {
+      nombre: searchInput.value || dialogSearchInput.value,
+      clasificacion: 'NUEVO'
+    }
+    showSearchDialog.value = false // Cerramos el buscador si estaba abierto
+    showClienteForm.value = true
+  }
+
+  const guardarNuevoCliente = async (datos) => {
+    $q.loading.show({ message: 'Registrando cliente...' })
+    try {
+      const res = await api.post('/api/clientes', datos)
+      const clienteGuardado = res.data.cliente
+
+      // Lo seleccionamos automáticamente en la boleta
+      onClienteSelect({
+        label: clienteGuardado.nombre,
+        value: clienteGuardado.id,
+        identificacion: clienteGuardado.identificacion,
+        ...clienteGuardado
+      })
+
+      showClienteForm.value = false
+      $q.notify({ type: 'positive', message: 'Cliente registrado y seleccionado.' })
+    } catch (e) {
+      $q.notify({ type: 'negative', message: 'Error al registrar: ' + (e.response?.data?.message || e.message) })
+    } finally {
+      $q.loading.hide()
+    }
+  }
+
   const categoriasOptions = [
-    { id: 1, label: '01: ORO' },
-    { id: 2, label: '02: BRILLANTES' },
-    { id: 3, label: '03: RELOJES FINOS' },
-    { id: 4, label: '04: AUTOS Y MOTOS' },
-    { id: 5, label: '05: APARATOS ELECTRÓNICOS' },
-    { id: 6, label: '06: VARIOS' },
+    { id: 1, label: '01: ORO' }, { id: 2, label: '02: BRILLANTES' },
+    { id: 3, label: '03: RELOJES FINOS' }, { id: 4, label: '04: AUTOS Y MOTOS' },
+    { id: 5, label: '05: APARATOS ELECTRÓNICOS' }, { id: 6, label: '06: VARIOS' },
     { id: 7, label: '07: PLATA' },
   ]
 
-  // Formateo de identificación para el header
   const identificacionDisplay = computed(() => {
-    return selectedCliente.value?.identificacion || 'SIN CLIENTE SELECCIONADO'
+    return selectedCliente.value?.identificacion || '--- SELECCIONE CLIENTE ---'
   })
 
-  // 1. Abrir diálogo trasladando lo escrito [Evita bucle infinito]
-  const abrirBusquedaAvanzada = async () => {
-    const textoActual = searchInput.value?.trim().toUpperCase()
-    const nombreSeleccionado = (selectedCliente.value?.label || '').trim().toUpperCase()
+  //
+const abrirBusquedaAvanzada = async () => {
+  const textoActual = searchInput.value?.trim().toUpperCase()
 
-    // Si el nombre escrito ya coincide con el seleccionado, no abrir modal
-    if (selectedCliente.value && textoActual === nombreSeleccionado) return
-
-
-    dialogSearchInput.value = searchInput.value
-    await ejecutarBusquedaFiltrada(dialogSearchInput.value)
-    showSearchDialog.value = true
+  // 1. Validación mínima de caracteres
+  if (!textoActual || textoActual.length < 2) {
+    $q.notify({ message: 'Escriba al menos 2 letras para buscar', color: 'grey-8', position: 'top' })
+    return
   }
 
-  // 2. Búsqueda reactiva en el modal
-  const ejecutarBusquedaFiltrada = async (val) => {
-    if (!val || val.length < 2) {
-      dialogResults.value = []
-      return
+  // 2. Si ya hay un cliente seleccionado y el nombre coincide exacto, no re-buscamos
+  const nombreSeleccionado = (selectedCliente.value?.label || '').trim().toUpperCase()
+    if (selectedCliente.value && textoActual === nombreSeleccionado) return
+
+    // 3. Consultamos primero a la API antes de mostrar nada
+    $q.loading.show({ message: 'Buscando coincidencias...', delay: 100 })
+
+    try {
+      const res = await api.get(`/api/clientes/search?search=${textoActual}`)
+      dialogResults.value = res.data
+
+      // 4. EL CAMBIO CLAVE: Solo abrir si hay resultados
+      if (dialogResults.value.length > 0) {
+        dialogSearchInput.value = textoActual
+        activeIndex.value = 0
+        showSearchDialog.value = true
+      } else {
+        // Si no hay nada, notificamos y dejamos el foco en el input
+        $q.notify({
+          message: `No se encontraron clientes que coincidan con "${textoActual}"`,
+          color: 'info',
+          position: 'center',
+          icon: 'person_search',
+          actions: [{ label: 'REGISTRAR NUEVO', color: 'white', handler: () => abrirFormularioNuevo() }]
+        })
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      $q.loading.hide()
     }
+  }
+
+  const ejecutarBusquedaFiltrada = async (val) => {
+    if (!val || val.length < 2) { dialogResults.value = []; return; }
     try {
       const res = await api.get(`/api/clientes/search?search=${val}`)
       dialogResults.value = res.data
@@ -227,26 +275,12 @@
     } catch (e) { console.error(e) }
   }
 
-  // 3. Navegación por teclado
-  const navigateDown = () => {
-    if (activeIndex.value < dialogResults.value.length - 1) activeIndex.value++
-  }
-  const navigateUp = () => {
-    if (activeIndex.value > 0) activeIndex.value--
-  }
-  const confirmarSeleccion = () => {
-    if (dialogResults.value[activeIndex.value]) {
-      seleccionarDesdeDialogo(dialogResults.value[activeIndex.value])
-    }
-  }
+  const navigateDown = () => { if (activeIndex.value < dialogResults.value.length - 1) activeIndex.value++ }
+  const navigateUp = () => { if (activeIndex.value > 0) activeIndex.value-- }
+  const confirmarSeleccion = () => { if (dialogResults.value[activeIndex.value]) seleccionarDesdeDialogo(dialogResults.value[activeIndex.value]) }
 
   const seleccionarDesdeDialogo = (cliente) => {
-    onClienteSelect({
-      label: cliente.nombre,
-      value: cliente.id,
-      identificacion: cliente.identificacion,
-      ...cliente
-    })
+    onClienteSelect({ label: cliente.nombre, value: cliente.id, identificacion: cliente.identificacion, ...cliente })
     showSearchDialog.value = false
   }
 
@@ -257,35 +291,60 @@
     emit('cliente-cambiado', cliente)
   }
 
-  const onDialogShow = () => {
-    nextTick(() => {
-      if (dialogInputRef.value) dialogInputRef.value.focus()
-    })
-  }
+  const onDialogShow = () => { nextTick(() => { if (dialogInputRef.value) dialogInputRef.value.focus() }) }
 
   const filterClientes = async (val, update) => {
     searchInput.value = val
-    if (val.length < 2) {
-      update(() => { clientesOptions.value = [] })
-      return
-    }
+    if (val.length < 2) { update(() => { clientesOptions.value = [] }); return; }
     try {
       const res = await api.get(`/api/clientes/search?search=${val}`)
       update(() => {
-        clientesOptions.value = res.data.map(c => ({
-          label: c.nombre,
-          value: c.id,
-          identificacion: c.identificacion,
-          ...c
-        }))
+        clientesOptions.value = res.data.map(c => ({ label: c.nombre, value: c.id, identificacion: c.identificacion, ...c }))
       })
     } catch (e) { console.error(e) }
   }
 </script>
 
-<style scoped>
-    .border-dashed { border: 2px dashed #b0bec5; }
-    .min-height-plan { min-height: 120px; display: flex; flex-direction: column; justify-content: center; }
-    .bg-blue-1 { background: #e3f2fd; }
-    .tracking-widest { letter-spacing: 0.1em; }
+<style lang="scss" scoped>
+  .header-compact-card {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+  }
+
+  .border-bottom { border-bottom: 1px solid #cbd5e1; }
+  .border-subtle { border-left: 1px solid #cbd5e1; background-color: #f1f5f9; }
+
+  /* Corregir alineación de etiquetas de texto fijo */
+  .label-fixed {
+    width: 65px;
+    font-size: 10px;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    height: 28px; /* Debe coincidir con la altura del input */
+  }
+
+  /* INPUTS COMPACTOS (Fecha, ID, Bolsa, Categoría) */
+  .input-premium-compact {
+    :deep(.q-field__control) {
+      min-height: 28px !important;
+      display: flex;
+      align-items: center; // Centra verticalmente el contenido
+    }
+    :deep(.q-field__native), :deep(.q-field__input) {
+      min-height: 28px !important;
+      line-height: 28px !important; // Fuerza el texto al centro
+      padding: 0 4px !important;
+    }
+    :deep(.q-field__label) {
+      top: 6px; // Ajusta la etiqueta flotante
+      font-size: 11px;
+    }
+  }
+
+  /* INPUT DE BÚSQUEDA (Nombre del Cliente) */
+
+
+  .tracking-tight { letter-spacing: -0.02em; }
 </style>

@@ -9,7 +9,8 @@ const routes = [
       { path: 'roles', component: () => import('pages/Usuarios/RolesPage.vue'), meta: { requiresAuth: true, permission: 'ver roles'} },
       { path: 'logs', component: () => import('pages/ActivityLogs/ActivityLogsPage.vue'), meta: { requiresAuth: true, permission: 'ver logs'} },
       { path: 'clientes', component: () => import('pages/Clientes/ClientesPage.vue'), meta: { requiresAuth: true, permission: 'ver clientes'} },
-      { path: 'boletastradicional', component: () => import('pages/Boletas/TradicionalPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
+      { path: 'boletastradicional', component: () => import('pages/Boletas/TradicionalPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas'} },
+      { path: 'movimientostradicional', component: () => import('pages/Boletas/MovimientosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
       { path: 'config', children: [
         { path: 'cotizacionoro', component: () => import('pages/Cotizaciones/OroPage.vue'), meta: { requiresAuth: true, permission: 'configurar cotizacion oro'} },
         { path: 'parametros', component: () => import('pages/Cotizaciones/ParametrosPage.vue'), meta: { requiresAuth: true, permission: 'configurar parametros'} },

@@ -47,10 +47,12 @@
                   v-model.number="conteo.monedas[m]"
                   type="number"
                   dense
+                  min="0"
                   outlined
                   bg-color="white"
                   input-class="text-center text-weight-bold"
                   @focus="$event.target.select()"
+                  @update:model-value="val => denominacion.cantidad = Math.max(0, val)"
                 />
               </div>
               <div class="col-4 text-right text-brown text-weight-bold">

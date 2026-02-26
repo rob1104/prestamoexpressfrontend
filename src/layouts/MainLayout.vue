@@ -77,11 +77,7 @@
         </div>
       </q-scroll-area>
 
-      <div class="absolute-bottom q-pa-md text-center text-grey-5 text-caption border-top-soft">
-        XisCAE Web - v1.0.0<br />
-        &copy; 2026 PrestamoExpress S.A. de C.V.<br />
-        Todos los derechos reservados.
-      </div>
+
     </q-drawer>
 
     <q-page-container>

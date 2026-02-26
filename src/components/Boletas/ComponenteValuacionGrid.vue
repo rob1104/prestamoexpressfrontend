@@ -26,42 +26,51 @@
           </thead>
           <tbody>
             <tr v-for="k in kilatajes" :key="k.subtipo" class="valuacion-row">
-              <td class="text-weight-bold text-primary">{{ k.label }}</td>
+              <td class="text-weight-bold text-blue-10 text-caption">{{ k.label }}</td>
               <td>
                 <q-input
                   v-if="valores[k.subtipo]"
                   v-model.number="valores[k.subtipo].cantidad"
                   type="number" dense borderless
-                  input-class="text-center font-bold text-slate-800"
-                  class="input-compact"
-                  @update:model-value="emitirCambios"
+                  min="0"
+                  input-class="text-center text-weight-bolder"
+                  class="input-premium-compact"
+                  @update:model-value="val => {
+                        valores[k.subtipo].cantidad = Math.max(0, val);
+                        emitirCambios();
+                      }"
                 />
               </td>
-              <td class="bg-slate-50">
+              <td>
                 <q-input
                   v-if="valores[k.subtipo]"
                   v-model.number="valores[k.subtipo].precio_unitario"
                   type="number" dense borderless
                   prefix="$"
-                  input-class="text-center text-primary text-weight-bold"
-                  class="input-compact"
-                  @update:model-value="emitirCambios"
+                  min="0"
+                  input-class="text-center text-weight-bold text-primary"
+                  class="input-premium-compact"
+                  @update:model-value="val => {
+                    valores[k.subtipo].precio_unitario = Math.max(0, val);
+                    emitirCambios();
+                  }"
                 />
               </td>
               <td>
                 <q-input
                   v-if="valores[k.subtipo]"
                   v-model="valores[k.subtipo].descripcion"
-                  dense
-                  outlined
+                  dense outlined
                   hide-bottom-space
-                  :rules="[ val => (valores[k.subtipo].cantidad > 0 && !val) ? 'La descripción es requerida!!!' : true ]"
-                  class="full-width italic-placeholder"
+                  :rules="[ val => (valores[k.subtipo].cantidad > 0 && !val) ? 'Requerido' : true ]"
+                  class="input-desc-compact italic-placeholder"
                   @update:model-value="emitirCambios"
                 />
               </td>
-              <td class="text-right text-weight-bolder text-slate-900 prestamo-cell">
-                $ {{ formatMoney(calcularRenglon(k.subtipo)) }}
+              <td class="text-right">
+                <div class="prestamo-box">
+                  $ {{ formatMoney(calcularRenglon(k.subtipo)) }}
+                </div>
               </td>
             </tr>
           </tbody>
@@ -69,42 +78,73 @@
       </q-card-section>
     </q-card>
 
-    <q-card flat bordered class="valuacion-card shadow-1">
-      <q-card-section class="bg-slate-100 text-slate-800 q-py-xs border-bottom">
+    <q-card flat bordered class="valuacion-card q-mt-sm shadow-1">
+      <q-card-section class="bg-blue-grey-1 text-blue-grey-10 q-py-xs border-bottom">
         <div class="row items-center justify-between">
           <div class="row items-center">
-            <q-icon name="toll" class="q-mr-sm text-primary" />
-            <div class="text-caption text-weight-bolder uppercase">MONEDAS DE ORO</div>
+            <q-icon name="toll" class="q-mr-sm text-primary" size="xs" />
+            <div class="text-caption text-weight-bolder uppercase">Valuación de Monedas de Oro</div>
           </div>
-          <div class="text-weight-bold text-primary">Subtotal: $ {{ formatMoney(totalMonedas) }}</div>
+          <q-badge color="primary" text-color="white" class="text-weight-bolder q-px-md">
+            SUBTOTAL MONEDAS: $ {{ formatMoney(totalMonedas) }}
+          </q-badge>
         </div>
       </q-card-section>
 
-      <q-card-section class="q-pa-md">
-        <div class="row q-col-gutter-md">
-          <div v-for="m in monedas" :key="m.subtipo" class="col-12 col-sm-6 col-md-2">
-            <div class="moneda-box" :class="{ 'has-value': valores[m.subtipo]?.cantidad > 0 }">
-              <div class="text-overline text-center text-slate-500">{{ m.label }}</div>
-              <q-input
-                v-if="valores[m.subtipo]"
-                v-model.number="valores[m.subtipo].cantidad"
-                dense outlined label="Piezas"
-                input-class="text-center text-weight-bold"
-                @update:model-value="emitirCambios"
-              />
-              <div class="row justify-between q-mt-xs text-caption">
-                <span class="opacity-70">Costo:</span>
+      <q-card-section class="q-pa-none">
+        <q-markup-table flat dense class="valuacion-table-premium">
+          <thead>
+            <tr>
+              <th class="text-left" style="width: 15%">DENOMINACIÓN</th>
+              <th class="text-center" style="width: 10%">PIEZAS</th>
+              <th class="text-center" style="width: 15%">COSTO x PZA</th>
+              <th class="text-left">DESCRIPCIÓN</th>
+              <th class="text-right" style="width: 15%">PRÉSTAMO</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="m in monedas" :key="m.subtipo" class="valuacion-row">
+              <td class="text-weight-bold text-blue-10 text-caption">{{ m.label }}</td>
+              <td>
                 <q-input
-                  v-model.number="valores[m.subtipo].precio_unitario"
-                  dense borderless
-                  input-class="text-right text-primary text-weight-bold no-padding"
-                  style="width: 70px"
+                  v-if="valores[m.subtipo]"
+                  v-model.number="valores[m.subtipo].cantidad"
+                  type="number" dense borderless
+                  input-class="text-center text-weight-bolder"
+                  class="input-premium-compact"
                   @update:model-value="emitirCambios"
                 />
-              </div>
-            </div>
-          </div>
-        </div>
+              </td>
+              <td>
+                <q-input
+                  v-if="valores[m.subtipo]"
+                  v-model.number="valores[m.subtipo].precio_unitario"
+                  type="number" dense borderless
+                  prefix="$"
+                  input-class="text-center text-weight-bold text-primary"
+                  class="input-premium-compact"
+                  @update:model-value="emitirCambios"
+                />
+              </td>
+              <td>
+                <q-input
+                  v-if="valores[m.subtipo]"
+                  v-model="valores[m.subtipo].descripcion"
+                  dense outlined
+                  hide-bottom-space
+                  :rules="[ val => (valores[m.subtipo].cantidad > 0 && !val) ? 'Requerido' : true ]"
+                  class="input-desc-compact italic-placeholder"
+                  @update:model-value="emitirCambios"
+                />
+              </td>
+              <td class="text-right">
+                <div class="prestamo-box">
+                  $ {{ formatMoney(calcularRenglon(m.subtipo)) }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </q-markup-table>
       </q-card-section>
     </q-card>
   </div>
@@ -193,59 +233,131 @@
 
 <style lang="scss" scoped>
   .valuacion-card {
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
+    border-radius: 4px; // Bordes más rectos para look profesional
+    border: 1px solid #cbd5e1;
   }
 
   .valuacion-table-premium {
     thead th {
-      background: #f8fafc;
-      color: #64748b;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      border-bottom: 2px solid #e2e8f0;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 8px !important; // Espacio mínimo en cabecera
+      border: 1px solid #e2e8f0;
     }
-    .valuacion-row {
-      transition: background 0.2s;
-      &:hover { background: #f1f5f9; }
-      td { padding: 8px 12px !important; border-bottom: 1px solid #f1f5f9; }
+
+    .valuacion-row td {
+      padding: 2px 4px !important; // REDUCCIÓN CRÍTICA DE ESPACIO
+      border: 1px solid #f1f5f9;
+      height: 32px; // Altura fija de fila para consistencia
     }
   }
 
-  .input-compact {
-    max-width: 100px;
+  // Estilo de Input similar al Resumen
+  .input-premium-compact {
+    background: white;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    height: 28px;
+    width: 85px;
     margin: 0 auto;
-    border-radius: 6px;
-    background: rgb(255, 254, 220);
-    padding: 0 8px;
-    border: 1px solid transparent;
-    &:focus-within { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1); }
+    font-size: 0.85rem;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+
+    &:focus-within {
+      border-color: #3b82f6;
+      background: #f8fafc;
+    }
+
+    :deep(.q-field__control), :deep(.q-field__native) {
+      min-height: 28px !important;
+      height: 28px !important;
+      padding: 0 4px !important;
+    }
+    :deep(.q-field__prefix) { font-size: 0.75rem; color: #94a3b8; }
   }
 
-  .prestamo-cell {
+  // Input de descripción más bajo
+  .input-desc-compact {
+    :deep(.q-field__control) {
+      height: 28px !important;
+      min-height: 28px !important;
+      background: white;
+      font-size: 0.85rem;
+    }
+    :deep(.q-field__native) { padding: 0 8px !important; }
+  }
+
+  // Celda de Préstamo estilizada como recuadro de salida
+  .prestamo-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 3px;
+    padding: 2px 8px;
     font-family: 'JetBrains Mono', monospace;
-    background: #fdfdfd;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: #0f172a;
+    display: inline-block;
+    min-width: 100px;
   }
 
   .moneda-box {
-    padding: 12px;
-    border-radius: 12px;
+    padding: 8px;
     border: 1px solid #e2e8f0;
+    border-radius: 4px;
     background: white;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.8rem;
+
     &.has-value {
       border-color: #3b82f6;
       background: #eff6ff;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     }
   }
 
-  .italic-placeholder :deep(input::placeholder) { font-style: italic; opacity: 0.5; font-size: 0.85rem; }
-  .tracking-widest { letter-spacing: 0.1em; }
+  .italic-placeholder :deep(input::placeholder) { font-style: italic; font-size: 0.75rem; }
   .border-bottom { border-bottom: 1px solid #e2e8f0; }
-  .no-padding :deep(input) { padding: 0 !important; }
+
+  .valuacion-table-premium {
+    background: white;
+
+    thead th {
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 8px !important;
+      border: 1px solid #e2e8f0;
+      text-transform: uppercase;
+    }
+
+    .valuacion-row td {
+      padding: 2px 4px !important;
+      border: 1px solid #f1f5f9;
+      height: 32px;
+
+      /* Ajuste para que el texto de la moneda/kilataje sea legible pero pequeño */
+      &:first-child {
+        font-size: 0.75rem;
+        letter-spacing: -0.02em;
+        background: #fafafa;
+      }
+    }
+  }
+
+  /* Estilo unificado para los recuadros de préstamo */
+  .prestamo-box {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 3px;
+    padding: 2px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #0f172a;
+    display: inline-block;
+    min-width: 90px;
+    text-align: right;
+  }
 </style>
