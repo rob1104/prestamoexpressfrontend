@@ -246,12 +246,31 @@
           <tr><th>Refrendo</th><th>Fecha Vence</th><th>Importe</th><th>Estatus</th></tr>
         </thead>
         <tbody>
-          <tr v-if="!boleta.id"><td colspan="4" class="text-center text-grey-5">Esperando operación...</td></tr>
+          <tr v-for="mov in movimientosRealizados" :key="mov.id">
+            <td class="text-center text-bold">{{ mov.no_pago }}</td>
+            <td class="text-center">{{ fechaFormateada(mov.created_at) }}</td>
+            <td class="text-right text-bold text-primary">$ {{ formatMoney(mov.totalPagado) }}</td>
+            <td class="text-center text-bold text-green-9">APLICADO</td>
+          </tr>
+
+          <tr v-if="!boleta.id">
+            <td colspan="4" class="text-center text-grey-5 q-pa-md">Esperando operación...</td>
+          </tr>
+          <tr v-else-if="movimientosRealizados.length === 0">
+            <td colspan="4" class="text-center text-grey-5 italic q-pa-md">Sin refrendos anteriores</td>
+          </tr>
         </tbody>
       </q-markup-table>
     </div>
   </div>
 </div>
+<DialogoDesgloseCobro
+      v-model="dialogoCobroDesglose"
+      :monto-recibido="pago.recibido"
+      :total-pagar="totalCalculado"
+      :tipo-operacion="movimientosPorRealizar[0]?.est === 'LI' ? 'LIQUIDACIÓN' : 'REFRENDO'"
+      @confirmar="ejecutarPagoFinal"
+    />
   </q-page>
 </template>
 
@@ -259,10 +278,16 @@
   import { ref, computed } from 'vue'
   import { date, useQuasar } from 'quasar'
   import { api } from 'boot/axios'
+  import { PrintService } from 'src/services/PrintService'
+  import DialogoDesgloseCobro from 'src/components/Caja/DialogoDesgloseCobro.vue'
 
   const $q = useQuasar()
 
   const movimientosPorRealizar = ref([])
+
+  const movimientosRealizados = ref([])
+
+  const dialogoCobroDesglose = ref(false)
 
   // ESTADO
   const busquedaFolio = ref('')
@@ -303,8 +328,16 @@
   }
 
 
-
   const totalCalculado = computed(() => {
+    const importe = Number(pago.value.importe) || 0
+    const recargos = Number(pago.value.recargos) || 0
+    const abono = Number(pago.value.abono_capital) || 0
+    const bonificacion = Number(pago.value.bonificacion_nc) || 0
+
+    return (importe + recargos + abono) - bonificacion
+  })
+
+  const totalRealizado = computed(() => {
     return (pago.value.importe + pago.value.recargos + pago.value.abono_capital) - pago.value.bonificacion_nc
   })
 
@@ -317,6 +350,27 @@
     try {
       const res = await api.get(`/api/boletas/${busquedaFolio.value}`)
       const data = res.data.boleta
+
+      if (data.estatus === 'LI') {
+        $q.notify({
+          type: 'negative',
+          message: 'BOLETA LIQUIDADA',
+          caption: 'Esta boleta ya fue desempeñada y no admite más movimientos.',
+          icon: 'block',
+          position: 'center',
+          timeout: 4000
+        })
+
+        // Limpiamos la pantalla por si había otra boleta cargada antes
+        boleta.value = {}
+        resetPago()
+        movimientosRealizados.value = []
+
+        // Selecciona el texto del buscador por si el cajero quiere teclear otra
+        document.querySelector('.input-premium-compact input').select()
+
+        return
+      }
 
       boleta.value = {
         id: data.id,
@@ -339,6 +393,10 @@
         ).join(' | ')
       }
 
+      movimientosRealizados.value = res.data.pagos || []
+
+      console.log("movimientosRealizados:", movimientosRealizados.value)
+
       resetPago()
 
       $q.notify({ type: 'positive', message: 'Datos de boleta recuperados' })
@@ -349,6 +407,7 @@
         message: e.response?.data?.message || e.message || 'Error al buscar folio'
       })
       boleta.value = {}
+      movimientosRealizados.value = []
     } finally {
       $q.loading.hide()
     }
@@ -389,11 +448,13 @@
       ? Math.floor((hoy - vencimiento) / (1000 * 60 * 60 * 24))
       : 0
 
+    const consecutivo = movimientosRealizados.value.length + 1
+
     // 3. Agregamos a la tabla de "Movimientos por Realizar"
     movimientosPorRealizar.value = [{
       folio: boleta.value.id,
-      refrendo: '001', // Consecutivo (puedes traerlo de la DB)
-      est: 'RE',       // Siglas para Refrendo
+      refrendo: consecutivo, // Consecutivo (puedes traerlo de la DB)
+      est: 'RE',
       vence: boleta.value.fecha_vencimiento,
       importe: boleta.value.comision,
       dv: diasVencidos,
@@ -405,11 +466,37 @@
   }
 
   const prepararLiquidacion = () => {
-    pago.value.importe = boleta.value.total_pagar
-    pago.value.recargos = calcularRecargosVencimiento()
-    pago.value.abono_capital = 0
+    if (!boleta.value.id) return
 
-    $q.notify({ icon: 'done_all', color: 'green-9', message: 'Operación: LIQUIDACIÓN calculada.' })
+    // 1. Calculamos valores financieros (Capital + Intereses)
+    pago.value.importe = Number(boleta.value.total_pagar) || 0
+    pago.value.recargos = Number(calcularRecargosVencimiento()) || 0
+    pago.value.bonificacion_nc = Number(calcularBonificacionNC(boleta.value)) || 0
+    pago.value.abono_capital = 0
+    pago.value.capital_cambiar = 0
+
+    // 2. Calculamos Días Vencidos (DV)
+    const hoy = new Date()
+    const vencimiento = new Date(boleta.value.fecha_vencimiento)
+    const diasVencidos = hoy > vencimiento
+      ? Math.floor((hoy - vencimiento) / (1000 * 60 * 60 * 24))
+      : 0
+
+    const consecutivo = movimientosRealizados.value.length + 1
+
+    // 3. Agregamos a la tabla de "Movimientos por Realizar" con el estatus 'LI'
+    movimientosPorRealizar.value = [{
+      folio: boleta.value.id,
+      refrendo: consecutivo, // No aplica un número consecutivo porque es el final
+      est: 'LI',       // Siglas para Liquidación
+      vence: boleta.value.fecha_vencimiento,
+      importe: boleta.value.total_pagar,
+      dv: diasVencidos,
+      recargos: pago.value.recargos,
+      bonificacion: pago.value.bonificacion_nc
+    }]
+
+    $q.notify({ icon: 'done_all', color: 'green-9', message: 'Operación LIQUIDACIÓN preparada.' })
   }
 
   const prepararAbono = () => {
@@ -458,59 +545,89 @@
 
 
 
+  // 1. Esta función ahora solo revisa el importe y ABRE EL COMPONENTE
   const confirmarPago = () => {
-    // 1. Validaciones de seguridad
     if (movimientosPorRealizar.value.length === 0) return
 
+    // Validamos que el importe capturado sea suficiente
     if (pago.value.recibido < totalCalculado.value) {
       $q.notify({ type: 'negative', message: 'El importe recibido es menor al total a pagar.' })
       return
     }
 
-    // 2. Confirmación con el usuario
-    $q.dialog({
-      title: '<div class="text-primary text-weight-bolder">CONFIRMAR MOVIMIENTO</div>',
-      message: `¿Desea confirmar el <strong>REFRENDO</strong> de la boleta ${boleta.value.id} por <strong>$${totalCalculado.value.toFixed(2)}</strong>?`,
-      html: true,
-      cancel: true,
-      persistent: true
-    }).onOk(async () => {
-      $q.loading.show({ message: 'Procesando pago y generando ticket...' })
+    // Si todo está bien, abrimos el componente de conteo
+    dialogoCobroDesglose.value = true
+  }
 
-      try {
-        // 3. Enviamos los datos al backend
-        const payload = {
-          boleta_id: boleta.value.id,
-          no_pago: movimientosPorRealizar.value[0].refrendo, // El consecutivo actual
-          importe_pago: pago.value.importe,
-          recargos: pago.value.recargos,
-          dias_vencidos: movimientosPorRealizar.value[0].dv,
-          total_pagado: totalCalculado.value,
-          total_recibido: pago.value.recibido,
-          caja_id: 1 // Este ID vendría de la sesión del usuario
-        }
+  // 2. Esta función recibe el desglose desde el componente y ejecuta la API
+  const ejecutarPagoFinal = async (desgloseDenominaciones) => {
+    const esLiquidacion = movimientosPorRealizar.value[0].est === 'LI'
+    const nombreOp = esLiquidacion ? 'LIQUIDACIÓN' : 'REFRENDO'
+    const endpointApi = esLiquidacion ? '/api/boletas/pagos/liquidacion' : '/api/boletas/pagos/refrendo'
 
-        const res = await api.post('/api/movimientos/registrar-pago', payload)
+    $q.loading.show({ message: `Procesando ${nombreOp.toLowerCase()} y generando ticket...` })
 
-        // 4. Impresión del Ticket
-        if (res.data.ticket_data) {
-          await PrintService.imprimirTicketRefrendo(res.data.ticket_data)
-        }
 
-        $q.notify({ type: 'positive', message: '¡Pago registrado y boleta refrendada!' })
 
-        // 5. Limpiamos y recargamos para la siguiente operación
-        resetModulo()
+    try {
+      const payload = {
+        boleta_id: boleta.value.id,
+        no_pago: movimientosPorRealizar.value[0].refrendo === '---' ? 0 : movimientosPorRealizar.value[0].refrendo,
+        numero_refrendo: movimientosPorRealizar.value[0].refrendo === '---' ? 0 : movimientosPorRealizar.value[0].refrendo,
 
-      } catch (e) {
-        $q.notify({
-          type: 'negative',
-          message: 'Error al procesar el pago: ' + (e.response?.data?.message || e.message)
-        });
-      } finally {
-        $q.loading.hide()
+        importe_pago: pago.value.importe,
+        recargos: pago.value.recargos,
+        dias_vencidos: movimientosPorRealizar.value[0].dv,
+        bonificacion: movimientosPorRealizar.value[0].bonificacion || 0,
+        total_pagado: totalCalculado.value,
+        total_recibido: pago.value.recibido, // El importe capturado
+
+        // --- AQUÍ MANDAMOS EL ARREGLO QUE NOS DIO EL COMPONENTE ---
+        denominaciones: JSON.stringify(desgloseDenominaciones),
+
+        caja_id: 1 // Asegúrate de mandar el ID de turno correcto
       }
-    })
+
+      const res = await api.post(endpointApi, payload)
+
+      if (res.data.ticket_data) {
+        if (esLiquidacion) await PrintService.imprimirTicketLiquidacion(res.data.ticket_data)
+        else await PrintService.imprimirTicketRefrendo(res.data.ticket_data)
+      }
+
+      $q.loading.hide()
+
+      const bonificacionOtorgada = Number(res.data.ticket_data.bonificacion) || 0
+
+      if (bonificacionOtorgada > 0) {
+        await new Promise((resolve) => {
+          $q.dialog({
+            title: '<div class="text-purple-7 text-weight-bolder">COMPROBANTE ADICIONAL</div>',
+            message: 'Se aplicó una bonificación por pago anticipado.<br><br><b>Presione ENTER</b> para imprimir el comprobante de bonificación.',
+            html: true,
+            ok: { label: 'Aceptar (Enter)', color: 'positive', icon: 'print' },
+            persistent: true
+          }).onOk(async () => {
+            // Llamamos a la nueva función
+            $q.loading.show({ message: 'Imprimiendo comprobante...' })
+            await PrintService.imprimirTicketBonificacion(res.data.ticket_data)
+            $q.loading.hide()
+            resolve()
+          })
+        })
+      }
+
+
+      $q.notify({ type: 'positive', message: `¡${nombreOp} registrada exitosamente!` })
+
+      dialogoCobroDesglose.value = false
+      resetModulo()
+
+    } catch (e) {
+      $q.notify({ type: 'negative', message: 'Error al procesar: ' + (e.response?.data?.message || e.message) })
+    } finally {
+      $q.loading.hide()
+    }
   }
 </script>
 

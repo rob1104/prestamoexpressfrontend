@@ -233,8 +233,8 @@
 
   const onValuacionUpdate = (data) => {
     form.value.partidas = data.partidas
-    form.value.prestamo = data.totalPrestamo
-    form.value.valor_comercial = form.value.prestamo * 1.10
+    form.value.prestamo = Math.ceil(data.totalPrestamo / 10) * 10
+    form.value.valor_comercial = Math.ceil(form.value.prestamo / 10) * 10 * 1.10
     form.value.comision = form.value.prestamo * (form.value.p_interes / 100)
     form.value.iva_comision = form.value.comision * configSistema.value.iva_tasa
     form.value.total_pagar = form.value.prestamo + form.value.comision
