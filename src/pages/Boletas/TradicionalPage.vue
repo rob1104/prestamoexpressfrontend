@@ -48,11 +48,39 @@
           </template>
         </BoletaClienteHeader>
 
-        <BoletaValuacionGrid
-          :precios="cotizacionesActuales"
-          @update="onValuacionUpdate"
-        />
+       <div v-if="form.categoria_id === 1 || form.categoria_id == '01'">
+
+          <div class="row items-center q-mb-sm q-mt-sm bg-white q-pa-sm border-bottom shadow-1">
+            <div class="text-caption text-weight-bold q-mr-sm text-primary uppercase">Cotización de Oro:</div>
+            <q-select
+              v-model="clasificacionActual"
+              :options="['CLIENTE NUEVO', 'BUEN CLIENTE', 'EXCELENTE CLIENTE', 'COMPRA']"
+              outlined dense bg-color="blue-1" class="col-4"
+              @update:model-value="onClasificacionChange"
+            >
+              <template v-slot:prepend><q-icon name="military_tech" color="orange-8" /></template>
+            </q-select>
+            <q-space />
+            <div v-if="hasSelectedClient" class="text-caption text-grey-7 italic">
+              El cambio se guardará en el perfil del cliente.
+            </div>
+          </div>
+
+          <BoletaValuacionGrid
+            :precios="cotizacionesActuales"
+            @update="onValuacionUpdate"
+          />
+        </div>
+
+        <div v-else-if="form.categoria_id === 5 || form.categoria_id == '05'" class="q-mt-sm">
+
+          <BoletaValuacionElectronicos
+            @update="onValuacionUpdate"
+          />
+
+        </div>
       </div>
+
 
       <div class="col-12 col-md-4 q-gutter-y-sm">
         <div class="row items-center no-wrap q-mt-xs">
@@ -89,7 +117,7 @@
 </template>
 
 <script setup>
-  import { ref, onMounted, onUnmounted } from 'vue'
+  import { ref, onMounted, onUnmounted, watch } from 'vue'
   import { date, useQuasar } from 'quasar'
   import { api } from 'boot/axios'
   import { PrintService } from 'src/services/PrintService'
@@ -100,6 +128,11 @@
   import BoletaResumenFinanciero from 'components/Boletas/ComponenteResumen.vue'
   import DialogDenominacion from 'src/components/Caja/DialogDenominaciones.vue'
   import BoletaDashboardStats from 'components/Boletas/BoletaDashboardStats.vue'
+  import BoletaValuacionElectronicos from 'components/Boletas/ComponenteValuacionElectronicos.vue'
+
+  const clasificacionActual = ref('NUEVO')
+  const cotizacionesDB = ref([])
+
 
   const clientStats = ref({})
   const hasSelectedClient = ref(false)
@@ -139,6 +172,17 @@
   const configSistema = ref({
     p_interes: 20.00,
     iva_tasa: 0.16
+  })
+
+  watch(() => form.value.categoria_id, (nuevaCategoria, viejaCategoria) => {
+    if (nuevaCategoria !== viejaCategoria) {
+      form.value.prestamo = 0
+      form.value.total_pagar = 0
+      form.value.comision = 0
+      form.value.valor_comercial = 0
+      form.value.partidas = []
+      valuacionEsValida.value = false
+    }
   })
 
   const cargarPromociones = async () => {
@@ -244,6 +288,8 @@
   const onClienteUpdate = async (cliente) => {
     if (cliente && cliente.id) {
       hasSelectedClient.value = true
+      clasificacionActual.value = cliente.clasificacion || 'NUEVO'
+      aplicarPreciosPorClasificacion(clasificacionActual.value)
       try {
         const res = await api.get(`/api/clientes/${cliente.id}/stats`)
         clientStats.value = res.data
@@ -255,6 +301,8 @@
     else {
       hasSelectedClient.value = false
       clientStats.value = {}
+      clasificacionActual.value = 'NUEVO'
+      aplicarPreciosPorClasificacion(clasificacionActual.value)
     }
   }
 
@@ -279,6 +327,7 @@
       persistent: true
     }).onOk(() => procesarBoleta())
   }
+
 
   const procesarBoleta = async () => {
     $q.loading.show({ message: 'Guardando boleta...' })
@@ -341,6 +390,94 @@
 
   const resetForm = () => window.location.reload()
 
+
+  const cargarCotizacionesOro = async () => {
+    try {
+      const res = await api.get('/api/config/cotizacionoro')
+      cotizacionesDB.value = res.data
+      console.log("Cotizaciones de oro cargadas:", cotizacionesDB.value)
+      aplicarPreciosPorClasificacion(clasificacionActual.value)
+    } catch (e) {
+      console.error("Error al cargar cotizaciones de oro:", e)
+    }
+  }
+
+  const aplicarPreciosPorClasificacion = (clasificacion) => {
+    if (!cotizacionesDB.value.gramos || !cotizacionesDB.value.monedas) return;
+
+    // 1. Identificamos qué columna de la base de datos vamos a leer
+    let columnaPrecio = 'precio_nuevo'; // Por defecto
+    const clasifBuscada = String(clasificacion).trim().toUpperCase();
+
+    if (clasifBuscada === 'NUEVO') {
+      columnaPrecio = 'precio_nuevo';
+    } else if (clasifBuscada === 'BUENO') {
+      columnaPrecio = 'precio_bueno';
+    } else if (clasifBuscada === 'EXCELENTE') {
+      columnaPrecio = 'precio_excelente';
+    } else if (clasifBuscada === 'COMPRA') {
+      columnaPrecio = 'precio_compra';
+    }
+
+    console.log(`Clasificación: ${clasificacion} -> Extrayendo columna: ${columnaPrecio}`);
+
+    // 2. Función "Buscadora" para encontrar el precio exacto de cada metal
+    const getPrecio = (arreglo, nombreDescripcion) => {
+      // Busca la fila donde la descripción sea "8K", "10K", etc.
+      const fila = arreglo.find(item =>
+        String(item.descripcion).trim().toUpperCase() === String(nombreDescripcion).trim().toUpperCase()
+      );
+      // Si la encuentra, devuelve el valor de la columna que elegimos arriba
+      return fila ? parseFloat(fila[columnaPrecio]) || 0 : 0;
+    };
+
+    const g = cotizacionesDB.value.gramos;
+    const m = cotizacionesDB.value.monedas;
+
+    // 3. Asignamos los precios buscando cada metal por su descripción en BD
+    cotizacionesActuales.value = {
+      '8K': getPrecio(g, '8K'),
+      '10K': getPrecio(g, '10K'),
+      '14K': getPrecio(g, '14K'),
+      '18K': getPrecio(g, '18K'),
+      '21K': getPrecio(g, '21K'),
+      'ORO_FINO': getPrecio(g, 'ORO FINO') || getPrecio(g, 'ORO_FINO'),
+      'MEDALLA': getPrecio(g, 'MEDALLA'),
+
+      // MONEDAS: He puesto varias opciones de búsqueda por si en tu BD se llaman diferente
+      // (ej. si guardaste "2 PESOS" en lugar de "M2")
+      'M2': getPrecio(m, 'M2') || getPrecio(m, '2 PESOS'),
+      'M25': getPrecio(m, 'M25') || getPrecio(m, 'M2.5') || getPrecio(m, '2.5 PESOS') || getPrecio(m, '2 1/2 PESOS'),
+      'M5': getPrecio(m, 'M5') || getPrecio(m, '5 PESOS'),
+      'M10': getPrecio(m, 'M10') || getPrecio(m, '10 PESOS'),
+      'M20': getPrecio(m, 'M20') || getPrecio(m, '20 PESOS'),
+      'M50': getPrecio(m, 'M50') || getPrecio(m, '50 PESOS')
+    };
+
+    console.log("Precios actualizados para el Grid:", cotizacionesActuales.value);
+
+    // 4. Forzamos el recálculo en la tabla si el cajero ya había capturado gramos
+    if (form.value.prestamo > 0) {
+      form.value.partidas = [...form.value.partidas];
+    }
+  }
+
+  const onClasificacionChange = async (nuevaClasificacion) => {
+    console.log("Clasificación seleccionada:", nuevaClasificacion)
+    aplicarPreciosPorClasificacion(nuevaClasificacion)
+    if (form.value.cliente_id) {
+      try {
+        await api.patch(`/api/clientes/${form.value.cliente_id}/clasificacion`, {
+          clasificacion: nuevaClasificacion
+        })
+        $q.notify({ type: 'positive', message: `Perfil actualizado a: ${nuevaClasificacion}`, position: 'top-right' })
+      } catch (e) {
+        $q.notify({ type: 'negative', message: 'Error al actualizar clasificación del cliente' })
+      }
+    }
+  }
+
+
   const handleKeys = (e) => {
     if (e.key === 'F6') { e.preventDefault(); saveBoleta(); }
     if (e.key === 'F7') { e.preventDefault(); resetForm(); }
@@ -349,10 +486,12 @@
   onMounted(() => {
     cargarParametrosSistema()
     cargarPromociones()
+    cargarCotizacionesOro()
     calcularVencimiento()
     window.addEventListener('keydown', handleKeys)
   })
   onUnmounted(() => window.removeEventListener('keydown', handleKeys))
+
 </script>
 
 <style lang="scss" scoped>

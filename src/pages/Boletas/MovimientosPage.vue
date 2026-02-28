@@ -182,11 +182,13 @@
               <div class="financial-row-mov q-mt-md">
                 <span>Importe Recibido:</span>
                 <q-input
+                  ref="inputRecibidoRef"
                   v-model.number="pago.recibido"
                   outlined dense type="number"
                   class="input-premium-compact"
                   input-class="text-right text-weight-bold"
                   @update:model-value="calcularCambio"
+                  @focus="$event.target.select()"
                 />
               </div>
               <div class="financial-row-mov">
@@ -202,7 +204,7 @@
 
              >
         <q-icon name="edit_note" size="32px" color="orange-9" />
-        <div class="text-overline text-weight-bolder line-height-1">F1 Aceptar<br>Pago</div>
+        <div class="text-overline text-weight-bolder line-height-1">Aceptar<br>Pago</div>
       </q-btn>
             </div>
 
@@ -268,6 +270,7 @@
       v-model="dialogoCobroDesglose"
       :monto-recibido="pago.recibido"
       :total-pagar="totalCalculado"
+      @show="enfocarInputPago"
       :tipo-operacion="movimientosPorRealizar[0]?.est === 'LI' ? 'LIQUIDACIÓN' : 'REFRENDO'"
       @confirmar="ejecutarPagoFinal"
     />
@@ -282,6 +285,8 @@
   import DialogoDesgloseCobro from 'src/components/Caja/DialogoDesgloseCobro.vue'
 
   const $q = useQuasar()
+
+  const inputRecibidoRef = ref(null)
 
   const movimientosPorRealizar = ref([])
 
@@ -319,6 +324,12 @@
     recibido: 0,
     cambio: 0
   })
+
+  const enfocarInputPago = () => {
+    if (inputRecibidoRef.value) {
+      inputRecibidoRef.value.focus()
+    }
+  }
 
   const fechaFormateada = (fecha) => {
     const f = new Date(fecha)
@@ -463,6 +474,7 @@
     }]
 
     $q.notify({ icon: 'refresh', color: 'orange-9', message: 'Operación REFRENDO preparada.' })
+    enfocarInputPago()
   }
 
   const prepararLiquidacion = () => {
@@ -497,6 +509,7 @@
     }]
 
     $q.notify({ icon: 'done_all', color: 'green-9', message: 'Operación LIQUIDACIÓN preparada.' })
+    enfocarInputPago()
   }
 
   const prepararAbono = () => {
@@ -591,8 +604,20 @@
       const res = await api.post(endpointApi, payload)
 
       if (res.data.ticket_data) {
-        if (esLiquidacion) await PrintService.imprimirTicketLiquidacion(res.data.ticket_data)
-        else await PrintService.imprimirTicketRefrendo(res.data.ticket_data)
+
+        try {
+          if (esLiquidacion) await PrintService.imprimirTicketLiquidacion(res.data.ticket_data)
+          else await PrintService.imprimirTicketRefrendo(res.data.ticket_data)
+        }
+        catch (printError) {
+          console.error("Error de impresión:", printError)
+          $q.notify({
+            type: 'warning',
+            message: 'La operación se guardó en el sistema, pero la impresora no respondió.',
+            timeout: 4000
+          })
+        }
+
       }
 
       $q.loading.hide()
@@ -610,7 +635,12 @@
           }).onOk(async () => {
             // Llamamos a la nueva función
             $q.loading.show({ message: 'Imprimiendo comprobante...' })
-            await PrintService.imprimirTicketBonificacion(res.data.ticket_data)
+            try {
+              await PrintService.imprimirTicketBonificacion(res.data.ticket_data)
+            }
+            catch (printError2) {
+                $q.notify({ type: 'warning', message: 'No se pudo imprimir el comprobante de bonificación.' })
+              }
             $q.loading.hide()
             resolve()
           })

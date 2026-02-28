@@ -15,7 +15,7 @@
     </q-item>
 
      <q-item-label header class="text-uppercase text-weight-bolder text-grey-6 letter-spacing-1">
-      Prestamo Tradicional
+      Nuevo
     </q-item-label>
 
     <q-item
@@ -29,11 +29,31 @@
       <q-item-section avatar>
         <q-icon name="money" />
       </q-item-section>
-      <q-item-section class="text-weight-medium">Nueva Boleta</q-item-section>
+      <q-item-section class="text-weight-medium">Prestamo Tradicional</q-item-section>
       <q-item-section side v-if="authStore.isAdmin">
         <q-badge color="secondary" text-color="primary" label="Admin" />
       </q-item-section>
     </q-item>
+     <q-item
+      v-if="authStore.can('crear boletas')"
+      clickable
+      v-ripple
+      to="/boletaspagos"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="money" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Prestamo en Pagos</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
+     <q-item-label header class="text-uppercase text-weight-bolder text-grey-6 letter-spacing-1">
+      Movimientos
+    </q-item-label>
 
      <q-item
       v-if="authStore.can('ver boletas')"
@@ -46,7 +66,7 @@
       <q-item-section avatar>
         <q-icon name="app_registration" />
       </q-item-section>
-      <q-item-section class="text-weight-medium">Movimientos</q-item-section>
+      <q-item-section class="text-weight-medium">Tradicional</q-item-section>
       <q-item-section side v-if="authStore.isAdmin">
         <q-badge color="secondary" text-color="primary" label="Admin" />
       </q-item-section>
