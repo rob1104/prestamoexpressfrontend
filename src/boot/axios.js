@@ -2,8 +2,12 @@ import axios from "axios"
 import { useAuthStore } from 'src/stores/auth'
 import { Notify } from 'quasar'
 
+const apiURL = import.meta.env.PROD
+  ? "https://sexta.pexpress.mx/be/public"
+  : "http://localhost:8000"
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: apiURL,
   withCredentials: true,
   withXSRFToken: true
 })

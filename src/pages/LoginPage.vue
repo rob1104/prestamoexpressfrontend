@@ -84,7 +84,7 @@
             </q-card>
 
             <div class="text-center q-mt-lg text-white opacity-70 text-caption">
-              © 2026 SICAE - Todos los derechos reservados
+              © 2026 SICAE - Todos los derechos reservados - Versión 0.0.1
             </div>
           </div>
         </div>

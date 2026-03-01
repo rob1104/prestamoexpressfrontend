@@ -395,7 +395,6 @@
     try {
       const res = await api.get('/api/config/cotizacionoro')
       cotizacionesDB.value = res.data
-      console.log("Cotizaciones de oro cargadas:", cotizacionesDB.value)
       aplicarPreciosPorClasificacion(clasificacionActual.value)
     } catch (e) {
       console.error("Error al cargar cotizaciones de oro:", e)
@@ -418,8 +417,6 @@
     } else if (clasifBuscada === 'COMPRA') {
       columnaPrecio = 'precio_compra';
     }
-
-    console.log(`Clasificación: ${clasificacion} -> Extrayendo columna: ${columnaPrecio}`);
 
     // 2. Función "Buscadora" para encontrar el precio exacto de cada metal
     const getPrecio = (arreglo, nombreDescripcion) => {
@@ -454,8 +451,6 @@
       'M50': getPrecio(m, 'M50') || getPrecio(m, '50 PESOS')
     };
 
-    console.log("Precios actualizados para el Grid:", cotizacionesActuales.value);
-
     // 4. Forzamos el recálculo en la tabla si el cajero ya había capturado gramos
     if (form.value.prestamo > 0) {
       form.value.partidas = [...form.value.partidas];
@@ -463,7 +458,6 @@
   }
 
   const onClasificacionChange = async (nuevaClasificacion) => {
-    console.log("Clasificación seleccionada:", nuevaClasificacion)
     aplicarPreciosPorClasificacion(nuevaClasificacion)
     if (form.value.cliente_id) {
       try {
