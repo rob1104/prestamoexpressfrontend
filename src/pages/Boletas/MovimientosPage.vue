@@ -389,6 +389,7 @@
         cliente_id: data.cliente_id,
         identificacion: data.cliente?.identificacion || 'SIN IDENTIFICACIÓN',
         dr: 0,
+        tradicional: data.tradicional,
         no_bolsa: data.no_bolsa,
         fecha_boleta: fechaFormateada(data.fecha_boleta), // Formato DD-mmm-YYYY
         prestamo: data.prestamo,
@@ -397,8 +398,8 @@
         comision: data.comision,
         total_pagar: data.total_pagar,
         fecha_vencimiento: fechaFormateada(data.fecha_vencimiento),
-        plazo: data.plazo_dias + ' DIAS',
-        pago_facil: 'NO',
+        plazo: data.tradicional.dias_reales + ' DIAS',
+        pago_facil: 'SI',
         descripcion: data.partidas.map(p =>
           `${p.gramos_cantidad} grs ${p.subtipo}: ${p.descripcion}`
         ).join(' | ')
@@ -406,7 +407,6 @@
 
       movimientosRealizados.value = res.data.pagos || []
 
-      console.log("movimientosRealizados:", movimientosRealizados.value)
 
       resetPago()
 
@@ -528,33 +528,45 @@
   const resetModulo = () => window.location.reload()
 
   const calcularBonificacionNC = (boletaData) => {
+  // 1. Validaciones iniciales de datos
 
+console.log("Calculando bonificación NC para boleta:", boletaData)
 
-    const hoy = new Date();
-    const fechaVencimiento = new Date(boletaData.fecha_vencimiento)
+  if (!boletaData.fecha_boleta || !boletaData.fecha_vencimiento) return 0;
 
-    // Si ya venció, no hay bonificación
-    if (hoy >= fechaVencimiento) return 0
+  const hoy = new Date();
 
-    // Calculamos días transcurridos
-    const msPorDia = 1000 * 60 * 60 * 24
-    const plazoDias = 30
-    const diasRestantes = Math.floor((fechaVencimiento - hoy) / msPorDia)
-    const diasTranscurridos = plazoDias - diasRestantes
-    const interesBase = parseFloat(boletaData.comision)
-    let bonificacion = 0
+  // 2. Normalizar fecha_vencimiento (por si viene como "04-mar-2026")
+  const meses = {
+    ene:'jan', feb:'feb', mar:'mar', abr:'apr', may:'may', jun:'jun',
+    jul:'jul', ago:'aug', sep:'sep', oct:'oct', nov:'nov', dic:'dec'
+  };
+  const vencimientoStr = boletaData.fecha_vencimiento.toLowerCase();
+  const vencimientoNorm = vencimientoStr.replace(/[a-z]{3}/, match => meses[match] || match);
+  const fechaVencimiento = new Date(vencimientoNorm);
 
-    // Aplicar escalas de descuento
-    if (diasTranscurridos >= 0 && diasTranscurridos <= 15) {
-      bonificacion = interesBase * 0.50 // 50% de descuento
-    } else if (diasTranscurridos >= 16 && diasTranscurridos <= 21) {
-      bonificacion = interesBase * 0.25 // 25% de descuento
-    }
+  // 3. Si hoy ya es la fecha de vencimiento o posterior, NO hay bonificación
+  if (hoy >= fechaVencimiento) return 0;
 
-    console.log(`Días restantes: ${diasRestantes}, Interés base: ${interesBase}, Bonificación calculada: ${bonificacion}`)
+  // 4. Calcular DÍAS TRANSCURRIDOS desde la creación
+  // Normalizamos created_at reemplazando el espacio por 'T' para formato ISO compatible
+  const fechaInicio = new Date(boletaData.fecha_boleta.replace(' ', 'T'));
+  const diasTranscurridos = date.getDateDiff(hoy, fechaInicio, 'days');
 
-    return Math.round(bonificacion * 100) / 100
+  // 5. Aplicar lógica de escalas de descuento (Basado en VB6)
+  const interesBase = parseFloat(boletaData.comision);
+  let bonificacion = 0;
+
+  if (diasTranscurridos >= 0 && diasTranscurridos <= 15) {
+    bonificacion = interesBase * 0.50; // 50% de descuento
+  } else if (diasTranscurridos >= 16 && diasTranscurridos <= 21) {
+    bonificacion = interesBase * 0.25; // 25% de descuento
   }
+
+  console.log(`Días transcurridos: ${diasTranscurridos}, Bonificación: ${bonificacion}`);
+
+  return Math.round(bonificacion * 100) / 100;
+}
 
 
 
