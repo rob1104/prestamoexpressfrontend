@@ -164,7 +164,7 @@
     { subtipo: '8K', label: '8 K' }, { subtipo: '10K', label: '10 K' },
     { subtipo: '14K', label: '14 K' }, { subtipo: '18K', label: '18 K' },
     { subtipo: '21K', label: '21 K' }, { subtipo: 'ORO_FINO', label: 'ORO FINO' },
-    { subtipo: 'MEDALLA', label: 'MEDALLA' }
+    { subtipo: 'PLATA', label: 'PLATA' }
   ]
 
   const monedas = [

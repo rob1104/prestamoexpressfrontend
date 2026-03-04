@@ -43,7 +43,7 @@ api.interceptors.response.use(
     // Manejo de sesión expirada (401)
     if (error.response?.status === 401) {
        Notify.create({ type: 'warning', message: 'Sesión expirada' })
-       // Aquí podrías redirigir al login
+
     }
 
     return Promise.reject(error)

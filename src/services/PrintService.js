@@ -27,7 +27,27 @@ export const PrintService = {
 
   async imprimirBoleta(boletaData) {
     try {
-      console.log("Datos recibidos para impresión:", boletaData)
+
+      let opcionesPagoFacil = [];
+
+      if (1 == 1) {
+        const hoy = new Date();
+
+        const calcularFechaSicae = (dias) => {
+          const f = new Date();
+          f.setDate(hoy.getDate() + dias);
+          return f.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })
+                  .replace(/\./g, '').replace(/ /g, '-').toLowerCase();
+        };
+
+        opcionesPagoFacil = [
+          { fecha: calcularFechaSicae(15), monto: boletaData.prestamo * 1.10 }, // 10% a los 15 días [cite: 887, 936]
+          { fecha: calcularFechaSicae(21), monto: boletaData.prestamo * 1.15 }, // 15% a las 3 semanas [cite: 887, 936]
+          { fecha: calcularFechaSicae(30), monto: boletaData.prestamo * 1.20 }  // 20% al mes [cite: 887, 936]
+        ];
+      }
+
+
       const payload = {
         folio: boletaData.id,
         // Concatenamos ID y Nombre como aparece en el ticket
@@ -41,6 +61,7 @@ export const PrintService = {
         cajero: boletaData.user.name,
         fecha_impresion: boletaData.fecha_impresion_formateada,
         header_custom: ["PRESTAMO EXPRESS", "MATRIZ"],
+        pago_facil: opcionesPagoFacil
       };
 
       console.log("Payload a enviar al puente de impresión:", payload)

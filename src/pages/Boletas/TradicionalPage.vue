@@ -30,7 +30,6 @@
                   { label:'30 DIAS', value:30 },
                   { label:'15 DIAS', value:15 },
                   { label:'07 DIAS', value:7 },
-                  { label:'1 DIA', value:1 },
                 ]"
                 outlined dense map-options emit-value
                 bg-color="white"
@@ -263,16 +262,31 @@
 
 
   const cotizacionesActuales = ref({
-    '8K': 130, '10K': 150, '14K': 250, '18K': 360, '21K': 430, 'ORO_FINO': 0, 'MEDALLA': 0,
+    '8K': 130, '10K': 150, '14K': 250, '18K': 360, '21K': 430, 'ORO_FINO': 0, 'PLATA': 0,
     'M2': 768, 'M25': 912, 'M5': 1776, 'M10': 3600, 'M20': 7200, 'M50': 18000
   })
 
   const calcularVencimiento = () => {
+    // 1. ASIGNAR TASA SEGÚN EL PLAZO
+    if (form.value.plazo_dias === 7) form.value.p_interes = 5.00
+    else if (form.value.plazo_dias === 15) form.value.p_interes = 10.00
+    else if (form.value.plazo_dias === 30) form.value.p_interes = 20.00
+
+    // 2. CALCULAR FECHAS [cite: 3, 5]
     const promo = promocionesOptions.value.find(p => p.value === form.value.promocion_id)
     const diasExtra = promo ? promo.dias_regalo : 0
+
+
     const fe = new Date(form.value.fecha_boleta)
     const fv = date.addToDate(fe, { days: form.value.plazo_dias + diasExtra })
     form.value.fecha_vencimiento = fechaFormateada(fv)
+    form.value.fecha_vencimiento_raw =  fv.toISOString().split('T')[0] // Formato YYYY-MM-DD para backend
+
+    onValuacionUpdate({
+      partidas: form.value.partidas,
+      totalPrestamo: form.value.prestamo,
+      esValido: valuacionEsValida.value
+    })
   }
 
   const onValuacionUpdate = (data) => {
@@ -307,7 +321,7 @@
   }
 
   const saveBoleta = async () => {
-    if (!form.value.no_bolsa) {
+    if (form.value.no_bolsa === null || form.value.no_bolsa === undefined || form.value.no_bolsa === '') {
       $q.notify({ type: 'warning', message: 'El Número de Bolsa es requerido.' });
       return;
     }
@@ -439,7 +453,7 @@
       '18K': getPrecio(g, '18K'),
       '21K': getPrecio(g, '21K'),
       'ORO_FINO': getPrecio(g, 'ORO FINO') || getPrecio(g, 'ORO_FINO'),
-      'MEDALLA': getPrecio(g, 'MEDALLA'),
+      'PLATA': getPrecio(g, 'PLATA'),
 
       // MONEDAS: He puesto varias opciones de búsqueda por si en tu BD se llaman diferente
       // (ej. si guardaste "2 PESOS" en lugar de "M2")

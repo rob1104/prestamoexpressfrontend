@@ -44,6 +44,9 @@
               <div class="col-6">
                 <q-input v-model="localForm.telefono2" label="Teléfono 2" outlined dense mask="##########" unmasked-value />
               </div>
+              <div class="col-12">
+                <q-input v-model="localForm.email" label="Correo Electrónico" outlined dense type="email" />
+              </div>
 
               <div class="col-12 text-overline text-primary q-mt-md">Domicilio</div>
               <div class="col-12">

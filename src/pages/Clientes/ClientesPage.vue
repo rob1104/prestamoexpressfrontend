@@ -93,7 +93,7 @@
                 <q-icon name="fingerprint" color="primary" class="q-mr-xs" size="xs" />
                 <span class="text-weight-medium font-mono">{{ props.row.identificacion }}</span>
               </div>
-              <div class="text-caption text-grey-5" style="font-size: 10px;">EXP: #{{ props.row.id }}</div>
+              <div class="text-caption text-purple-5 text-bold" style="font-size: 12px;">No: {{ props.row.id }}</div>
             </div>
           </q-td>
         </template>
@@ -282,7 +282,7 @@
     try {
       // Iniciamos estado de carga global si fuera necesario
       $q.loading.show({
-        message: isEdit.value ? 'Actualizando expediente...' : 'Registrando nuevo cliente...'
+        message: isEdit.value ? 'Actualizando cliente...' : 'Registrando nuevo cliente...'
       })
 
       let response;

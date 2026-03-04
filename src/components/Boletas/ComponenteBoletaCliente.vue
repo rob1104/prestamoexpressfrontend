@@ -70,6 +70,7 @@
                 v-model.number="modelValue.no_bolsa"
                 label="No. de Bolsa"
                 outlined dense type="number"
+                min="0"
                 class="input-premium-compact"
                 input-class="text-weight-bold text-orange-9"
               />
