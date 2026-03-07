@@ -43,7 +43,7 @@
       class="menu-item q-mx-md q-mb-xs"
     >
       <q-item-section avatar>
-        <q-icon name="money" />
+        <q-icon name="payment" />
       </q-item-section>
       <q-item-section class="text-weight-medium">Prestamo en Pagos</q-item-section>
       <q-item-section side v-if="authStore.isAdmin">
@@ -69,6 +69,37 @@
       <q-item-section class="text-weight-medium">Tradicional</q-item-section>
       <q-item-section side v-if="authStore.isAdmin">
         <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
+     <q-item
+      v-if="authStore.can('ver boletas')"
+      clickable
+      v-ripple
+      to="/movimientostpagos"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="credit_score" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Pagos</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
+    <q-item
+      v-if="authStore.can('cierre diario')"
+      clickable
+      v-ripple to="/operaciones/cierre"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs">
+      <q-item-section avatar>
+        <q-icon name="lock_clock" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label class="text-weight-bold">Cierre Diario</q-item-label>
       </q-item-section>
     </q-item>
 

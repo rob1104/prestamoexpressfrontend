@@ -129,9 +129,12 @@
   import BoletaDashboardStats from 'components/Boletas/BoletaDashboardStats.vue'
   import BoletaValuacionElectronicos from 'components/Boletas/ComponenteValuacionElectronicos.vue'
 
+  import { useCierreGuard } from 'src/composable/useCierreGuard'
+
+  const { bloqueado, checkCierre } = useCierreGuard()
+
   const clasificacionActual = ref('NUEVO')
   const cotizacionesDB = ref([])
-
 
   const clientStats = ref({})
   const hasSelectedClient = ref(false)
@@ -321,6 +324,11 @@
   }
 
   const saveBoleta = async () => {
+    if (bloqueado.value) {
+      $q.notify({ type: 'negative', message: 'No se puede guardar. El sistema está bloqueado por cierres pendientes.' });
+      return;
+    }
+
     if (form.value.no_bolsa === null || form.value.no_bolsa === undefined || form.value.no_bolsa === '') {
       $q.notify({ type: 'warning', message: 'El Número de Bolsa es requerido.' });
       return;
@@ -492,6 +500,7 @@
   }
 
   onMounted(() => {
+    checkCierre()
     cargarParametrosSistema()
     cargarPromociones()
     cargarCotizacionesOro()

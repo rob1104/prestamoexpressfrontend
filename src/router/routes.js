@@ -12,17 +12,18 @@ const routes = [
       { path: 'boletastradicional', component: () => import('pages/Boletas/TradicionalPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas'} },
       { path: 'boletaspagos', component: () => import('pages/Boletas/PagosPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas'} },
       { path: 'movimientostradicional', component: () => import('pages/Boletas/MovimientosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
+      { path: 'movimientostpagos', component: () => import('pages/Boletas/MovimientosPagosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
+      { path: '/operaciones/cierre', component: () => import('pages/Cierre/ProcesarCierrePage.vue'), meta: { requiresAuth: true, permission: 'cierre diario'} },
       { path: 'config', children: [
         { path: 'cotizacionoro', component: () => import('pages/Cotizaciones/OroPage.vue'), meta: { requiresAuth: true, permission: 'configurar cotizacion oro'} },
         { path: 'parametros', component: () => import('pages/Cotizaciones/ParametrosPage.vue'), meta: { requiresAuth: true, permission: 'configurar parametros'} },
-      ]}
+      ]},
     ]
   },
   {
     path: '/403',
     name: 'forbidden',
     component: () => import('pages/Error403.vue')
-
   },
 
   // Always leave this as last one,

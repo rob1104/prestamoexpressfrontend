@@ -156,6 +156,21 @@
                 dense
               />
             </div>
+
+            <div class="col-12 col-md-3">
+              <q-input
+                v-model="form.generales.hora_cierre"
+                label="Hora de Cierre"
+                type="time"
+                hint="Hora para advertencia de cierre anticipado"
+                outlined
+                dense>
+                  <template v-slot:prepend>
+                      <q-icon name="access_time" color="primary" />
+                  </template>
+              </q-input>
+            </div>
+
             <div class="col-12 col-md-4">
               <div class="row q-col-gutter-sm items-center">
                 <div class="col-auto text-caption">Salidas de Cartera:</div>
@@ -367,6 +382,8 @@
       salida_cartera_de: 'DOM',
       salida_cartera_a: 'SAB',
       min_pago_facil: 400.00,
+      hora_cierre: '18:00:00',
+       // Campos para separación de comisiones internas
     },
     comisiones: [],
     recargos: []
