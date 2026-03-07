@@ -204,8 +204,7 @@
   import { useQuasar, date } from 'quasar'
 
   import CalendarioPagosDialog from 'components/Boletas/CalendarioPagos.vue'
-  import DenominacionesDialog from 'components/DenominacionesDialog.vue'
-
+  import DenominacionesDialog from 'components/Caja/DialogDenominaciones.vue'
 
   const showDenominaciones = ref(false)
 
