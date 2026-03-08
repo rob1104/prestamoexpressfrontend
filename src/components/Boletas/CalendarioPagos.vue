@@ -32,6 +32,14 @@
             </q-td>
           </template>
 
+          <template v-slot:body-selection="scope">
+            <q-checkbox
+              v-model="scope.selected"
+              :disable="scope.row.estatus === 'PAGADO' || scope.row.estatus === 'PA'"
+              color="primary"
+            />
+          </template>
+
           <template v-slot:body-cell-dias_vencidos="props">
             <q-td :props="props">
               <q-badge

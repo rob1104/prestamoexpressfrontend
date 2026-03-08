@@ -195,6 +195,10 @@
   import DialogDenominacion from 'src/components/Caja/DialogDenominaciones.vue'
   import BoletaDashboardStats from 'components/Boletas/BoletaDashboardStats.vue'
 
+  import { useCierreGuard } from 'src/composable/useCierreGuard'
+
+  const { bloqueado, checkCierre } = useCierreGuard()
+
   const $q = useQuasar()
   const hasSelectedClient = ref(false)
   const clientStats = ref({})
@@ -236,6 +240,8 @@
     comision: 0,
     iva_comision: 0,
     total_pagar: 0,
+    fecha_vencimiento: '',
+    fecha_vencimiento_raw: '',
     partidas: []
   })
 
@@ -323,6 +329,7 @@
         tablaAmortizacion.value.push({
             no_pago: `${String(i).padStart(2, '0')}/${String(periodos).padStart(2, '0')}`,
             fecha_vencimiento: date.formatDate(fechaCiclo, 'DD-MMM-YYYY').toLowerCase(),
+            fecha_vencimiento_raw: date.formatDate(fechaCiclo, 'YYYY-MM-DD'),
             dia: nombresDias[fechaCiclo.getDay()],
             saldo_inicial: saldo,
             capital: capital,
@@ -343,7 +350,10 @@
     form.value.total_pagar = prestamo + form.value.comision;
 
     if (tablaAmortizacion.value.length > 0) {
-        form.value.fecha_vencimiento = tablaAmortizacion.value[tablaAmortizacion.value.length - 1].fecha_vencimiento;
+        const ultimoRenglon = tablaAmortizacion.value[tablaAmortizacion.value.length - 1];
+        form.value.fecha_vencimiento = ultimoRenglon.fecha_vencimiento;
+        // Agregamos este campo al formulario para que viaje al servidor
+        form.value.fecha_vencimiento_raw = ultimoRenglon.fecha_vencimiento_raw;
     }
 
   }
@@ -388,7 +398,13 @@
   const onClasificacionChange = () => {}
 
   const saveBoleta = () => {
-    if (!form.value.no_bolsa) {
+
+    if (bloqueado.value) {
+      $q.notify({ type: 'negative', message: 'No se puede guardar. El sistema está bloqueado por cierres pendientes.' });
+      return;
+    }
+
+    if (form.value.no_bolsa === null || form.value.no_bolsa === undefined || form.value.no_bolsa === '') {
       $q.notify({ type: 'warning', message: 'El Número de Bolsa es requerido.' });
       return;
     }
@@ -420,10 +436,11 @@
       const res = await api.post('/api/boletas', payload)
       const boletaGuardada = res.data.boleta
       idReciente.value = boletaGuardada.id
+      const calendarioGenerado = res.data.pagos
 
       // 2. Imprimimos el ticket
       try {
-        await PrintService.imprimirBoleta(boletaGuardada)
+        await PrintService.imprimirBoleta(boletaGuardada, calendarioGenerado)
       } catch (e) {
         $q.notify({ type: 'warning', message: 'Impresión fallida, pero boleta guardada.' });
       }
@@ -439,7 +456,7 @@
           cancel: 'NO',
           persistent: true
         }).onOk(async () => {
-          await PrintService.imprimirBoleta(boletaGuardada);
+          await PrintService.imprimirBoleta(boletaGuardada, calendarioGenerado);
           resolve();
         }).onCancel(() => resolve())
       })
@@ -602,6 +619,7 @@
   }
 
   onMounted(() => {
+    checkCierre()
     cargarParametrosSistema()
     cargarPromociones()
     cargarCotizacionesOro()

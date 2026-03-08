@@ -278,11 +278,15 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   import { date, useQuasar } from 'quasar'
   import { api } from 'boot/axios'
   import { PrintService } from 'src/services/PrintService'
   import DialogoDesgloseCobro from 'src/components/Caja/DialogoDesgloseCobro.vue'
+
+  import { useCierreGuard } from 'src/composable/useCierreGuard'
+
+  const { bloqueado, checkCierre } = useCierreGuard()
 
   const $q = useQuasar()
 
@@ -528,50 +532,55 @@
   const resetModulo = () => window.location.reload()
 
   const calcularBonificacionNC = (boletaData) => {
-  // 1. Validaciones iniciales de datos
+    // 1. Validaciones iniciales de datos
 
-console.log("Calculando bonificación NC para boleta:", boletaData)
+    console.log("Calculando bonificación NC para boleta:", boletaData)
 
-  if (!boletaData.fecha_boleta || !boletaData.fecha_vencimiento) return 0;
+    if (!boletaData.fecha_boleta || !boletaData.fecha_vencimiento) return 0;
 
-  const hoy = new Date();
+    const hoy = new Date();
 
-  // 2. Normalizar fecha_vencimiento (por si viene como "04-mar-2026")
-  const meses = {
-    ene:'jan', feb:'feb', mar:'mar', abr:'apr', may:'may', jun:'jun',
-    jul:'jul', ago:'aug', sep:'sep', oct:'oct', nov:'nov', dic:'dec'
-  };
-  const vencimientoStr = boletaData.fecha_vencimiento.toLowerCase();
-  const vencimientoNorm = vencimientoStr.replace(/[a-z]{3}/, match => meses[match] || match);
-  const fechaVencimiento = new Date(vencimientoNorm);
+    // 2. Normalizar fecha_vencimiento (por si viene como "04-mar-2026")
+    const meses = {
+      ene:'jan', feb:'feb', mar:'mar', abr:'apr', may:'may', jun:'jun',
+      jul:'jul', ago:'aug', sep:'sep', oct:'oct', nov:'nov', dic:'dec'
+    };
+    const vencimientoStr = boletaData.fecha_vencimiento.toLowerCase();
+    const vencimientoNorm = vencimientoStr.replace(/[a-z]{3}/, match => meses[match] || match);
+    const fechaVencimiento = new Date(vencimientoNorm);
 
-  // 3. Si hoy ya es la fecha de vencimiento o posterior, NO hay bonificación
-  if (hoy >= fechaVencimiento) return 0;
+    // 3. Si hoy ya es la fecha de vencimiento o posterior, NO hay bonificación
+    if (hoy >= fechaVencimiento) return 0;
 
-  // 4. Calcular DÍAS TRANSCURRIDOS desde la creación
-  // Normalizamos created_at reemplazando el espacio por 'T' para formato ISO compatible
-  const fechaInicio = new Date(boletaData.fecha_boleta.replace(' ', 'T'));
-  const diasTranscurridos = date.getDateDiff(hoy, fechaInicio, 'days');
+    // 4. Calcular DÍAS TRANSCURRIDOS desde la creación
+    // Normalizamos created_at reemplazando el espacio por 'T' para formato ISO compatible
+    const fechaInicio = new Date(boletaData.fecha_boleta.replace(' ', 'T'));
+    const diasTranscurridos = date.getDateDiff(hoy, fechaInicio, 'days');
 
-  // 5. Aplicar lógica de escalas de descuento (Basado en VB6)
-  const interesBase = parseFloat(boletaData.comision);
-  let bonificacion = 0;
+    // 5. Aplicar lógica de escalas de descuento (Basado en VB6)
+    const interesBase = parseFloat(boletaData.comision);
+    let bonificacion = 0;
 
-  if (diasTranscurridos >= 0 && diasTranscurridos <= 15) {
-    bonificacion = interesBase * 0.50; // 50% de descuento
-  } else if (diasTranscurridos >= 16 && diasTranscurridos <= 21) {
-    bonificacion = interesBase * 0.25; // 25% de descuento
+    if (diasTranscurridos >= 0 && diasTranscurridos <= 15) {
+      bonificacion = interesBase * 0.50; // 50% de descuento
+    } else if (diasTranscurridos >= 16 && diasTranscurridos <= 21) {
+      bonificacion = interesBase * 0.25; // 25% de descuento
+    }
+
+    console.log(`Días transcurridos: ${diasTranscurridos}, Bonificación: ${bonificacion}`);
+
+    return Math.round(bonificacion * 100) / 100;
   }
-
-  console.log(`Días transcurridos: ${diasTranscurridos}, Bonificación: ${bonificacion}`);
-
-  return Math.round(bonificacion * 100) / 100;
-}
-
 
 
   // 1. Esta función ahora solo revisa el importe y ABRE EL COMPONENTE
   const confirmarPago = () => {
+
+    if (bloqueado.value) {
+      $q.notify({ type: 'negative', message: 'No se puede guardar. El sistema está bloqueado por cierres pendientes.' });
+      return;
+    }
+
     if (movimientosPorRealizar.value.length === 0) return
 
     // Validamos que el importe capturado sea suficiente
@@ -629,7 +638,6 @@ console.log("Calculando bonificación NC para boleta:", boletaData)
             timeout: 4000
           })
         }
-
       }
 
       $q.loading.hide()
@@ -671,6 +679,11 @@ console.log("Calculando bonificación NC para boleta:", boletaData)
       $q.loading.hide()
     }
   }
+
+  onMounted(() => {
+    checkCierre()
+  })
+
 </script>
 
 <style lang="scss" scoped>

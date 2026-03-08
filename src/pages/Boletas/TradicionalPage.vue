@@ -53,7 +53,7 @@
             <div class="text-caption text-weight-bold q-mr-sm text-primary uppercase">Cotización de Oro:</div>
             <q-select
               v-model="clasificacionActual"
-              :options="['CLIENTE NUEVO', 'BUEN CLIENTE', 'EXCELENTE CLIENTE', 'COMPRA']"
+              :options="['NUEVO', 'BUENO', 'EXCELENTE', 'NUEVO']"
               outlined dense bg-color="blue-1" class="col-4"
               @update:model-value="onClasificacionChange"
             >
@@ -382,15 +382,41 @@
 
       // Aviso de Folio
       $q.dialog({
-        title: '<div class="text-orange text-h4 text-weight-bolder">FOLIO ASIGNADO</div>',
         message: `
-          <div class="text-center">
-            <div class="text-h2 text-orange text-weight-bolder q-my-md">${boletaGuardada.id}</div>
-            <div class="text-h4 text-grey-9">$ ${boletaGuardada.prestamo}</div>
+          <div class="text-center q-pa-xl" style="background-color: #f0f0f0; border: 2px solid #fff; min-height: 500px; display: flex; flex-direction: column; justify-content: center;">
+            <div class="text-weight-bolder text-orange-9 q-mb-md" style="font-size: 3.5rem; line-height: 1;">
+              PRESTAMO TRADICIONAL
+            </div>
+
+            <div class="text-h5 text-grey-10 text-weight-medium">
+              El Número de Folio asignado a la Boleta es
+            </div>
+
+            <div class="text-weight-bolder text-orange-9 q-my-md" style="font-size: 7rem; line-height: 1;">
+              ${boletaGuardada.id}
+            </div>
+
+            <div class="text-h4 text-grey-10 text-weight-medium">
+              Importe del Préstamo
+            </div>
+
+            <div class="text-weight-bolder text-orange-9 q-mt-sm" style="font-size: 5rem; line-height: 1;">
+              $ ${formatMoney(boletaGuardada.prestamo)}
+            </div>
           </div>
         `,
         html: true,
-        ok: { label: 'Aceptar', color: 'grey-4', textColor: 'black' }
+        cardStyle: 'min-width: 900px; max-width: 95vw; border: 3px solid #000080; padding: 0;',
+        // Configuración del botón para que parezca de Windows clásico
+        ok: {
+          label: 'Aceptar',
+          color: 'grey-4',
+          textColor: 'black',
+          unelevated: false,
+          square: true,
+          style: 'border: 1px solid #777; width: 120px; font-size: 1.2rem; text-transform: none;'
+        },
+        persistent: true
       }).onOk(() => dialogoDenominacionRef.value.show())
 
     } catch (e) {
@@ -399,6 +425,12 @@
       $q.loading.hide()
     }
   }
+
+  const formatMoney = (val) =>
+    Number(val || 0).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+  })
 
   const onDenominacionFinalizada = async (data) => {
     try {
@@ -486,7 +518,7 @@
         await api.patch(`/api/clientes/${form.value.cliente_id}/clasificacion`, {
           clasificacion: nuevaClasificacion
         })
-        $q.notify({ type: 'positive', message: `Perfil actualizado a: ${nuevaClasificacion}`, position: 'top-right' })
+        $q.notify({ type: 'positive', message: `Perfil actualizado a: ${nuevaClasificacion}` })
       } catch (e) {
         $q.notify({ type: 'negative', message: 'Error al actualizar clasificación del cliente' })
       }

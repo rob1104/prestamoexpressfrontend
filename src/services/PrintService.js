@@ -25,7 +25,7 @@ export const PrintService = {
     }
   },
 
-  async imprimirBoleta(boletaData) {
+  async imprimirBoleta(boletaData, calendario = []) {
     try {
 
       let opcionesPagoFacil = [];
@@ -61,7 +61,9 @@ export const PrintService = {
         cajero: boletaData.user.name,
         fecha_impresion: boletaData.fecha_impresion_formateada,
         header_custom: ["PRESTAMO EXPRESS", "MATRIZ"],
-        pago_facil: opcionesPagoFacil
+        pago_facil: opcionesPagoFacil,
+        calendario: calendario,
+        tipo_prestamo: boletaData.tipo_prestamo,
       };
 
       console.log("Payload a enviar al puente de impresión:", payload)
@@ -111,9 +113,6 @@ export const PrintService = {
     }
   },
 
-  /**
-   * Imprime el comprobante secundario de Bonificación por Pago Anticipado
-   */
   async imprimirTicketBonificacion(ticketdata) {
 
     const authStore = useAuthStore()
@@ -155,9 +154,6 @@ export const PrintService = {
     }
   },
 
-  /**
-   * Imprime un comprobante de liquidación / desempeño
-   */
   async imprimirTicketLiquidacion(ticketdata) {
     const authStore = useAuthStore()
 
@@ -166,8 +162,6 @@ export const PrintService = {
          day: '2-digit', month: 'short', year: 'numeric',
          hour: '2-digit', minute: '2-digit'
     })
-
-
 
     const payload = {
       logo_url: null,
@@ -200,6 +194,37 @@ export const PrintService = {
     } catch (error) {
       console.error("Error al imprimir liquidación:", error)
       throw new Error(error.response?.data?.message || 'Error de comunicación con la impresora térmica.')
+    }
+  },
+
+  async imprimirTicketPago(boleta, pagos, calculos, efectivo, proximo) {
+    const payload = {
+      accion: "PAGO_BOLETA",
+      boleta: {
+        id: boleta.id,
+        cliente: boleta.cliente.nombre,
+        fecha_boleta: boleta.fecha_boleta,
+        fecha_vencimiento: boleta.fecha_vencimiento,
+        prestamo: boleta.prestamo
+      },
+      pagos: pagos,         // Array de cuotas seleccionadas (num_pago, monto, etc)
+      calculos: calculos,   // Interes, recargos, bonificacion, total
+      efectivo: efectivo,   // Recibido y cambio
+      logo_url: null,
+      proximo_pago: proximo, // Información del próximo pago para el ticket
+      config: {
+        linea_01: 'PRESTAMO EXPRESS',
+        linea_02: 'MATRIZ',
+      },
+    };
+
+    try {
+      // Enviamos el objeto completo al bridge que ya tienes configurado
+      await axios.post("http://localhost:5000/print_ticket_movimiento_pago", payload);
+      return true;
+    } catch (error) {
+      console.error("Error al enviar datos de pago a la impresora:", error);
+      return false;
     }
   }
 }

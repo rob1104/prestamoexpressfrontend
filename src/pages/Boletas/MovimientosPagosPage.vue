@@ -32,6 +32,7 @@
           <div class="col-12 col-md-3 row items-center no-wrap">
             <div class="label-fixed-mov text-weight-bold q-mr-xs">Folio Boleta:</div>
             <q-input
+              autofocus
               v-model="busquedaFolio"
               outlined dense
               placeholder="Escriba Folio + ENTER"
@@ -44,7 +45,7 @@
             </q-input>
           </div>
           <div class="col-12 col-md-6 text-caption text-grey-8 italic">
-            * Busque un folio vigente para realizar refrendos, liquidaciones o abonos a capital.
+            * Busque un folio vigente para realizar pagos, refrendos, liquidaciones o abonos a capital. La boleta debe ser tipo "Pagos"
           </div>
         </div>
       </q-card-section>
@@ -180,13 +181,52 @@
             </div>
           </q-card-section>
         </q-card>
+        <q-card flat bordered class="q-mt-sm bg-white shadow-2" v-if="pagosRealizados.length > 0">
+          <q-card-section class="bg-blue-grey-8 text-white q-py-xs text-center">
+            <div class="text-caption text-weight-bold uppercase">Pagos Registrados Anteriormente</div>
+          </q-card-section>
+
+          <q-markup-table flat dense bordered square class="table-sicae-mov">
+            <thead class="bg-grey-2">
+              <tr class="text-uppercase">
+                <th class="text-left" style="width: 60px"># Pago</th>
+                <th class="text-left">Fecha de Cobro</th>
+                <th class="text-right">Importe</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="p in pagosRealizados" :key="p.id" class="bg-green-0">
+                <td class="text-weight-bold text-center">#{{ p.num_pago }}</td>
+                <td class="text-caption">
+                  {{ formatFechaSicae(p.fecha_pago) }}
+                </td>
+                <td class="text-right text-weight-bold text-positive">
+                  $ {{ formatMoney(p.monto) }}
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="bg-grey-1 text-weight-bolder">
+              <tr>
+                <td colspan="2" class="text-right">TOTAL ABONADO:</td>
+                <td class="text-right text-primary">
+                  $ {{ formatMoney(pagosRealizados.reduce((acc, curr) => acc + Number(curr.monto), 0)) }}
+                </td>
+              </tr>
+            </tfoot>
+          </q-markup-table>
+        </q-card>
+
+        <q-card flat bordered class="q-mt-sm bg-grey-2 text-grey-7 q-pa-md text-center italic" v-else-if="boleta">
+          La boleta no registra pagos previos.
+        </q-card>
       </div>
     </div>
 
     <DenominacionesDialog
       v-model="showDenominaciones"
-      :total-requerido="calculos.total"
-      @confirmado="finalizarProcesoConEfectivo"
+      :total-pagar="calculos.total"
+      :monto-recibido="pagoRecibido"
+      @confirmar="finalizarProcesoConEfectivo"
     />
 
 
@@ -202,9 +242,14 @@
   import { ref, computed, onMounted, onUnmounted } from 'vue'
   import { api } from 'boot/axios'
   import { useQuasar, date } from 'quasar'
+  import { PrintService } from '../../services/PrintService'
 
   import CalendarioPagosDialog from 'components/Boletas/CalendarioPagos.vue'
-  import DenominacionesDialog from 'components/Caja/DialogDenominaciones.vue'
+  import DenominacionesDialog from 'components/Caja/DialogoDesgloseCobro.vue'
+
+  import { useCierreGuard } from 'src/composable/useCierreGuard'
+
+  const { bloqueado, checkCierre } = useCierreGuard()
 
   const showDenominaciones = ref(false)
 
@@ -216,6 +261,11 @@
   const dialogPagosVisible = ref(false)
   const listaDePagos = ref([])
   const cuotasSeleccionadas = ref([])
+
+  const pagosRealizados = computed(() => {
+    if (!listaDePagos.value) return []
+    return listaDePagos.value.filter(p => p.estatus === 'PA')
+  })
 
   // Desglose financiero (incluido almacenaje si el backend lo separa)
   const calculos = ref({
@@ -268,6 +318,12 @@
 
   // CONFIRMACIÓN DE PAGO (F6)
   const confirmarPago = async () => {
+
+    if (bloqueado.value) {
+      $q.notify({ type: 'negative', message: 'No se puede guardar. El sistema está bloqueado por cierres pendientes.' });
+      return;
+    }
+
     if (!boletaValida.value) return
 
     if (cuotasSeleccionadas.value.length === 0) {
@@ -294,33 +350,72 @@
     })
   }
 
-  const finalizarProcesoConEfectivo = async(dataContador) => {
-    $q.loading.show({ message: 'Registrando movimientos en caja...' })
+  const finalizarProcesoConEfectivo = async (dataContador) => {
+    // 1. Validamos que dataContador no sea nulo (el desglose)
+    if (!dataContador) {
+      $q.notify({ type: 'negative', message: 'Error: No se recibieron datos del contador de billetes.' });
+      return;
+    }
+
+    $q.loading.show({ message: 'Finalizando operación...' });
 
     try {
-      const payload = {
+      // 2. Registro Contable [cite: 3, 4]
+      const payloadPago = {
         boleta_id: boleta.value.id,
-        pagos_ids: cuotasSeleccionadas.value.map(p => p.id), // Los IDs de la tabla calendario_pagos
-        importe_total: calculos.value.total,
-        efectivo_recibido: dataContador.efectivo_recibido,
-        cambio: dataContador.cambio,
-        // Datos para el cierre diario
-        interes: calculos.value.interes,
-        recargos: calculos.value.recargos
+        pagos_ids: cuotasSeleccionadas.value.map(p => p.id),
+        total_pagado: calculos.value.total,
+        total_recibido: dataContador.efectivo_recibido || dataContador.totalContado || 0,
+        interes: calculos.value.interes || 0,
+        recargos: calculos.value.recargos || 0,
+        cambio: dataContador.cambio || 0
+      };
+
+      await api.post('/api/movimientos/registrar-pago', payloadPago);
+
+      // 3. Registro de Caja
+      await api.post(`/api/movimientoscaja/${boleta.value.id}/registrar-efectivo`, {
+        desglose: dataContador.denominaciones || [],
+        total_efectivo: calculos.value.total,
+        tipo: 'ENTRADA'
+      });
+
+      // 4. Búsqueda segura del Próximo Pago [cite: 3, 4]
+      // Validamos que listaDePagos exista para evitar el error "undefined"
+      const proximoPagoObj = listaDePagos.value.find(p =>
+        p.estatus === 'PE' && !cuotasSeleccionadas.value.some(sel => sel.id === p.id)
+      ) || null
+
+      try {
+        // Usamos el nombre exacto que definiste en el archivo de hoy
+        await PrintService.imprimirTicketPago(
+          boleta.value,
+          cuotasSeleccionadas.value,
+          calculos.value,
+          {
+            recibido: payloadPago.total_recibido,
+            cambio: payloadPago.cambio
+          },
+          calculos.value.total,
+          proximoPagoObj
+        )
+      } catch (printErr) {
+        console.warn("El pago se guardó pero la impresora falló:", printErr)
+        $q.notify({ color: 'warning', message: 'Pago guardado. Error al imprimir ticket.' })
       }
 
-      await api.post('/api/movimientos/registrar-pago', payload)
+      // 6. Éxito y Limpieza
+      $q.notify({ type: 'positive', message: '¡Operación completada!' })
+      showDenominaciones.value = false;
+      resetModulo();
 
-      $q.notify({
-        type: 'positive',
-        message: `¡Cobro exitoso! Entregue $${formatMoney(dataContador.cambio)} de cambio.`
-      })
-
-      resetModulo()
     } catch (e) {
-      $q.notify({ type: 'negative', message: 'Error al registrar: ' + e.response?.data?.message })
+      console.error("Error capturado:", e);
+      // Manejo robusto del mensaje de error
+      const mensaje = e.response?.data?.message || e.message || "Error desconocido en el proceso";
+      $q.notify({ type: 'negative', message: 'Error: ' + mensaje });
     } finally {
-      $q.loading.hide()
+      $q.loading.hide();
     }
   }
 
@@ -348,7 +443,13 @@
     if (e.key === 'F7') { e.preventDefault(); resetModulo(); }
   }
 
-  onMounted(() => window.addEventListener('keydown', handleKeys))
+
+  onMounted(() => {
+    checkCierre()
+    window.addEventListener('keydown', handleKeys)
+  })
+
+
   onUnmounted(() => window.removeEventListener('keydown', handleKeys))
 </script>
 

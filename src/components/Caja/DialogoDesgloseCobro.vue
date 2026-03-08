@@ -165,11 +165,12 @@ const cerrar = () => {
 const confirmarEnvio = () => {
   if (diferencia.value !== 0) return
 
-  let desgloseLimpio = []
+  // Definimos el arreglo que contendrá TODO el desglose físico
+  const desgloseLimpio = []
 
-  // Mapeamos los billetes al formato que Laravel espera
+  // 1. Mapeamos BILLETES (Asumiendo que tienes conteo.billetes)
   Object.entries(conteo.billetes).forEach(([val, cant]) => {
-    if(cant > 0) {
+    if (Number(cant) > 0) {
       desgloseLimpio.push({
         label: `Billete $${val}`,
         valor: Number(val),
@@ -179,11 +180,12 @@ const confirmarEnvio = () => {
     }
   })
 
-  // Mapeamos las monedas al formato que Laravel espera
+  // 2. Mapeamos MONEDAS
   Object.entries(conteo.monedas).forEach(([val, cant]) => {
-    if(cant > 0) {
+    if (Number(cant) > 0) {
       desgloseLimpio.push({
-        label: val == 0.50 ? `Moneda 50 Centavos` : `Moneda $${val}`,
+        // Corregimos la comparación: val suele ser String al venir de Object.entries
+        label: Number(val) < 1 ? `${val * 100} Centavos` : `Moneda $${val}`,
         valor: Number(val),
         cantidad: Number(cant),
         subtotal: Number(val) * Number(cant)
@@ -191,7 +193,13 @@ const confirmarEnvio = () => {
     }
   })
 
-  emit('confirmar', desgloseLimpio)
+  // 3. EMITIMOS UN OBJETO (No solo el arreglo)
+  // Esto permite que el padre encuentre 'denominaciones' y 'efectivo_recibido'
+  emit('confirmar', {
+    denominaciones: desgloseLimpio,       // El arreglo para MovimientoCajaController
+    efectivo_recibido: totalDinero.value, // Para BoletaMovimientoPagoController
+    cambio: 0         // Para el registro y ticket
+  })
 }
 
 // Atajos de teclado
