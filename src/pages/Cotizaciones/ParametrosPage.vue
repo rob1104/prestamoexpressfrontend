@@ -83,11 +83,30 @@
             <div class="col-12 col-md-3">
               <q-input v-model="form.generales.telefono_1" label="Teléfono 1" outlined dense mask="(###) ###-####" unmasked-value />
             </div>
-            <div class="col-12 col-md-3">
+           <div class="col-12 col-md-3">
               <q-input v-model="form.generales.telefono_2" label="Teléfono 2" outlined dense mask="(###) ###-####" unmasked-value />
             </div>
 
+            <q-separator class="col-12 q-mt-md q-mb-sm" />
+            <div class="col-12 text-subtitle2 text-primary text-uppercase text-weight-bold">
+              <q-icon name="gavel" class="q-mr-xs"/> Datos para Contrato (PROFECO)
+            </div>
+
+            <div class="col-12 col-md-4">
+              <q-input v-model="form.generales.email" label="Correo Electrónico" outlined dense type="email" />
+            </div>
+            <div class="col-12 col-md-8">
+              <q-input v-model="form.generales.horario_atencion" label="Horario de Atención" outlined dense hint="Ej: LUN A VIE DE 9:00 A 18:00 HRS" class="text-uppercase" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.generales.adhesion_num" label="Número de Adhesión PROFECO" outlined dense class="text-uppercase" />
+            </div>
+            <div class="col-12 col-md-6">
+              <q-input v-model="form.generales.adhesion_fecha" label="Fecha de Adhesión PROFECO" outlined dense type="date" />
+            </div>
             <q-separator class="col-12 q-my-sm" />
+
+
 
             <div class="col-6 col-md-2">
               <q-input v-model.number="form.generales.p_comision" label="% Comisión" outlined dense suffix="%" color="indigo" />
@@ -383,6 +402,10 @@
       salida_cartera_a: 'SAB',
       min_pago_facil: 400.00,
       hora_cierre: '18:00:00',
+      adhesion_fecha: '',
+      adhesion_num: '',
+      email: '',
+      horario_atencion: '',
        // Campos para separación de comisiones internas
     },
     comisiones: [],

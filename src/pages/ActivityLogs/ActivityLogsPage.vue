@@ -39,9 +39,7 @@
         row-key="id"
         :loading="loading"
         :filter="filter"
-        flat
-
-      >
+        flat>
         <template v-slot:top-right>
           <q-input v-model="filter" placeholder="Filtrar por usuario o módulo..." outlined dense class="search-input" bg-color="white">
             <template v-slot:append><q-icon name="search" /></template>

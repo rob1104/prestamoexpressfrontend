@@ -14,6 +14,23 @@
       <q-item-section class="text-weight-medium">Panel Principal</q-item-section>
     </q-item>
 
+
+
+    <q-item
+      v-if="authStore.can('ver boletas')"
+      clickable
+      v-ripple
+      to="/boletas"
+      active-class="menu-item-active"
+      exact
+      class="menu-item q-mx-md q-mb-sm"
+    >
+      <q-item-section avatar>
+        <q-icon name="local_activity" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Gestión de Boletas</q-item-section>
+    </q-item>
+
      <q-item-label header class="text-uppercase text-weight-bolder text-grey-6 letter-spacing-1">
       Nuevo
     </q-item-label>

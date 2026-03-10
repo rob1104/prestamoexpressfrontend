@@ -9,6 +9,7 @@ const routes = [
       { path: 'roles', component: () => import('pages/Usuarios/RolesPage.vue'), meta: { requiresAuth: true, permission: 'ver roles'} },
       { path: 'logs', component: () => import('pages/ActivityLogs/ActivityLogsPage.vue'), meta: { requiresAuth: true, permission: 'ver logs'} },
       { path: 'clientes', component: () => import('pages/Clientes/ClientesPage.vue'), meta: { requiresAuth: true, permission: 'ver clientes'} },
+      { path: 'boletas', component: () => import('pages/Boletas/GestionBoletas.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
       { path: 'boletastradicional', component: () => import('pages/Boletas/TradicionalPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas'} },
       { path: 'boletaspagos', component: () => import('pages/Boletas/PagosPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas'} },
       { path: 'movimientostradicional', component: () => import('pages/Boletas/MovimientosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },

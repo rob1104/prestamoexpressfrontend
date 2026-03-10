@@ -84,7 +84,7 @@
             </q-card>
 
             <div class="text-center q-mt-lg text-white opacity-70 text-caption">
-              © 2026 SICAE - Todos los derechos reservados - Versión 0.0.5
+              © 2026 SICAE - Todos los derechos reservados - Versión 0.0.6
             </div>
           </div>
         </div>
@@ -151,7 +151,7 @@ const onSubmit = async () => {
 .login-btn {
   font-weight: 700;
   letter-spacing: 0.5px;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   background: linear-gradient(45deg, #1e3a8a, #3b82f6);
 
   &:hover {
