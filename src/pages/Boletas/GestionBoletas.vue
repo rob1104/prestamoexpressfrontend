@@ -105,6 +105,7 @@
         v-model:pagination="paginacion"
         @request="onRequest"
         flat
+        dense
         class="tabla-boletas col custom-scroll"
         table-header-class="bg-grey-1 text-grey-8 text-weight-bolder uppercase"
       >
@@ -432,7 +433,7 @@
 </script>
 
 <style lang="scss" scoped>
-  /* --- ENCABEZADO CORPORATIVO --- */
+
   .border-radius-lg {
     border-radius: 12px;
   }
@@ -461,7 +462,7 @@
       &:hover { background-color: #f4f6f8 !important; }
     }
     :deep(th) { font-size: 0.8rem; letter-spacing: 0.5px; }
-    :deep(td) { padding: 12px 16px; border-bottom: 1px solid #f0f0f0; }
+    :deep(td) { padding: 10px 16px; border-bottom: 1px solid #f0f0f0; }
   }
 
   .font-mono {

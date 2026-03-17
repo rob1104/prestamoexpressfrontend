@@ -187,7 +187,7 @@
   import { date, useQuasar } from 'quasar'
   import { api } from 'boot/axios'
   import { PrintService } from 'src/services/PrintService'
-
+  import { useConfigStore } from '../../stores/config'
   import BoletaClienteHeader from 'components/Boletas/ComponenteBoletaCliente.vue'
   import BoletaValuacionGrid from 'components/Boletas/ComponenteValuacionGrid.vue'
   import BoletaValuacionElectronicos from 'components/Boletas/ComponenteValuacionElectronicos.vue'
@@ -196,6 +196,8 @@
   import BoletaDashboardStats from 'components/Boletas/BoletaDashboardStats.vue'
 
   import { useCierreGuard } from 'src/composable/useCierreGuard'
+
+
 
   const { bloqueado, checkCierre } = useCierreGuard()
 
@@ -217,6 +219,8 @@
 
   const formatMoney = (val) => Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const fechaFormateada = (fecha) => date.formatDate(new Date(fecha), 'DD-MMM-YYYY').toLowerCase()
+
+  const configStore = useConfigStore()
 
   const form = ref({
     cliente_id: null,
@@ -501,21 +505,26 @@
 
   const cargarParametrosSistema = async () => {
     try {
-      const res = await api.get('/api/config/parametros');
-      const data = res.data;
+      const res = await api.get('/api/config/parametros')
+      const data = res.data
 
-      // Actualizamos el estado de referencia
+      configStore.setSucursalInfo({
+        nombre_sucursal: data.generales.nombre_sucursal,
+        telefono_1: data.generales.telefono_1,
+      })
+
+
       configSistema.value = {
         p_interes: parseFloat(data.generales.p_comision),
         iva_tasa: parseFloat(data.generales.p_iva) / 100
       };
 
-      // Aplicamos los valores iniciales al formulario
-      form.value.p_interes = configSistema.value.p_interes;
+
+      form.value.p_interes = configSistema.value.p_interes
 
     } catch (e) {
       console.error("Error al cargar configuración:", e);
-      $q.notify({ type: 'warning', message: 'Usando configuración de respaldo.' });
+      $q.notify({ type: 'warning', message: 'Usando configuración de respaldo.' })
     }
   }
 

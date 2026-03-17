@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { useAuthStore } from 'src/stores/auth'
+import { useConfigStore } from 'src/stores/config'
 
 export const PrintService = {
   async imprimirTicketPruebaPython() {
@@ -47,6 +48,10 @@ export const PrintService = {
         ];
       }
 
+      const configStore = useConfigStore()
+      let sucursal_aux = configStore.nombre_sucursal || 'PRESTAMO EXPRESS S/N'
+      const [sucursal, ...resto] = sucursal_aux.trim().split(" ").reverse()
+      const nombre = resto.reverse().join(" ")
 
       const payload = {
         folio: boletaData.id,
@@ -60,13 +65,11 @@ export const PrintService = {
         caja: "CAJA 01",
         cajero: boletaData.user.name,
         fecha_impresion: boletaData.fecha_impresion_formateada,
-        header_custom: ["PRESTAMO EXPRESS", "MATRIZ"],
+        header_custom: [nombre, sucursal],
         pago_facil: opcionesPagoFacil,
         calendario: calendario,
         tipo_prestamo: boletaData.tipo_prestamo,
       };
-
-      console.log("Payload a enviar al puente de impresión:", payload)
 
       await axios.post('http://localhost:5000/print_ticket_tradicional', payload);
     } catch (error) {
@@ -75,6 +78,12 @@ export const PrintService = {
   },
 
   async imprimirTicketRefrendo(ticketdata) {
+
+    const configStore = useConfigStore()
+    let sucursal_aux = configStore.nombre_sucursal || 'PRESTAMO EXPRESS S/N'
+    const [sucursal, ...resto] = sucursal_aux.trim().split(" ").reverse()
+    const nombre = resto.reverse().join(" ")
+
     const authStore = useAuthStore()
     const fechaActual = new Date().toLocaleString('es-MX', {
       year: 'numeric', month: '2-digit', day: '2-digit',
@@ -85,8 +94,8 @@ export const PrintService = {
     const payload = {
       logo_url: null,
       empresa: {
-        nombre: 'PRESTAMO EXPRESS',
-        sucursal: 'MATRIZ',
+        nombre: nombre,
+        sucursal: sucursal,
       },
       boleta: ticketdata.folio || 'S/F',
       numero_refrendo: ticketdata.no_pago || 'N/A',
@@ -104,11 +113,10 @@ export const PrintService = {
     }
 
     try {
-      // Enviamos a la nueva ruta en el puerto 5000 (Python)
       const response = await axios.post('http://localhost:5000/print-refrendo', payload)
       return response.data
     } catch (error) {
-      console.error("Error al imprimir refrendo:", error)
+      console.error("Error al imprimir refrendo: ", error)
       throw new Error(error.response?.data?.message || 'Error de comunicación con la impresora térmica.')
     }
   },
@@ -198,6 +206,12 @@ export const PrintService = {
   },
 
   async imprimirTicketPago(boleta, pagos, calculos, efectivo, proximo) {
+    const configStore = useConfigStore()
+
+    let sucursal_aux = configStore.nombre_sucursal || 'PRESTAMO EXPRESS S/N'
+    const [sucursal, ...resto] = sucursal_aux.trim().split(" ").reverse()
+    const nombre = resto.reverse().join(" ")
+
     const payload = {
       accion: "PAGO_BOLETA",
       boleta: {
@@ -211,15 +225,14 @@ export const PrintService = {
       calculos: calculos,   // Interes, recargos, bonificacion, total
       efectivo: efectivo,   // Recibido y cambio
       logo_url: null,
-      proximo_pago: proximo, // Información del próximo pago para el ticket
+      proximo_pago: proximo, // Información del próximo pago para el ticket.
       config: {
-        linea_01: 'PRESTAMO EXPRESS',
-        linea_02: 'MATRIZ',
+        linea_01: nombre,
+        linea_02: sucursal,
       },
     };
 
     try {
-      // Enviamos el objeto completo al bridge que ya tienes configurado
       await axios.post("http://localhost:5000/print_ticket_movimiento_pago", payload);
       return true;
     } catch (error) {

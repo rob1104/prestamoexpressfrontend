@@ -120,6 +120,7 @@
   import { date, useQuasar } from 'quasar'
   import { api } from 'boot/axios'
   import { PrintService } from 'src/services/PrintService'
+  import { useConfigStore } from '../../stores/config'
 
   // Componentes locales
   import BoletaClienteHeader from 'components/Boletas/ComponenteBoletaCliente.vue'
@@ -145,6 +146,8 @@
   const valuacionEsValida = ref(true)
   const dialogoDenominacionRef = ref(null)
   const idReciente = ref(null)
+
+  const configStore = useConfigStore()
 
   const fechaFormateada = (fecha) => {
     const f = new Date(fecha)
@@ -245,8 +248,13 @@
 
   const cargarParametrosSistema = async () => {
     try {
-      const res = await api.get('/api/config/parametros');
-      const data = res.data;
+      const res = await api.get('/api/config/parametros')
+      const data = res.data
+
+       configStore.setSucursalInfo({
+        nombre_sucursal: data.generales.nombre_sucursal,
+        telefono_1: data.generales.telefono_1,
+      })
 
       // Actualizamos el estado de referencia
       configSistema.value = {
@@ -255,11 +263,11 @@
       };
 
       // Aplicamos los valores iniciales al formulario
-      form.value.p_interes = configSistema.value.p_interes;
+      form.value.p_interes = configSistema.value.p_interes
 
     } catch (e) {
       console.error("Error al cargar configuración:", e);
-      $q.notify({ type: 'warning', message: 'Usando configuración de respaldo.' });
+      $q.notify({ type: 'warning', message: 'Usando configuración de respaldo.' })
     }
   }
 

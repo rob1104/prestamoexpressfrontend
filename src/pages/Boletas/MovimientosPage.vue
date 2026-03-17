@@ -619,7 +619,7 @@
         // --- AQUÍ MANDAMOS EL ARREGLO QUE NOS DIO EL COMPONENTE ---
         denominaciones: JSON.stringify(desgloseDenominaciones),
 
-        caja_id: 1 // Asegúrate de mandar el ID de turno correcto
+        caja_id: 1
       }
 
       const res = await api.post(endpointApi, payload)

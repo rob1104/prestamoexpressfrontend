@@ -324,9 +324,20 @@
       ok: { push: true, color: 'negative', label: 'Eliminar' },
       cancel: { flat: true, color: 'grey-8' }
     }).onOk(async () => {
-      const res = await api.delete(`/api/clientes/${row.id}`)
-      $q.notify({ type: 'positive', message: res.data.message })
-      loadData()
+      try {
+        const res = await api.delete(`/api/clientes/${row.id}`)
+        $q.notify({ type: 'positive', message: res.data.message })
+        loadData()
+      }
+      catch (error) {
+        const mensaje = e.response?.data?.message || 'Error al eliminar'
+        $q.notify({
+          type: 'warning', // Usamos amarillo para advertencias de integridad
+          message: mensaje,
+          icon: 'warning',
+          timeout: 3000
+        })
+      }
     })
   }
 
