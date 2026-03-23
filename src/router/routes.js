@@ -19,6 +19,9 @@ const routes = [
         { path: 'cotizacionoro', component: () => import('pages/Cotizaciones/OroPage.vue'), meta: { requiresAuth: true, permission: 'configurar cotizacion oro'} },
         { path: 'parametros', component: () => import('pages/Cotizaciones/ParametrosPage.vue'), meta: { requiresAuth: true, permission: 'configurar parametros'} },
       ]},
+      { path: 'reportes', children: [
+        { path: 'cartera', component: () => import('pages/Reportes/ReporteCarteraPage.vue'), meta: { requiresAuth: true, permission: 'reportes cartera'} },
+      ]},
     ]
   },
   {
