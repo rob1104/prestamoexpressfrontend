@@ -15,7 +15,7 @@
         <q-toolbar-title class="text-weight-bold flex items-center">
           <q-icon name="payments" size="32px" class="q-mr-md text-secondary" />
           <div class="gt-xs">XisCAE <span class="text-weight-light">Web</span></div>
-          <div class="q-ml-md text-caption text-grey-6">Versión 0.0.8</div>
+          <div class="q-ml-md text-caption text-grey-6">Versión 0.0.9</div>
         </q-toolbar-title>
 
         <q-space />

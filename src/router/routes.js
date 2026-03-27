@@ -21,6 +21,7 @@ const routes = [
       ]},
       { path: 'reportes', children: [
         { path: 'cartera', component: () => import('pages/Reportes/ReporteCarteraPage.vue'), meta: { requiresAuth: true, permission: 'reportes cartera'} },
+        { path: 'flujocaja', component: () => import('pages/Reportes/ReporteFlujoCajaPage.vue'), meta: { requiresAuth: true, permission: 'reportes flujo caja'} },
       ]},
     ]
   },

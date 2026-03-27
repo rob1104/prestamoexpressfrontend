@@ -164,6 +164,23 @@
       </q-item-section>
     </q-item>
 
+    <q-item
+      v-if="authStore.can('reportes flujo caja')"
+      clickable
+      v-ripple
+      to="/reportes/flujocaja"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="assessment" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Flujo de Caja</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
     <q-separator class="q-my-md q-mx-lg opacity-30" />
 
      <q-item-label header class="text-uppercase text-weight-bolder text-grey-6 letter-spacing-1">
@@ -262,7 +279,6 @@
     </q-item>
 
 
-
   </q-list>
 </template>
 
@@ -282,7 +298,7 @@ const authStore = useAuthStore()
   .menu-item {
     border-radius: 12px;
     transition: all 0.3s ease;
-    color: #475569; // Slate-600
+    color: #475569;
 
     &:hover {
       background-color: rgba($primary, 0.05);
@@ -312,6 +328,19 @@ const authStore = useAuthStore()
 
   .opacity-30 {
     opacity: 0.3;
+  }
+
+  .border-top-thin {
+    border-top: 1px solid #555;
+    margin-top: 2px;
+    width: 100%;
+  }
+  .border {
+    border: 1px solid #ccc;
+  }
+  .text-caption {
+    font-size: 0.75rem;
+    color: #444;
   }
 }
 </style>
