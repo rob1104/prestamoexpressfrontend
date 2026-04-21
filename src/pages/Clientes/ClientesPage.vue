@@ -77,7 +77,7 @@
                 {{ props.row.nombre.charAt(0) }}
               </q-avatar>
               <div>
-                <div class="text-weight-bolder text-dark">{{ props.row.nombre }}</div>
+                <div class="text-weight-bolder text-dark">{{ props.row.nombre }} {{ props.row.apellido_paterno }} {{ props.row.apellido_materno }}</div>
                 <div class="text-caption text-grey-6 text-uppercase" style="font-size: 0.65rem;">
                   <q-icon name="work" size="10px" /> {{ props.row.ocupacion || 'SIN OCUPACIÓN' }}
                 </div>
@@ -261,6 +261,12 @@
       // Si es NUEVO, inicializamos el objeto con el valor por defecto
       selectedCliente.value = {
         nombre: '',
+        apellido_paterno: '', // Nuevo
+        apellido_materno: '', // Nuevo
+        ocupacion: '',
+        rfc: '',             // Nuevo
+        estado_origen: 'TAMAULIPAS', // Nuevo
+        fecha_nacimiento: '', // Nuevo (Necesario para RFC)
         identificacion: '',
         clasificacion: 'NUEVO', // <--- Esto asegura que el combo empiece aquí
         telefono1: '',

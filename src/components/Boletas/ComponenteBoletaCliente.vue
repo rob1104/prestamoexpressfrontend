@@ -42,6 +42,7 @@
                 ref="selectClienteRef"
                 v-model="selectedCliente"
                 label="Nombre del Cliente (ENTER p/Búsqueda)"
+                :option-label="opt => opt ? `${opt.nombre} ${opt.apellido_paterno || ''} ${opt.apellido_materno || ''}` : ''"
                 outlined dense use-input hide-selected fill-input
                 :options="clientesOptions"
                 @filter="filterClientes"
@@ -133,7 +134,7 @@
                 <q-avatar color="primary" text-color="white" size="xs">{{ c.id }}</q-avatar>
               </q-item-section>
               <q-item-section>
-                <q-item-label class="text-caption text-weight-bold">{{ c.nombre }}</q-item-label>
+                <q-item-label class="text-caption text-weight-bold">{{ c.nombre }} {{ c.apellido_paterno }} {{ c.apellido_materno }}</q-item-label>
                 <q-item-label caption class="text-uppercase" style="font-size: 10px">{{ c.identificacion }}</q-item-label>
               </q-item-section>
             </q-item>
@@ -184,6 +185,10 @@
     // Pre-llenamos el nombre con lo que el usuario ya escribió en el buscador
     nuevoClienteData.value = {
       nombre: searchInput.value || dialogSearchInput.value,
+      apellido_paterno: '',
+      apellido_materno: '',
+      rfc: '',
+      fecha_nacimiento: '',
       clasificacion: 'NUEVO'
     }
     showSearchDialog.value = false // Cerramos el buscador si estaba abierto
@@ -194,14 +199,14 @@
     $q.loading.show({ message: 'Registrando cliente...' })
     try {
       const res = await api.post('/api/clientes', datos)
-      const clienteGuardado = res.data.cliente
+      const c = res.data.cliente
 
       // Lo seleccionamos automáticamente en la boleta
       onClienteSelect({
-        label: clienteGuardado.nombre,
-        value: clienteGuardado.id,
-        identificacion: clienteGuardado.identificacion,
-        ...clienteGuardado
+        label: `${c.nombre} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim(),
+        value: c.id,
+        identificacion: c.identificacion,
+        ...c
       })
 
       showClienteForm.value = false
@@ -281,7 +286,12 @@ const abrirBusquedaAvanzada = async () => {
   const confirmarSeleccion = () => { if (dialogResults.value[activeIndex.value]) seleccionarDesdeDialogo(dialogResults.value[activeIndex.value]) }
 
   const seleccionarDesdeDialogo = (cliente) => {
-    onClienteSelect({ label: cliente.nombre, value: cliente.id, identificacion: cliente.identificacion, ...cliente })
+    onClienteSelect({
+      label: `${cliente.nombre} ${cliente.apellido_paterno || ''} ${cliente.apellido_materno || ''}`.trim(),
+      value: cliente.id,
+      identificacion: cliente.identificacion,
+      ...cliente
+    })
     showSearchDialog.value = false
   }
 
@@ -300,7 +310,12 @@ const abrirBusquedaAvanzada = async () => {
     try {
       const res = await api.get(`/api/clientes/search?search=${val}`)
       update(() => {
-        clientesOptions.value = res.data.map(c => ({ label: c.nombre, value: c.id, identificacion: c.identificacion, ...c }))
+        clientesOptions.value = res.data.map(c => ({
+          label: `${c.nombre} ${c.apellido_paterno || ''} ${c.apellido_materno || ''}`.trim(),
+          value: c.id,
+          identificacion: c.identificacion,
+          ...c
+        }))
       })
     } catch (e) { console.error(e) }
   }

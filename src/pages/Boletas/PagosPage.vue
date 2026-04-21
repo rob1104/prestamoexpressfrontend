@@ -218,7 +218,19 @@
   const nombresDias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
 
   const formatMoney = (val) => Number(val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const fechaFormateada = (fecha) => date.formatDate(new Date(fecha), 'DD-MMM-YYYY').toLowerCase()
+  const fechaFormateada = (fecha) => {
+  if (!fecha) return ''
+  const f = new Date(fecha)
+
+  // Si la fecha es inválida (ej. un string que no puede parsear), evitamos el crash
+  if (isNaN(f.getTime())) return ''
+
+  const res = date.formatDate(f, 'DD-MMM-YYYY', {
+    monthsShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  })
+
+  return res ? res.toLowerCase() : ''
+}
 
   const configStore = useConfigStore()
 
@@ -228,7 +240,7 @@
     categoria_id: 1,
     promocion_id: 1,
     tipo_prestamo: 'pagos', // Etiqueta clave para el backend
-    fecha_boleta: fechaFormateada(new Date()),
+    fecha_boleta: date.formatDate(new Date(), 'YYYY-MM-DD'),
 
     // --- NUEVAS VARIABLES DE PAGOS ---
     meses: 1,
@@ -304,7 +316,7 @@
     let totalIntereses = 0;
 
     // Convertimos la fecha base (hoy) a un objeto manipulable
-    let fechaCiclo = new Date(form.value.fecha_boleta);
+    let fechaCiclo = new Date(form.value.fecha_boleta + 'T00:00:00');
 
     for (let i = 1; i <= periodos; i++) {
         // 1. Calcular la fecha de vencimiento de este pago

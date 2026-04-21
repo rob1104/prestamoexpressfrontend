@@ -150,11 +150,18 @@
   const configStore = useConfigStore()
 
   const fechaFormateada = (fecha) => {
-    const f = new Date(fecha)
-    return date.formatDate(f, 'DD-MMM-YYYY', {
-      monthsShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
-    }).toLowerCase()
-  }
+  if (!fecha) return ''
+  const f = new Date(fecha)
+
+  // Si la fecha es inválida, devolvemos un string vacío en lugar de undefined
+  if (isNaN(f.getTime())) return ''
+
+  const resultado = date.formatDate(f, 'DD-MMM-YYYY', {
+    monthsShort: ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+  })
+
+  return resultado ? resultado.toLowerCase() : ''
+}
 
   const form = ref({
     cliente_id: null,
@@ -162,7 +169,7 @@
     categoria_id: 1,
     promocion_id: 1,
     tipo_prestamo: 'tradicional',
-    fecha_boleta: fechaFormateada(new Date()),
+    fecha_boleta: date.formatDate(new Date(), 'YYYY-MM-DD'),
     fecha_vencimiento: '',
     plazo_dias: 30,
     p_interes: 20.00,
@@ -278,27 +285,29 @@
   })
 
   const calcularVencimiento = () => {
-    // 1. ASIGNAR TASA SEGÚN EL PLAZO
-    if (form.value.plazo_dias === 7) form.value.p_interes = 5.00
-    else if (form.value.plazo_dias === 15) form.value.p_interes = 10.00
-    else if (form.value.plazo_dias === 30) form.value.p_interes = 20.00
+  if (form.value.plazo_dias === 7) form.value.p_interes = 5.00
+  else if (form.value.plazo_dias === 15) form.value.p_interes = 10.00
+  else if (form.value.plazo_dias === 30) form.value.p_interes = 20.00
 
-    // 2. CALCULAR FECHAS [cite: 3, 5]
-    const promo = promocionesOptions.value.find(p => p.value === form.value.promocion_id)
-    const diasExtra = promo ? promo.dias_regalo : 0
+  const promo = promocionesOptions.value.find(p => p.value === form.value.promocion_id)
+  const diasExtra = promo ? promo.dias_regalo : 0
 
+  // JS ahora sí entiende la fecha porque es YYYY-MM-DD
+  // Agregamos T00:00:00 para evitar desfases de zona horaria
+  const fe = new Date(form.value.fecha_boleta + 'T00:00:00')
+  const fv = date.addToDate(fe, { days: form.value.plazo_dias + diasExtra })
 
-    const fe = new Date(form.value.fecha_boleta)
-    const fv = date.addToDate(fe, { days: form.value.plazo_dias + diasExtra })
-    form.value.fecha_vencimiento = fechaFormateada(fv)
-    form.value.fecha_vencimiento_raw =  fv.toISOString().split('T')[0] // Formato YYYY-MM-DD para backend
+  // Guardamos el string bonito para la vista
+  form.value.fecha_vencimiento = fechaFormateada(fv)
+  // Guardamos el valor crudo para el servidor
+  form.value.fecha_vencimiento_raw = date.formatDate(fv, 'YYYY-MM-DD')
 
-    onValuacionUpdate({
-      partidas: form.value.partidas,
-      totalPrestamo: form.value.prestamo,
-      esValido: valuacionEsValida.value
-    })
-  }
+  onValuacionUpdate({
+    partidas: form.value.partidas,
+    totalPrestamo: form.value.prestamo,
+    esValido: valuacionEsValida.value
+  })
+}
 
   const onValuacionUpdate = (data) => {
     form.value.partidas = data.partidas
