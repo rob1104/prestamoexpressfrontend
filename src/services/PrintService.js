@@ -56,7 +56,7 @@ export const PrintService = {
       const payload = {
         folio: boletaData.id,
         // Concatenamos ID y Nombre como aparece en el ticket
-        cliente: `${boletaData.cliente_id} ${boletaData.cliente.nombre}`,
+        cliente: `${boletaData.cliente_id} - ${boletaData.cliente.nombre} ${boletaData.cliente.apellido_paterno || ''} ${boletaData.cliente.apellido_materno || ''}`.trim(),
         fecha: boletaData.fecha_boleta,
         // Importante: Enviar el vencimiento formateado (ej: 26-mar-2026)
         vencimiento: boletaData.fecha_vencimiento,
@@ -106,7 +106,7 @@ export const PrintService = {
       fecha: fechaActual,
       cajero: authStore.user?.name || 'Sistema',
       cliente_id: ticketdata.cliente_id || '000',
-      cliente_nombre: ticketdata.cliente_nombre || 'PÚBLICO GENERAL',
+      cliente_nombre: ticketdata.cliente_nombre + ' ' + ticketdata.cliente_apellido_paterno + ' ' + ticketdata.cliente_apellido_materno || 'PÚBLICO GENERAL',
       bolsa: ticketdata.no_bolsa || 'N/A',
       total_pagado: ticketdata.total_pagado || 0,
       footer_custom: '¡Gracias por su pago!'
@@ -144,7 +144,7 @@ export const PrintService = {
       boleta: ticketdata.folio_contrato || '0000',
       numero_refrendo: ticketdata.numero_refrendo || '1',
       cliente_id: ticketdata.cliente?.id || '000',
-      cliente_nombre: ticketdata.cliente?.nombre || 'PÚBLICO GENERAL',
+      cliente_nombre: ticketdata.cliente?.nombre + ' ' + ticketdata.cliente?.apellido_paterno + ' ' + ticketdata.cliente?.apellido_materno || 'PÚBLICO GENERAL',
 
       // Montos calculados
       subtotal: subtotal,
@@ -182,7 +182,7 @@ export const PrintService = {
 
       // Datos del Cliente y Bolsa
       cliente_id: ticketdata.cliente?.id || '000',
-      cliente_nombre: ticketdata.cliente?.nombre || 'PÚBLICO GENERAL',
+      cliente_nombre: ticketdata.cliente?.nombre + ' ' + ticketdata.cliente?.apellido_paterno + ' ' + ticketdata.cliente?.apellido_materno || 'PÚBLICO GENERAL',
       bolsa: ticketdata.no_bolsa || 'N/A',
       numero_refrendo: ticketdata.numero_refrendo || '1',
 
@@ -216,7 +216,7 @@ export const PrintService = {
       accion: "PAGO_BOLETA",
       boleta: {
         id: boleta.id,
-        cliente: boleta.cliente.nombre,
+        cliente: boleta.cliente.nombre + ' ' + boleta.cliente.apellido_paterno + ' ' + boleta.cliente.apellido_materno,
         fecha_boleta: boleta.fecha_boleta,
         fecha_vencimiento: boleta.fecha_vencimiento,
         prestamo: boleta.prestamo
