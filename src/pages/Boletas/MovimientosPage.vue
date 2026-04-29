@@ -200,12 +200,10 @@
                 text-color="black"
                 class="col-auto btn-aceptar-pago border-accent q-ma-md"
                 :disabled="movimientosPorRealizar.length === 0"
-                @click="confirmarPago"
-
-             >
-        <q-icon name="edit_note" size="32px" color="orange-9" />
-        <div class="text-overline text-weight-bolder line-height-1">Aceptar<br>Pago</div>
-      </q-btn>
+                @click="confirmarPago">
+                  <q-icon name="edit_note" size="32px" color="orange-9" />
+                  <div class="text-overline text-weight-bolder line-height-1">Aceptar<br>Pago</div>
+              </q-btn>
             </div>
 
           </q-card-section>
@@ -389,7 +387,7 @@
 
       boleta.value = {
         id: data.id,
-        cliente_nombre: data.cliente?.nombre || 'N/A',
+        cliente_nombre: data.cliente?.nombre + ' ' + data.cliente?.apellido_paterno + ' ' + data.cliente?.apellido_materno || 'N/A',
         cliente_id: data.cliente_id,
         identificacion: data.cliente?.identificacion || 'SIN IDENTIFICACIÓN',
         dr: 0,

@@ -397,7 +397,8 @@
             cambio: payloadPago.cambio
           },
           calculos.value.total,
-          proximoPagoObj
+          proximoPagoObj,
+          pagosRealizados.value
         )
       } catch (printErr) {
         console.warn("El pago se guardó pero la impresora falló:", printErr)

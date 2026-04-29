@@ -285,6 +285,12 @@
   const recalcularPagosFijos = () => {
     tablaAmortizacion.value = []; // Limpiamos la tabla anterior
 
+    if (form.value.meses >= 1 && form.value.meses <= 3) {
+            form.value.p_interes = 20.00; // Tramo estándar
+        } else if (form.value.meses >= 4 && form.value.meses <= 6) {
+            form.value.p_interes = 16.00; // Tramo con descuento
+        }
+
     let multiplicador = 1;
     let diasAErrojar = 0;
     let mesesASumar = 0;

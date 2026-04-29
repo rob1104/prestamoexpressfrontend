@@ -135,7 +135,7 @@
                 {{ props.row.cliente?.id?.toString() || '??' }}
               </q-avatar>
               <div class="text-weight-bold text-blue-grey-9 text-body2">
-                {{ props.row.cliente ? `${props.row.cliente.nombre}` : 'Desconocido' }}
+                {{ props.row.cliente ? `${props.row.cliente.nombre} ${props.row.cliente.apellido_paterno} ${props.row.cliente.apellido_materno}` : 'Desconocido' }}
               </div>
             </div>
           </q-td>

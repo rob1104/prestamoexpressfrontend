@@ -106,7 +106,7 @@ export const PrintService = {
       fecha: fechaActual,
       cajero: authStore.user?.name || 'Sistema',
       cliente_id: ticketdata.cliente_id || '000',
-      cliente_nombre: ticketdata.cliente_nombre + ' ' + ticketdata.cliente_apellido_paterno + ' ' + ticketdata.cliente_apellido_materno || 'PÚBLICO GENERAL',
+      cliente_nombre: ticketdata.cliente_nombre || 'PÚBLICO GENERAL',
       bolsa: ticketdata.no_bolsa || 'N/A',
       total_pagado: ticketdata.total_pagado || 0,
       footer_custom: '¡Gracias por su pago!'
@@ -143,8 +143,8 @@ export const PrintService = {
       },
       boleta: ticketdata.folio_contrato || '0000',
       numero_refrendo: ticketdata.numero_refrendo || '1',
-      cliente_id: ticketdata.cliente?.id || '000',
-      cliente_nombre: ticketdata.cliente?.nombre + ' ' + ticketdata.cliente?.apellido_paterno + ' ' + ticketdata.cliente?.apellido_materno || 'PÚBLICO GENERAL',
+      cliente_id: ticketdata.cliente_id || '000',
+      cliente_nombre: ticketdata.cliente_nombre || 'PÚBLICO GENERAL',
 
       // Montos calculados
       subtotal: subtotal,
@@ -205,7 +205,7 @@ export const PrintService = {
     }
   },
 
-  async imprimirTicketPago(boleta, pagos, calculos, efectivo, proximo) {
+  async imprimirTicketPago(boleta, pagos, calculos, efectivo, proximo, historial = []) {
     const configStore = useConfigStore()
 
     let sucursal_aux = configStore.nombre_sucursal || 'PRESTAMO EXPRESS S/N'
@@ -226,6 +226,7 @@ export const PrintService = {
       efectivo: efectivo,   // Recibido y cambio
       logo_url: null,
       proximo_pago: proximo, // Información del próximo pago para el ticket.
+      historial: historial,
       config: {
         linea_01: nombre,
         linea_02: sucursal,
