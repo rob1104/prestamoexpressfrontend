@@ -31,7 +31,10 @@ export const PrintService = {
 
       let opcionesPagoFacil = [];
 
-      if (1 == 1) {
+      const esTradicional = boletaData.tipo_prestamo === 'tradicional';
+      const es30Dias = boletaData.plazo_dias == 30 || boletaData.meses == 1;
+
+      if (esTradicional && es30Dias) {
         const hoy = new Date();
 
         const calcularFechaSicae = (dias) => {
