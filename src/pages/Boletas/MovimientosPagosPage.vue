@@ -396,7 +396,6 @@
             recibido: payloadPago.total_recibido,
             cambio: payloadPago.cambio
           },
-          calculos.value.total,
           proximoPagoObj,
           pagosRealizados.value
         )

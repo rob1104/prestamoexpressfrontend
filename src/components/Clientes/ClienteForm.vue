@@ -217,6 +217,11 @@
 
   const opcionesFiltradas = ref(estadosMexico)
 
+  if (!props.isEdit) {
+    localForm.value.estado_origen = 'TAMAULIPAS'
+    localForm.value.estado = 'TAMAULIPAS'
+  }
+
   const filterFn = (val, update) => {
     if (val === '') {
       update(() => {
