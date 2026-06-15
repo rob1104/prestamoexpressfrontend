@@ -41,7 +41,9 @@
               mask="#########"
               unmasked-value
             >
-              <template v-slot:append><q-icon name="search" size="xs" /></template>
+              <template v-slot:append>
+                <q-btn round dense flat icon="search" color="primary" @click="dialogoBuscador = true" />
+              </template>
             </q-input>
           </div>
           <div class="col-12 col-md-6 text-caption text-grey-8 italic">
@@ -235,6 +237,13 @@
       :rows="listaDePagos"
       @confirmar-seleccion="recibirPagosSeleccionados"
     />
+
+    <DialogoBusquedaBoletas
+      v-model="dialogoBuscador"
+      tipo-prestamo="pagos"
+      @boleta-seleccionada="cargarBoletaDesdeBuscador"
+    />
+
   </q-page>
 </template>
 
@@ -249,6 +258,8 @@
 
   import { useCierreGuard } from 'src/composable/useCierreGuard'
 
+  import DialogoBusquedaBoletas from 'src/components/Boletas/DialogoBusquedaBoletas.vue'
+
   const { bloqueado, checkCierre } = useCierreGuard()
 
   const showDenominaciones = ref(false)
@@ -261,6 +272,13 @@
   const dialogPagosVisible = ref(false)
   const listaDePagos = ref([])
   const cuotasSeleccionadas = ref([])
+
+  const dialogoBuscador = ref(false)
+
+  const cargarBoletaDesdeBuscador = (folioSeleccionado) => {
+    busquedaFolio.value = String(folioSeleccionado) // Se inyecta automáticamente al input
+    buscarBoleta() // Llama a tu API de inmediato para traer los datos
+  }
 
   const pagosRealizados = computed(() => {
     if (!listaDePagos.value) return []

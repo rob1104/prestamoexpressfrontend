@@ -24,7 +24,11 @@
               input-class="text-weight-bolder text-primary"
               @keyup.enter="buscarBoleta"
               autofocus
-            />
+            >
+            <template v-slot:append>
+             <q-btn round dense flat icon="search" color="primary" @click="dialogoBuscador = true" />
+           </template>
+          </q-input>
           </div>
           <div class="col-12 col-md-6 row items-center no-wrap">
             <div class="label-fixed-mov text-weight-bold q-mr-xs">Fecha Movimiento:</div>
@@ -148,9 +152,9 @@
       <div class="col-12 col-md-4">
         <q-card flat bordered class="bg-white">
           <q-card-section class="q-pa-sm">
-            <div v-if="pago.importe > 0" class="text-center q-mb-sm">
-              <q-badge :color="pago.importe === boleta.total_pagar ? 'green-9' : 'orange-9'" class="q-pa-xs full-width">
-                MODO: {{ pago.importe === boleta.total_pagar ? 'LIQUIDACIÓN' : 'REFRENDO' }}
+            <div v-if="movimientosPorRealizar.length > 0" class="text-center q-mb-sm">
+              <q-badge :color="modoOperacionColor" class="q-pa-xs full-width text-weight-bold text-subtitle2">
+                MODO: {{ modoOperacionTexto }}
               </q-badge>
             </div>
             <div class="column q-gutter-y-xs">
@@ -162,9 +166,20 @@
                 <span>Capital a Cambiar:</span>
                 <div class="val-box">$ {{ formatMoney(pago.capital_cambiar) }}</div>
               </div>
-              <div class="financial-row-mov">
-                <span>Abono a Capital:</span>
-                <div class="val-box">$ {{ formatMoney(pago.abono_capital) }}</div>
+
+             <div class="financial-row-mov">
+                <span :class="{'text-weight-bold text-blue-9': esAbono}">Abono a Capital:</span>
+
+                <!-- Input dinámico para capturar el abono -->
+                <q-input
+                  v-if="esAbono"
+                  v-model.number="pago.abono_capital"
+                  outlined dense type="number"
+                  class="input-premium-compact"
+                  input-class="text-right text-weight-bolder text-blue-9"
+                  @focus="$event.target.select()"
+                />
+                <div v-else class="val-box">$ {{ formatMoney(pago.abono_capital) }}</div>
               </div>
               <div class="financial-row-mov">
                 <span>Recargos:</span>
@@ -264,13 +279,19 @@
     </div>
   </div>
 </div>
-<DialogoDesgloseCobro
+  <DialogoDesgloseCobro
       v-model="dialogoCobroDesglose"
       :monto-recibido="pago.recibido"
       :total-pagar="totalCalculado"
       @show="enfocarInputPago"
-      :tipo-operacion="movimientosPorRealizar[0]?.est === 'LI' ? 'LIQUIDACIÓN' : 'REFRENDO'"
+      :tipo-operacion="modoOperacionTexto"
       @confirmar="ejecutarPagoFinal"
+    />
+
+    <DialogoBusquedaBoletas
+      v-model="dialogoBuscador"
+      tipo-prestamo="tradicional"
+      @boleta-seleccionada="cargarBoletaDesdeBuscador"
     />
   </q-page>
 </template>
@@ -281,6 +302,7 @@
   import { api } from 'boot/axios'
   import { PrintService } from 'src/services/PrintService'
   import DialogoDesgloseCobro from 'src/components/Caja/DialogoDesgloseCobro.vue'
+  import DialogoBusquedaBoletas from 'src/components/Boletas/DialogoBusquedaBoletas.vue'
 
   import { useCierreGuard } from 'src/composable/useCierreGuard'
 
@@ -295,6 +317,15 @@
   const movimientosRealizados = ref([])
 
   const dialogoCobroDesglose = ref(false)
+
+  const esAbono = computed(() => movimientosPorRealizar.value[0]?.est === 'AB')
+
+  const dialogoBuscador = ref(false)
+
+  const cargarBoletaDesdeBuscador = (folioSeleccionado) => {
+    busquedaFolio.value = String(folioSeleccionado)
+    buscarBoleta()
+  }
 
   // ESTADO
   const busquedaFolio = ref('')
@@ -325,6 +356,22 @@
     recargos: 0,
     recibido: 0,
     cambio: 0
+  })
+
+  const modoOperacionTexto = computed(() => {
+    if (movimientosPorRealizar.value.length === 0) return ''
+    const est = movimientosPorRealizar.value[0].est
+    if (est === 'LI') return 'LIQUIDACIÓN'
+    if (est === 'AB') return 'ABONO A CAPITAL'
+    return 'REFRENDO'
+  })
+
+  const modoOperacionColor = computed(() => {
+    if (movimientosPorRealizar.value.length === 0) return 'grey'
+    const est = movimientosPorRealizar.value[0].est
+    if (est === 'LI') return 'green-9'
+    if (est === 'AB') return 'blue-9'
+    return 'orange-9'
   })
 
   const enfocarInputPago = () => {
@@ -515,10 +562,34 @@
   }
 
   const prepararAbono = () => {
-    pago.value.importe = boleta.value.comision // Se paga interés primero
-    pago.value.abono_capital = 0 // El cajero ingresará el monto manualmente
+    if (!boleta.value.id) return
+
+    // Para hacer un Abono, primero debe pagar el interés vencido (Refrendo)
+    pago.value.importe = boleta.value.comision
+    pago.value.recargos = calcularRecargosVencimiento()
+    pago.value.bonificacion_nc = calcularBonificacionNC(boleta.value)
+    pago.value.abono_capital = 0 // Inicia en 0 para que el cajero lo teclee
     pago.value.capital_cambiar = 0
-    $q.notify({ message: 'Ingrese el monto del abono a capital manualmente.', color: 'info' })
+
+    const hoy = new Date()
+    const vencimiento = new Date(boleta.value.fecha_vencimiento)
+    const diasVencidos = hoy > vencimiento ? Math.floor((hoy - vencimiento) / (1000 * 60 * 60 * 24)) : 0
+
+    const consecutivo = movimientosRealizados.value.length + 1
+
+    movimientosPorRealizar.value = [{
+      folio: boleta.value.id,
+      refrendo: consecutivo,
+      est: 'AB', // Estatus AB (Abono)
+      vence: boleta.value.fecha_vencimiento,
+      importe: boleta.value.comision,
+      dv: diasVencidos,
+      recargos: pago.value.recargos,
+      bonificacion: pago.value.bonificacion_nc
+    }]
+
+    $q.notify({ icon: 'add_card', color: 'blue-9', message: 'Ingrese el monto del abono a capital manualmente.' })
+    enfocarInputPago()
   }
 
   const calcularCambio = () => {
@@ -573,7 +644,6 @@
 
   // 1. Esta función ahora solo revisa el importe y ABRE EL COMPONENTE
   const confirmarPago = () => {
-
     if (bloqueado.value) {
       $q.notify({ type: 'negative', message: 'No se puede guardar. El sistema está bloqueado por cierres pendientes.' });
       return;
@@ -581,21 +651,55 @@
 
     if (movimientosPorRealizar.value.length === 0) return
 
-    // Validamos que el importe capturado sea suficiente
+    // --- NUEVAS VALIDACIONES DE VB6 PARA ABONO A CAPITAL ---
+    if (esAbono.value) {
+      if (pago.value.abono_capital <= 0) {
+        $q.notify({ type: 'negative', message: 'El Valor del Abono a Capital NO puede ser CERO.' })
+        return
+      }
+      if (pago.value.abono_capital > boleta.value.prestamo) {
+        $q.notify({ type: 'negative', message: 'El Abono a Capital NO puede ser MAYOR que el Valor del Préstamo.' })
+        return
+      }
+      if (pago.value.abono_capital === boleta.value.prestamo) {
+        $q.notify({ type: 'warning', message: 'Si el cliente desea liquidar por completo, utilice el botón de Liquidación.' })
+        return
+      }
+    }
+    // --------------------------------------------------------
+
     if (pago.value.recibido < totalCalculado.value) {
       $q.notify({ type: 'negative', message: 'El importe recibido es menor al total a pagar.' })
       return
     }
 
-    // Si todo está bien, abrimos el componente de conteo
     dialogoCobroDesglose.value = true
   }
 
   // 2. Esta función recibe el desglose desde el componente y ejecuta la API
   const ejecutarPagoFinal = async (desgloseDenominaciones) => {
-    const esLiquidacion = movimientosPorRealizar.value[0].est === 'LI'
-    const nombreOp = esLiquidacion ? 'LIQUIDACIÓN' : 'REFRENDO'
-    const endpointApi = esLiquidacion ? '/api/boletas/pagos/liquidacion' : '/api/boletas/pagos/refrendo'
+
+    const estatusOp = movimientosPorRealizar.value[0].est
+
+    let nombreOp = 'REFRENDO'
+    let endpointApi = '/api/boletas/pagos/refrendo'
+
+    if (estatusOp === 'LI') {
+      nombreOp = 'LIQUIDACIÓN'
+      endpointApi = '/api/boletas/pagos/liquidacion'
+    } else if (estatusOp === 'AB') {
+      nombreOp = 'ABONO A CAPITAL'
+      endpointApi = '/api/boletas/pagos/abono'
+    }
+
+
+    if (estatusOp === 'LI') {
+      nombreOp = 'LIQUIDACIÓN'
+      endpointApi = '/api/boletas/pagos/liquidacion'
+    } else if (estatusOp === 'AB') {
+      nombreOp = 'ABONO A CAPITAL'
+      endpointApi = '/api/boletas/pagos/abono' // Apuntaremos al nuevo método de Laravel
+    }
 
     $q.loading.show({ message: `Procesando ${nombreOp.toLowerCase()} y generando ticket...` })
 
@@ -606,17 +710,14 @@
         boleta_id: boleta.value.id,
         no_pago: movimientosPorRealizar.value[0].refrendo === '---' ? 0 : movimientosPorRealizar.value[0].refrendo,
         numero_refrendo: movimientosPorRealizar.value[0].refrendo === '---' ? 0 : movimientosPorRealizar.value[0].refrendo,
-
         importe_pago: pago.value.importe,
+        abono_capital: pago.value.abono_capital || 0,
         recargos: pago.value.recargos,
         dias_vencidos: movimientosPorRealizar.value[0].dv,
         bonificacion: movimientosPorRealizar.value[0].bonificacion || 0,
         total_pagado: totalCalculado.value,
         total_recibido: pago.value.recibido, // El importe capturado
-
-        // --- AQUÍ MANDAMOS EL ARREGLO QUE NOS DIO EL COMPONENTE ---
         denominaciones: JSON.stringify(desgloseDenominaciones),
-
         caja_id: 1
       }
 
