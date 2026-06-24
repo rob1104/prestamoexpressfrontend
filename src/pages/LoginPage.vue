@@ -82,7 +82,7 @@
               </q-card-section>
             </q-card>
             <div class="text-center q-mt-lg text-white opacity-70 text-caption">
-              © 2026 SICAE - Todos los derechos reservados - Versión 0.0.17
+              © 2026 SICAE - Todos los derechos reservados - Versión 0.0.18
             </div>
           </div>
         </div>

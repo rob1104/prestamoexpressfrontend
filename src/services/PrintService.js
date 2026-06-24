@@ -243,5 +243,96 @@ export const PrintService = {
       console.error("Error al enviar datos de pago a la impresora:", error);
       return false;
     }
+  },
+  async imprimirTicketVentaJoyeria(ticketdata) {
+    const configStore = useConfigStore()
+    const authStore = useAuthStore()
+
+    let sucursal_aux = configStore.nombre_sucursal || 'PRESTAMO EXPRESS S/N'
+    const [sucursal, ...resto] = sucursal_aux.trim().split(" ").reverse()
+    const nombre = resto.reverse().join(" ")
+
+    const fechaActual = new Date().toLocaleString('es-MX', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    })
+
+    const payload = {
+      empresa: {
+        nombre: nombre,
+        sucursal: sucursal,
+      },
+      folio: ticketdata.folio || '0000',
+      tipo_venta: ticketdata.tipo_venta || 'TOTAL',
+      modo: ticketdata.modo || 'CONTADO',
+      cliente: ticketdata.cliente || 'PÚBLICO GENERAL',
+      conceptos: ticketdata.conceptos || [],
+      totales: {
+        total_pagar: ticketdata.total_pagar,
+        recibido: ticketdata.pago?.recibido || 0,
+        cambio: ticketdata.pago?.cambio || 0,
+        separado: ticketdata.pago?.importe_separado || 0,
+        saldo: ticketdata.saldo || 0,
+        fecha_limite: ticketdata.fecha_limite
+      },
+      pago: ticketdata.pago || {},
+      cajero: authStore.user?.name || 'ADMINISTRADOR',
+      vendedor: `00${ticketdata.vendedor_id}` || 'MOSTRADOR',
+      fecha: fechaActual
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/print-venta-joyeria', payload)
+      return response.data
+    } catch (error) {
+      console.error("Error al imprimir venta de joyería:", error)
+      throw new Error(error.response?.data?.message || 'Error de comunicación con la impresora térmica.')
+    }
+  },
+  async imprimirTicketVentaElectronicos(ticketdata) {
+    const configStore = useConfigStore()
+    const authStore = useAuthStore()
+
+    let sucursal_aux = configStore.nombre_sucursal || 'PRESTAMO EXPRESS S/N'
+    const [sucursal, ...resto] = sucursal_aux.trim().split(" ").reverse()
+    const nombre = resto.reverse().join(" ")
+
+    const fechaActual = new Date().toLocaleString('es-MX', {
+      day: '2-digit', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    })
+
+    const payload = {
+      empresa: {
+        nombre: nombre,
+        sucursal: sucursal,
+      },
+      folio: ticketdata.folio || '0000',
+      tipo_venta: ticketdata.tipo_venta || 'TOTAL',
+      modo: ticketdata.modo || 'CONTADO',
+      cliente: ticketdata.cliente || 'PÚBLICO GENERAL',
+      no_bolsa: ticketdata.no_bolsa || '',
+      conceptos: ticketdata.conceptos || [],
+      totales: {
+        total_pagar: ticketdata.total_pagar,
+        recibido: ticketdata.pago?.recibido || 0,
+        cambio: ticketdata.pago?.cambio || 0,
+        separado: ticketdata.pago?.importe_separado || 0,
+        saldo: ticketdata.saldo || 0,
+        fecha_limite: ticketdata.fecha_limite
+      },
+      pago: ticketdata.pago || {},
+      cajero: authStore.user?.name || 'ADMINISTRADOR',
+      vendedor: `00${ticketdata.vendedor_id}` || 'MOSTRADOR',
+      fecha: fechaActual
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/print-venta-electronicos', payload)
+      return response.data
+    } catch (error) {
+      console.error("Error al imprimir venta de electrónicos:", error)
+      throw new Error(error.response?.data?.message || 'Error de comunicación con la impresora térmica.')
+    }
   }
 }

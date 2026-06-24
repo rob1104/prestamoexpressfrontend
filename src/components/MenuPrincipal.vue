@@ -104,6 +104,41 @@
       </q-item-section>
     </q-item>
 
+
+    <q-item
+      v-if="authStore.can('ventas joyeria')"
+      clickable
+      v-ripple
+      to="/ventajoyeria"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="diamond" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Ventas Joyeria</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
+    <q-item
+      v-if="authStore.can('ventas electronicos')"
+      clickable
+      v-ripple
+      to="/ventaelectronicos"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="radio" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Ventas Electrónicos</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
     <q-item
       v-if="authStore.can('cierre diario')"
       clickable
@@ -136,6 +171,23 @@
         <q-icon name="group" />
       </q-item-section>
       <q-item-section class="text-weight-medium">Clientes</q-item-section>
+      <q-item-section side v-if="authStore.isAdmin">
+        <q-badge color="secondary" text-color="primary" label="Admin" />
+      </q-item-section>
+    </q-item>
+
+    <q-item
+      v-if="authStore.can('configurar catalogos joyeria')"
+      clickable
+      v-ripple
+      to="/config/conceptosjoyeria"
+      active-class="menu-item-active"
+      class="menu-item q-mx-md q-mb-xs"
+    >
+      <q-item-section avatar>
+        <q-icon name="inventory" />
+      </q-item-section>
+      <q-item-section class="text-weight-medium">Conceptos Joyeria</q-item-section>
       <q-item-section side v-if="authStore.isAdmin">
         <q-badge color="secondary" text-color="primary" label="Admin" />
       </q-item-section>

@@ -241,95 +241,110 @@
 
   // ClienteForm.vue
 
-const calcularRFC = () => {
-  const nombre = (localForm.value.nombre || '').trim().toUpperCase();
-  const apPaterno = (localForm.value.apellido_paterno || '').trim().toUpperCase();
-  const apMaterno = (localForm.value.apellido_materno || '').trim().toUpperCase();
-  const fecha = localForm.value.fecha_nacimiento; // YYYY-MM-DD
+  const calcularRFC = () => {
+    const nombre = (localForm.value.nombre || '').trim().toUpperCase();
+    const apPaterno = (localForm.value.apellido_paterno || '').trim().toUpperCase();
+    const apMaterno = (localForm.value.apellido_materno || '').trim().toUpperCase();
+    const fecha = localForm.value.fecha_nacimiento; // YYYY-MM-DD
 
-  if (!nombre || !apPaterno || !fecha) return;
+    if (!nombre || !apPaterno || !fecha) return;
 
-  // --- 1. GENERACIÓN DE LOS PRIMEROS 10 CARACTERES ---
-  let rfc10 = '';
+    // --- FILTRO OFICIAL DEL SAT PARA APELLIDOS COMPUESTOS ---
+    const palabrasInnecesarias = ["DA", "DAS", "DE", "DEL", "DER", "DI", "DIE", "DD", "EL", "LA", "LOS", "LAS", "LE", "LES", "MAC", "MC", "VAN", "VON", "Y"];
 
-  // Apellido Paterno: Primera letra + primera vocal interna
-  rfc10 += apPaterno.substring(0, 1);
-  const vocalPaterno = apPaterno.substring(1).match(/[AEIOU]/g);
-  rfc10 += vocalPaterno ? vocalPaterno[0] : 'X';
+    const limpiarParaPrefijo = (texto) => {
+      let palabras = texto.split(' ').filter(p => p !== '');
+      // Filtramos las palabras que están en la lista de innecesarias
+      palabras = palabras.filter(p => !palabrasInnecesarias.includes(p));
+      return palabras.length > 0 ? palabras.join(' ') : texto;
+    };
 
-  // Apellido Materno: Primera letra (o X si no tiene)
-  rfc10 += apMaterno ? apMaterno.substring(0, 1) : 'X';
+    const apPaternoLimpio = limpiarParaPrefijo(apPaterno);
+    const apMaternoLimpio = limpiarParaPrefijo(apMaterno);
 
-  // Nombre: Primera letra
-  // (Nota: El algoritmo oficial ignora nombres comunes como MARIA o JOSE si tienen un segundo nombre)
-  const nombresFiltro = ["MARIA ", "JOSE ", "MA ", "MA. ", "J ", "J. "];
-  let nombreLimpio = nombre;
-  nombresFiltro.forEach(prefix => {
-    if (nombre.startsWith(prefix)) nombreLimpio = nombre.replace(prefix, "");
-  });
-  rfc10 += nombreLimpio.substring(0, 1);
+    // --- 1. GENERACIÓN DE LOS PRIMEROS 10 CARACTERES ---
+    let rfc10 = '';
 
-  // Fecha: YYMMDD
-  const [year, month, day] = fecha.split('-');
-  rfc10 += year.substring(2, 4) + month + day;
+    // Apellido Paterno: Primera letra + primera vocal interna (usando el apellido limpio)
+    rfc10 += apPaternoLimpio.substring(0, 1);
+    const vocalPaterno = apPaternoLimpio.substring(1).match(/[AEIOU]/g);
+    rfc10 += vocalPaterno ? vocalPaterno[0] : 'X';
 
-  // Filtro de "Palabras Inconvenientes" (SAT)
-  const malasPalabras = ["BUEI", "BUEY", "CACA", "CACO", "CAGA", "CAGO", "CAKA", "CAKO", "COGE", "COGI", "COJA", "COJE", "COJI", "COJO", "COLA", "CULO", "FALO", "FETO", "GETA", "GUEI", "GUEY", "JETA", "JOTO", "KACA", "KACO", "KAGA", "KAGO", "KAKA", "KAKO", "KOGE", "KOGI", "KOJA", "KOJE", "KOJI", "KOJO", "KOLA", "KULO", "LILO", "LOCA", "LOCO", "LOKA", "LOKO", "MAME", "MAMO", "MEAR", "MEAS", "MEON", "MIAR", "MION", "MOCO", "MOKO", "MULA", "PEDA", "PEDO", "PENE", "PUTA", "PUTO", "QULO", "RATA", "ROBA", "ROBE", "ROBO", "RUIN", "SENO", "TETA", "VACA", "VAGA", "VAGO", "VUEI", "VUEY", "WUEI", "WUEY"];
-  if (malasPalabras.includes(rfc10.substring(0, 4))) {
-    rfc10 = rfc10.substring(0, 3) + 'X' + rfc10.substring(4);
-  }
+    // Apellido Materno: Primera letra (o X si no tiene)
+    rfc10 += apMaternoLimpio ? apMaternoLimpio.substring(0, 1) : 'X';
 
-  // --- 2. CÁLCULO DE LA HOMOCLAVE (Caracteres 11 y 12) ---
-  const nombreCompleto = `${apPaterno} ${apMaterno} ${nombre}`;
-  const tablaValores = {
-    ' ': '00', '0': '00', '1': '01', '2': '02', '3': '03', '4': '04', '5': '05', '6': '06', '7': '07', '8': '08', '9': '09',
-    'A': '11', 'B': '12', 'C': '13', 'D': '14', 'E': '15', 'F': '16', 'G': '17', 'H': '18', 'I': '19', 'J': '21', 'K': '22',
-    'L': '23', 'M': '24', 'N': '25', 'O': '26', 'P': '27', 'Q': '28', 'R': '29', 'S': '32', 'T': '33', 'U': '34', 'V': '35',
-    'W': '36', 'X': '37', 'Y': '38', 'Z': '39', 'Ñ': '10'
+    // Nombre: Primera letra
+    // El algoritmo oficial ignora nombres comunes como MARIA o JOSE solo si tienen un segundo nombre
+    const nombresFiltro = ["MARIA ", "JOSE ", "MA ", "MA. ", "J ", "J. "];
+    let nombreLimpio = nombre;
+    // Solo aplicamos el filtro si el nombre tiene más de una palabra
+    if (nombre.trim().includes(' ')) {
+      nombresFiltro.forEach(prefix => {
+        if (nombre.startsWith(prefix)) nombreLimpio = nombre.replace(prefix, "").trim();
+      });
+    }
+    rfc10 += nombreLimpio.substring(0, 1);
+
+    // Fecha: YYMMDD
+    const [year, month, day] = fecha.split('-');
+    rfc10 += year.substring(2, 4) + month + day;
+
+    // Filtro de "Palabras Inconvenientes" (SAT)
+    const malasPalabras = ["BUEI", "BUEY", "CACA", "CACO", "CAGA", "CAGO", "CAKA", "CAKO", "COGE", "COGI", "COJA", "COJE", "COJI", "COJO", "COLA", "CULO", "FALO", "FETO", "GETA", "GUEI", "GUEY", "JETA", "JOTO", "KACA", "KACO", "KAGA", "KAGO", "KAKA", "KAKO", "KOGE", "KOGI", "KOJA", "KOJE", "KOJI", "KOJO", "KOLA", "KULO", "LILO", "LOCA", "LOCO", "LOKA", "LOKO", "MAME", "MAMO", "MEAR", "MEAS", "MEON", "MIAR", "MION", "MOCO", "MOKO", "MULA", "PEDA", "PEDO", "PENE", "PUTA", "PUTO", "QULO", "RATA", "ROBA", "ROBE", "ROBO", "RUIN", "SENO", "TETA", "VACA", "VAGA", "VAGO", "VUEI", "VUEY", "WUEI", "WUEY"];
+    if (malasPalabras.includes(rfc10.substring(0, 4))) {
+      rfc10 = rfc10.substring(0, 3) + 'X' + rfc10.substring(4);
+    }
+
+    // --- 2. CÁLCULO DE LA HOMOCLAVE (Caracteres 11 y 12) ---
+    const nombreCompleto = `${apPaterno} ${apMaterno} ${nombre}`.trim();
+    const tablaValores = {
+      ' ': '00', '0': '00', '1': '01', '2': '02', '3': '03', '4': '04', '5': '05', '6': '06', '7': '07', '8': '08', '9': '09',
+      'A': '11', 'B': '12', 'C': '13', 'D': '14', 'E': '15', 'F': '16', 'G': '17', 'H': '18', 'I': '19', 'J': '21', 'K': '22',
+      'L': '23', 'M': '24', 'N': '25', 'O': '26', 'P': '27', 'Q': '28', 'R': '29', 'S': '32', 'T': '33', 'U': '34', 'V': '35',
+      'W': '36', 'X': '37', 'Y': '38', 'Z': '39', 'Ñ': '10'
+    };
+
+    let numString = '0';
+    for (let char of nombreCompleto) {
+      numString += tablaValores[char] || '00';
+    }
+
+    let suma = 0;
+    for (let i = 0; i < numString.length - 1; i++) {
+      let num1 = parseInt(numString.substring(i, i + 2));
+      let num2 = parseInt(numString.substring(i + 1, i + 2));
+      suma += num1 * num2;
+    }
+
+    const residuo = suma % 1000;
+    const cociente = Math.floor(residuo / 34);
+    const resto = residuo % 34;
+    const tablaHC = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ"; // No incluye 'O' ni '0'
+
+    const homoclave1112 = tablaHC.charAt(cociente) + tablaHC.charAt(resto);
+
+    // --- 3. CÁLCULO DEL DÍGITO VERIFICADOR (Carácter 13) ---
+    const rfc12 = rfc10 + homoclave1112;
+    const mappingSAT = {
+      '0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'A':10,'B':11,'C':12,'D':13,'E':14,'F':15,'G':16,'H':17,'I':18,'J':19,'K':20,'L':21,'M':22,'N':23,'&':24,'O':25,'P':26,'Q':27,'R':28,'S':29,'T':30,'U':31,'V':32,'W':33,'X':34,'Y':35,'Z':36,' ':37,'Ñ':38
+    };
+
+    let sumaVerificador = 0;
+    for (let i = 0; i < 12; i++) {
+      let val = mappingSAT[rfc12.charAt(i)] || 0;
+      sumaVerificador += val * (13 - i);
+    }
+
+    const residuoVerificador = sumaVerificador % 11;
+    let digito13 = '';
+    if (residuoVerificador === 0) digito13 = '0';
+    else if (residuoVerificador === 1) digito13 = 'A';
+    else digito13 = (11 - residuoVerificador).toString();
+
+    // RESULTADO FINAL
+    localForm.value.rfc = rfc12 + digito13;
+    localForm.value.nombre_completo = `${nombre} ${apPaterno} ${apMaterno}`.trim();
   };
-
-  let numString = '0';
-  for (let char of nombreCompleto) {
-    numString += tablaValores[char] || '00';
-  }
-
-  let suma = 0;
-  for (let i = 0; i < numString.length - 1; i++) {
-    let num1 = parseInt(numString.substring(i, i + 2));
-    let num2 = parseInt(numString.substring(i + 1, i + 2));
-    suma += num1 * num2;
-  }
-
-  const residuo = suma % 1000;
-  const cociente = Math.floor(residuo / 34);
-  const resto = residuo % 34;
-  const tablaHC = "123456789ABCDEFGHIJKLMNPQRSTUVWXYZ"; // No incluye 'O' ni '0' para evitar confusión
-
-  const homoclave1112 = tablaHC.charAt(cociente) + tablaHC.charAt(resto);
-
-  // --- 3. CÁLCULO DEL DÍGITO VERIFICADOR (Carácter 13) ---
-  const rfc12 = rfc10 + homoclave1112;
-  const tablaDigito = "0123456789ABCDEFGHIJKLMN&OPQRSTUVWXYZ Ñ"; // Índice mapeado al valor SAT
-  const mappingSAT = {
-    '0':0,'1':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'A':10,'B':11,'C':12,'D':13,'E':14,'F':15,'G':16,'H':17,'I':18,'J':19,'K':20,'L':21,'M':22,'N':23,'&':24,'O':25,'P':26,'Q':27,'R':28,'S':29,'T':30,'U':31,'V':32,'W':33,'X':34,'Y':35,'Z':36,' ':37,'Ñ':38
-  };
-
-  let sumaVerificador = 0;
-  for (let i = 0; i < 12; i++) {
-    let val = mappingSAT[rfc12.charAt(i)] || 0;
-    sumaVerificador += val * (13 - i);
-  }
-
-  const residuoVerificador = sumaVerificador % 11;
-  let digito13 = '';
-  if (residuoVerificador === 0) digito13 = '0';
-  else if (residuoVerificador === 1) digito13 = 'A';
-  else digito13 = (11 - residuoVerificador).toString();
-
-  // RESULTADO FINAL
-  localForm.value.rfc = rfc12 + digito13;
-  localForm.value.nombre_completo = `${nombre} ${apPaterno} ${apMaterno}`.trim();
-};
 
   // Funciones para disparar el selector de archivos
   const triggerFrente = () => { frenteInputRef.value.pickFiles() }

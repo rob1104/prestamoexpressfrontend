@@ -14,10 +14,13 @@ const routes = [
       { path: 'boletaspagos', component: () => import('pages/Boletas/PagosPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas'} },
       { path: 'movimientostradicional', component: () => import('pages/Boletas/MovimientosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
       { path: 'movimientostpagos', component: () => import('pages/Boletas/MovimientosPagosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas'} },
+      { path: 'ventajoyeria', component: () => import('pages/Ventas/VentasJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'ventas joyeria'} },
+      { path: 'ventaelectronicos', component: () => import('pages/Ventas/VentasElectronicosPage.vue'), meta: { requiresAuth: true, permission: 'ventas electronicos'} },
       { path: '/operaciones/cierre', component: () => import('pages/Cierre/ProcesarCierrePage.vue'), meta: { requiresAuth: true, permission: 'cierre diario'} },
       { path: 'config', children: [
         { path: 'cotizacionoro', component: () => import('pages/Cotizaciones/OroPage.vue'), meta: { requiresAuth: true, permission: 'configurar cotizacion oro'} },
         { path: 'parametros', component: () => import('pages/Cotizaciones/ParametrosPage.vue'), meta: { requiresAuth: true, permission: 'configurar parametros'} },
+        { path: 'conceptosjoyeria', component: () => import('pages/Catalogos/CatalogosJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'configurar catalogos joyeria'} },
       ]},
       { path: 'reportes', children: [
         { path: 'cartera', component: () => import('pages/Reportes/ReporteCarteraPage.vue'), meta: { requiresAuth: true, permission: 'reportes cartera'} },
