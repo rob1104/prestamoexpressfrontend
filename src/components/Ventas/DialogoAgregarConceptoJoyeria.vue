@@ -54,11 +54,10 @@
             </div>
 
             <q-input
-              v-model.number="form.importe"
-              type="number"
-              label="Importe Total ($):"
+             :model-value="importeMostrado"
+              readonly
+              label="Importe Total:"
               outlined dense bg-color="orange-1"
-              input-class="text-right text-weight-bolder text-orange-10 text-h6"
               @focus="$event.target.select()"
               @keyup.enter="confirmarConcepto"
             />
@@ -116,6 +115,19 @@
     concepto: ''
   })
 
+  // --- NUEVO: FUNCIÓN PARA FORMATO MONEDA ---
+  const formatMoney = (val) => {
+    return new Intl.NumberFormat('es-MX', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(Number(val || 0))
+  }
+
+  // --- NUEVO: Propiedad reactiva para mostrar en el template ---
+  const importeMostrado = computed(() => formatMoney(form.value.importe))
+
   // 1. Cuando cambie la Categoría, sugerimos un precio base automático
   watch(() => form.value.categoria, (nuevaCat) => {
     const cat = String(nuevaCat || '').toUpperCase()
@@ -129,9 +141,9 @@
     form.value.precio_unitario = precioSugerido
   })
 
-  // 2. MATEMÁTICA MAGICA: Si cambias Cantidad o Precio Unitario, se actualiza el Importe
+  // 2. Si se cambia Cantidad o Precio Unitario, se actualiza el Importe
   watch([() => form.value.cantidad, () => form.value.precio_unitario], ([cant, precio]) => {
-    form.value.importe = (Number(cant) || 0) * (Number(precio) || 0)
+    form.value.importe = roundMoney((Number(cant) || 0) * (Number(precio) || 0))
   })
 
   // Limpieza al abrir el modal
@@ -158,6 +170,10 @@
       }, 50)
     }
   })
+
+  const roundMoney = (val) => {
+    return Math.round((val + Number.EPSILON) * 100) / 100
+  }
 
   // --- VALIDACIONES ---
   const confirmarConcepto = () => {
@@ -199,4 +215,5 @@
       $q.notify({ type: 'negative', message: 'Error cargando catálogos de joyería' })
     }
   })
+
 </script>

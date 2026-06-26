@@ -6,8 +6,9 @@
         <div class="text-h3 text-orange-9 text-weight-bolder" style="text-decoration: underline;">
           CAJA NUMERO: 1
         </div>
+
         <div class="text-h5 text-purple-7 text-weight-bold q-mt-sm uppercase">
-          COBRO {{ tipoOperacion }} <br> [ ENTRADA ]
+          [ {{ tipoOperacion }} ]
         </div>
         <div class="text-h2 text-weight-bolder text-grey-8 q-my-md">
           $ {{ formatMoney(montoRecibido) }}
@@ -87,9 +88,20 @@
           La diferencia debe ser $0.00 para poder continuar.
         </div>
 
+
+            <q-btn
+              outline
+              color="info"
+              icon="add_circle"
+              label="ENTRADA"
+              class="q-mr-sm text-weight-bold"
+              @click="modalEntradaManual = true"
+            />
+
+
         <q-btn
           label="CANCELAR"
-          color="grey-6" flat
+          color="red-6"
           class="q-mr-sm text-weight-bold"
           @click="cerrar"
         />
@@ -103,116 +115,120 @@
       </q-card-section>
 
     </q-card>
+    <DialogoEntradaCaja v-model="modalEntradaManual" />
   </q-dialog>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+  import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+  import DialogoEntradaCaja from 'src/components/Caja/DialogoEntradaCaja.vue'
 
-const props = defineProps({
-  modelValue: { type: Boolean, required: true },
-  montoRecibido: { type: Number, required: true },
-  totalPagar: { type: Number, required: true },
-  tipoOperacion: { type: String, default: 'OPERACIÓN' }
-})
+  const modalEntradaManual = ref(false)
 
-const emit = defineEmits(['update:modelValue', 'confirmar'])
-
-const internalValue = computed({
-  get: () => props.modelValue,
-  set: (val) => emit('update:modelValue', val)
-})
-
-// Variables exactas a tu referencia
-const listaBilletes = ['1000', '500', '200', '100', '50', '20']
-const listaMonedas = ['10', '5', '2', '1', '0.50']
-
-const conteo = reactive({
-  billetes: { '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0 },
-  monedas: { '10': 0, '5': 0, '2': 0, '1': 0, '0.50': 0 }
-})
-
-const formatMoney = (v) => {
-  return Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
-const totalDinero = computed(() => {
-  let suma = 0
-  Object.entries(conteo.billetes).forEach(([val, cant]) => suma += Number(val) * (Number(cant) || 0))
-  Object.entries(conteo.monedas).forEach(([val, cant]) => suma += Number(val) * (Number(cant) || 0))
-  return parseFloat(suma.toFixed(2))
-})
-
-const diferencia = computed(() => {
-  return parseFloat((props.montoRecibido - totalDinero.value).toFixed(2))
-})
-
-const onShow = () => {
-  // Reiniciar conteo al abrir
-  Object.keys(conteo.billetes).forEach(k => conteo.billetes[k] = null)
-  Object.keys(conteo.monedas).forEach(k => conteo.monedas[k] = null)
-
-  setTimeout(() => {
-      const firstInput = document.querySelector('.q-dialog input')
-      if(firstInput) firstInput.focus()
-  }, 100)
-}
-
-const cerrar = () => {
-  internalValue.value = false
-}
-
-const confirmarEnvio = () => {
-  if (diferencia.value !== 0) return
-
-  // Definimos el arreglo que contendrá TODO el desglose físico
-  const desgloseLimpio = []
-
-  // 1. Mapeamos BILLETES (Asumiendo que tienes conteo.billetes)
-  Object.entries(conteo.billetes).forEach(([val, cant]) => {
-    if (Number(cant) > 0) {
-      desgloseLimpio.push({
-        label: `Billete $${val}`,
-        valor: Number(val),
-        cantidad: Number(cant),
-        subtotal: Number(val) * Number(cant)
-      })
-    }
+  const props = defineProps({
+    modelValue: { type: Boolean, required: true },
+    montoRecibido: { type: Number, required: true },
+    totalPagar: { type: Number, required: true },
+    tipoOperacion: { type: String, default: 'OPERACIÓN' }
   })
 
-  // 2. Mapeamos MONEDAS
-  Object.entries(conteo.monedas).forEach(([val, cant]) => {
-    if (Number(cant) > 0) {
-      desgloseLimpio.push({
-        // Corregimos la comparación: val suele ser String al venir de Object.entries
-        label: Number(val) < 1 ? `${val * 100} Centavos` : `Moneda $${val}`,
-        valor: Number(val),
-        cantidad: Number(cant),
-        subtotal: Number(val) * Number(cant)
-      })
-    }
+  const emit = defineEmits(['update:modelValue', 'confirmar'])
+
+  const internalValue = computed({
+    get: () => props.modelValue,
+    set: (val) => emit('update:modelValue', val)
   })
 
-  // 3. EMITIMOS UN OBJETO (No solo el arreglo)
-  // Esto permite que el padre encuentre 'denominaciones' y 'efectivo_recibido'
-  emit('confirmar', {
-    denominaciones: desgloseLimpio,       // El arreglo para MovimientoCajaController
-    efectivo_recibido: totalDinero.value, // Para BoletaMovimientoPagoController
-    cambio: 0         // Para el registro y ticket
+  // Variables exactas a tu referencia
+  const listaBilletes = ['1000', '500', '200', '100', '50', '20']
+  const listaMonedas = ['10', '5', '2', '1', '0.50']
+
+  const conteo = reactive({
+    billetes: { '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0 },
+    monedas: { '10': 0, '5': 0, '2': 0, '1': 0, '0.50': 0 }
   })
-}
 
-// Atajos de teclado
-const handleKeydown = (e) => {
-    if(!internalValue.value) return
-    if(e.key === 'Escape') cerrar()
-    if(e.key === 'Enter' && diferencia.value === 0 && e.target.tagName !== 'BUTTON') {
-        confirmarEnvio()
-    }
-}
+  const formatMoney = (v) => {
+    return Number(v || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  }
 
-onMounted(() => window.addEventListener('keydown', handleKeydown))
-onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
+  const totalDinero = computed(() => {
+    let suma = 0
+    Object.entries(conteo.billetes).forEach(([val, cant]) => suma += Number(val) * (Number(cant) || 0))
+    Object.entries(conteo.monedas).forEach(([val, cant]) => suma += Number(val) * (Number(cant) || 0))
+    return parseFloat(suma.toFixed(2))
+  })
+
+  const diferencia = computed(() => {
+    return parseFloat((props.montoRecibido - totalDinero.value).toFixed(2))
+  })
+
+  const onShow = () => {
+    // Reiniciar conteo al abrir
+    Object.keys(conteo.billetes).forEach(k => conteo.billetes[k] = null)
+    Object.keys(conteo.monedas).forEach(k => conteo.monedas[k] = null)
+
+    setTimeout(() => {
+        const firstInput = document.querySelector('.q-dialog input')
+        if(firstInput) firstInput.focus()
+    }, 100)
+  }
+
+  const cerrar = () => {
+    internalValue.value = false
+  }
+
+  const confirmarEnvio = () => {
+    if (diferencia.value !== 0) return
+
+    // Definimos el arreglo que contendrá TODO el desglose físico
+    const desgloseLimpio = []
+
+    // 1. Mapeamos BILLETES (Asumiendo que tienes conteo.billetes)
+    Object.entries(conteo.billetes).forEach(([val, cant]) => {
+      if (Number(cant) > 0) {
+        desgloseLimpio.push({
+          label: `Billete $${val}`,
+          valor: Number(val),
+          cantidad: Number(cant),
+          subtotal: Number(val) * Number(cant)
+        })
+      }
+    })
+
+    // 2. Mapeamos MONEDAS
+    Object.entries(conteo.monedas).forEach(([val, cant]) => {
+      if (Number(cant) > 0) {
+        desgloseLimpio.push({
+          // Corregimos la comparación: val suele ser String al venir de Object.entries
+          label: Number(val) < 1 ? `${val * 100} Centavos` : `Moneda $${val}`,
+          valor: Number(val),
+          cantidad: Number(cant),
+          subtotal: Number(val) * Number(cant)
+        })
+      }
+    })
+
+    // 3. EMITIMOS UN OBJETO (No solo el arreglo)
+    // Esto permite que el padre encuentre 'denominaciones' y 'efectivo_recibido'
+    emit('confirmar', {
+      denominaciones: desgloseLimpio,       // El arreglo para MovimientoCajaController
+      efectivo_recibido: totalDinero.value, // Para BoletaMovimientoPagoController
+      cambio: 0         // Para el registro y ticket
+    })
+  }
+
+  // Atajos de teclado
+  const handleKeydown = (e) => {
+      if(!internalValue.value) return
+      if(e.key === 'Escape') cerrar()
+      if(e.key === 'Enter' && diferencia.value === 0 && e.target.tagName !== 'BUTTON') {
+          confirmarEnvio()
+      }
+  }
+
+  onMounted(() => window.addEventListener('keydown', handleKeydown))
+  onUnmounted(() => window.removeEventListener('keydown', handleKeydown))
 </script>
 
 <style scoped>

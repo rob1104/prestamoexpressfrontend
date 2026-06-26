@@ -263,6 +263,7 @@ export const PrintService = {
         sucursal: sucursal,
       },
       folio: ticketdata.folio || '0000',
+      tipo_operacion: ticketdata.tipo_operacion || 'COMPRA',
       tipo_venta: ticketdata.tipo_venta || 'TOTAL',
       modo: ticketdata.modo || 'CONTADO',
       cliente: ticketdata.cliente || 'PÚBLICO GENERAL',

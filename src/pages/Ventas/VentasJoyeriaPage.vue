@@ -19,6 +19,20 @@
         <div class="row q-col-gutter-sm">
 
           <div class="col-12 col-md-3 row items-center no-wrap">
+            <div class="label-fixed-mov text-weight-bold q-mr-xs">Operación:</div>
+            <q-btn-toggle
+              v-model="form.tipo_operacion"
+              push glossy
+              toggle-color="primary"
+              :options="[
+                {label: 'VENTA', value: 'VENTA'},
+                {label: 'COMPRA', value: 'COMPRA'}
+              ]"
+              class="col"
+            />
+          </div>
+
+          <div class="col-12 col-md-3 row items-center no-wrap">
             <div class="label-fixed-mov text-weight-bold q-mr-xs">Tipo de Venta:</div>
             <q-select
               v-model="form.tipo_venta"
@@ -169,7 +183,7 @@
       v-model="showDenominaciones"
       :total-pagar="datosPagoTemporal?.efectivo > 0 ? (datosPagoTemporal.efectivo - datosPagoTemporal.cambio) : 0"
       :monto-recibido="datosPagoTemporal?.efectivo || 0"
-      tipo-operacion="VENTA DE JOYERÍA"
+      :tipo-operacion="form.tipo_operacion === 'COMPRA' ? 'SALIDA' : 'ENTRADA'"
       @confirmar="procesarVentaFinal"
     />
 </template>
@@ -204,10 +218,11 @@
     modo: 'CONTADO',
     fecha: date.formatDate(Date.now(), 'dddd, MMMM D YYYY').toLowerCase(),
     nota_mostrador: '',
-    vendedor_id: null,
+    vendedor_id: 1,
     cliente: '',
     descuento: 0,
-    efectivo_recibido: 0 // Se llenará al presionar F6
+    efectivo_recibido: 0,
+    tipo_operacion: 'COMPRA'
   })
 
   const obtenerSiguienteFolio = async () => {
@@ -222,8 +237,8 @@
 
   // Simulación de catálogo de Vendedores
   const vendedoresOptions = ref([
-    { id: 1, nombre: '001: RAMIRO NUÑEZ' },
-    { id: 2, nombre: '002: JUAN PEREZ' }
+    { id: 1, nombre: '001 - PRESTAMO EXPRESS' },
+
   ])
 
   // --- CARRITO DE COMPRAS (El Grid) ---
@@ -284,7 +299,7 @@
         descuento: form.value.descuento,
         conceptos: carrito.value,
         pago: datosPagoTemporal.value,
-        // NUEVO: Agregamos las denominaciones al payload
+        tipo_operacion: form.value.tipo_operacion,
         denominaciones: dataContador ? dataContador.denominaciones : null
       }
 
@@ -411,6 +426,7 @@
     if (e.key === 'F6') { e.preventDefault(); accionAceptarPago(); }
     if (e.key === 'F8') { e.preventDefault(); limpiarDatos(); }
   }
+
 
   onMounted(() => {
     obtenerSiguienteFolio()
