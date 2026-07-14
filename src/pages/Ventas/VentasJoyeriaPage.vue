@@ -169,9 +169,8 @@
       v-model="modalConceptoVisible"
       @concepto-agregado="recibirConcepto"
     />
-  </q-page>
 
-  <DialogoCobroVentaJoyeria
+     <DialogoCobroVentaJoyeria
       v-model="modalCobroVisible"
       :total-pagar="totales.totalPagar"
       :tipo-venta="form.tipo_venta"
@@ -186,6 +185,9 @@
       :tipo-operacion="form.tipo_operacion === 'COMPRA' ? 'SALIDA' : 'ENTRADA'"
       @confirmar="procesarVentaFinal"
     />
+  </q-page>
+
+
 </template>
 
 <script setup>

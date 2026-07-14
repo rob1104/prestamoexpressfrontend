@@ -18,18 +18,18 @@
 
         <div class="row q-col-gutter-md">
           <div class="col-6 column q-gutter-y-sm">
-            <div v-for="billete in billetes" :key="billete.valor" class="row items-center justify-between">
-              <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ billete.valor }}</span>
-              <q-input v-model.number="denominaciones['b'+billete.valor]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
-              <span class="text-weight-bolder text-positive" style="width: 80px; text-align: right">{{ formatMoney(denominaciones['b'+billete.valor] * billete.valor) }}</span>
+            <div v-for="billete in listaBilletes" :key="billete" class="row items-center justify-between">
+              <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ billete }}</span>
+              <q-input v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
+              <span class="text-weight-bolder text-positive" style="width: 80px; text-align: right">{{ formatMoney((conteo.billetes[billete] || 0) * billete) }}</span>
             </div>
           </div>
 
           <div class="col-6 column q-gutter-y-sm">
-            <div v-for="moneda in monedas" :key="moneda.valor" class="row items-center justify-between">
+            <div v-for="moneda in listaMonedas" :key="moneda.valor" class="row items-center justify-between">
               <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ moneda.etiqueta }}</span>
-              <q-input v-model.number="denominaciones['m'+moneda.etiqueta.replace('.','')]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
-              <span class="text-weight-bolder text-positive" style="width: 80px; text-align: right">{{ formatMoney(denominaciones['m'+moneda.etiqueta.replace('.','')] * moneda.valor) }}</span>
+              <q-input v-model.number="conteo.monedas[moneda.key]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
+              <span class="text-weight-bolder text-positive" style="width: 80px; text-align: right">{{ formatMoney((conteo.monedas[moneda.key] || 0) * moneda.valor) }}</span>
             </div>
           </div>
         </div>
@@ -51,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, reactive } from 'vue'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
 
@@ -64,57 +64,54 @@ const mostrar = computed({
   set: (val) => emit('update:modelValue', val)
 })
 
-const billetes = [{valor: 1000}, {valor: 500}, {valor: 200}, {valor: 100}, {valor: 50}, {valor: 20}]
-const monedas = [
-  {valor: 10, etiqueta: '10'}, {valor: 5, etiqueta: '5'},
-  {valor: 2, etiqueta: '2'}, {valor: 1, etiqueta: '1'}, {valor: 0.50, etiqueta: '0.50'}
+const listaBilletes = ['1000', '500', '200', '100', '50', '20']
+
+// --- AQUÍ AGREGAMOS LA MONEDA 0.01 ---
+const listaMonedas = [
+  {valor: 10, etiqueta: '10', key: 'm10'},
+  {valor: 5, etiqueta: '5', key: 'm5'},
+  {valor: 2, etiqueta: '2', key: 'm2'},
+  {valor: 1, etiqueta: '1', key: 'm1'},
+  {valor: 0.50, etiqueta: '0.50', key: 'm050'},
+  {valor: 0.01, etiqueta: '0.01', key: 'm001'}
 ]
 
-const denominaciones = ref({
-  b1000: 0, b500: 0, b200: 0, b100: 0, b50: 0, b20: 0,
-  m10: 0, m5: 0, m2: 0, m1: 0, m050: 0
+const conteo = reactive({
+  billetes: { '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0 },
+  monedas: { 'm10': 0, 'm5': 0, 'm2': 0, 'm1': 0, 'm050': 0, 'm001': 0 }
 })
 
 const formatMoney = (val) => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(Number(val || 0))
 
 const totalIngresado = computed(() => {
   let total = 0
-  billetes.forEach(b => total += (Number(denominaciones.value['b'+b.valor]) || 0) * b.valor)
-  monedas.forEach(m => total += (Number(denominaciones.value['m'+m.etiqueta.replace('.','')]) || 0) * m.valor)
+  Object.entries(conteo.billetes).forEach(([val, cant]) => total += (Number(cant) || 0) * Number(val))
+  listaMonedas.forEach(m => total += (Number(conteo.monedas[m.key]) || 0) * m.valor)
   return total
 })
 
-// Limpiar modal al abrir
 watch(mostrar, (val) => {
   if (val) {
-    Object.keys(denominaciones.value).forEach(k => denominaciones.value[k] = 0)
+    Object.keys(conteo.billetes).forEach(k => conteo.billetes[k] = null)
+    Object.keys(conteo.monedas).forEach(k => conteo.monedas[k] = null)
   }
 })
 
 const registrarEntrada = async () => {
-  $q.loading.show({ message: 'Registrando entrada en caja...' })
+  $q.loading.show({ message: 'Registrando entrada...' })
   try {
-    const payload = {
+    await api.post('/api/caja/entrada-manual', {
       monto: totalIngresado.value,
-      denominaciones: JSON.stringify(denominaciones.value),
-      observaciones: 'Entrada manual de efectivo (Cambio/Fondo)'
-    }
-
-    // Llamada a Laravel
-    await api.post('/api/caja/entrada-manual', payload)
-
-    $q.notify({ type: 'positive', message: 'Efectivo ingresado a caja correctamente', icon: 'check_circle' })
+      denominaciones: JSON.stringify({ ...conteo.billetes, ...conteo.monedas }),
+      observaciones: 'Entrada manual de efectivo'
+    })
+    $q.notify({ type: 'positive', message: 'Entrada registrada', icon: 'check_circle' })
     emit('entrada-registrada', totalIngresado.value)
     mostrar.value = false
   } catch (error) {
-    $q.notify({ type: 'negative', message: 'Error al registrar entrada: ' + (error.response?.data?.message || '') })
+    $q.notify({ type: 'negative', message: 'Error al registrar' })
   } finally {
     $q.loading.hide()
   }
 }
 </script>
-
-<style scoped>
-.border-orange { border: 1px solid #fdba74; }
-.border-top { border-top: 1px solid #cbd5e1; }
-</style>

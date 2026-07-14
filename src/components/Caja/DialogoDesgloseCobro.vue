@@ -88,16 +88,14 @@
           La diferencia debe ser $0.00 para poder continuar.
         </div>
 
-
-            <q-btn
-              outline
-              color="info"
-              icon="add_circle"
-              label="ENTRADA"
-              class="q-mr-sm text-weight-bold"
-              @click="modalEntradaManual = true"
-            />
-
+        <q-btn
+          outline
+          color="info"
+          icon="add_circle"
+          label="ENTRADA"
+          class="q-mr-sm text-weight-bold"
+          @click="modalEntradaManual = true"
+        />
 
         <q-btn
           label="CANCELAR"
@@ -139,13 +137,14 @@
     set: (val) => emit('update:modelValue', val)
   })
 
-  // Variables exactas a tu referencia
+  // --- AQUÍ SE AGREGÓ EL 0.01 ---
   const listaBilletes = ['1000', '500', '200', '100', '50', '20']
-  const listaMonedas = ['10', '5', '2', '1', '0.50']
+  const listaMonedas = ['10', '5', '2', '1', '0.50', '0.01']
 
   const conteo = reactive({
     billetes: { '1000': 0, '500': 0, '200': 0, '100': 0, '50': 0, '20': 0 },
-    monedas: { '10': 0, '5': 0, '2': 0, '1': 0, '0.50': 0 }
+    // --- AQUÍ SE AGREGÓ EL 0.01 INICIALIZADO EN 0 ---
+    monedas: { '10': 0, '5': 0, '2': 0, '1': 0, '0.50': 0, '0.01': 0 }
   })
 
   const formatMoney = (v) => {
@@ -181,10 +180,8 @@
   const confirmarEnvio = () => {
     if (diferencia.value !== 0) return
 
-    // Definimos el arreglo que contendrá TODO el desglose físico
     const desgloseLimpio = []
 
-    // 1. Mapeamos BILLETES (Asumiendo que tienes conteo.billetes)
     Object.entries(conteo.billetes).forEach(([val, cant]) => {
       if (Number(cant) > 0) {
         desgloseLimpio.push({
@@ -196,11 +193,9 @@
       }
     })
 
-    // 2. Mapeamos MONEDAS
     Object.entries(conteo.monedas).forEach(([val, cant]) => {
       if (Number(cant) > 0) {
         desgloseLimpio.push({
-          // Corregimos la comparación: val suele ser String al venir de Object.entries
           label: Number(val) < 1 ? `${val * 100} Centavos` : `Moneda $${val}`,
           valor: Number(val),
           cantidad: Number(cant),
@@ -209,12 +204,10 @@
       }
     })
 
-    // 3. EMITIMOS UN OBJETO (No solo el arreglo)
-    // Esto permite que el padre encuentre 'denominaciones' y 'efectivo_recibido'
     emit('confirmar', {
-      denominaciones: desgloseLimpio,       // El arreglo para MovimientoCajaController
-      efectivo_recibido: totalDinero.value, // Para BoletaMovimientoPagoController
-      cambio: 0         // Para el registro y ticket
+      denominaciones: desgloseLimpio,
+      efectivo_recibido: totalDinero.value,
+      cambio: 0
     })
   }
 

@@ -15,7 +15,7 @@
         <q-toolbar-title class="text-weight-bold flex items-center">
           <q-icon name="payments" size="32px" class="q-mr-md text-secondary" />
           <div class="gt-xs">XisCAE <span class="text-weight-light">Web</span></div>
-          <div class="q-ml-md text-caption text-grey-6">Versión 0.0.20</div>
+          <div class="q-ml-md text-caption text-grey-6">Versión 0.0.22</div>
         </q-toolbar-title>
 
         <q-space />
@@ -88,19 +88,45 @@
         </transition>
       </router-view>
     </q-page-container>
+
+    <DialogoAperturaCaja
+      v-model="requiereApertura"
+      @apertura-registrada="desbloquearSistema"
+    />
+
   </q-layout>
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
   import { useRouter } from 'vue-router'
   import { useAuthStore } from 'src/stores/auth'
-  // Importación del componente que crearás
+  import { api } from 'boot/axios'
+
   import MenuPrincipal from 'components/MenuPrincipal.vue'
+  import DialogoAperturaCaja from 'components/Caja/DialogoAperturaCaja.vue'
+
+  const requiereApertura = ref(false)
 
   const authStore = useAuthStore()
   const router = useRouter()
   const leftDrawerOpen = ref(false)
+
+  onMounted(async () => {
+    try {
+      const res = await api.get('/api/caja/check-apertura')
+      if (!res.data.apertura_realizada) {
+      requiereApertura.value = true
+    }
+    } catch (error) {
+      console.error('Error al verificar apertura:', error)
+    }
+  })
+
+  const desbloquearSistema = (monto) => {
+    console.log('Desbloqueando sistema con monto:', monto)
+    requiereApertura.value = false
+  }
 
   function toggleLeftDrawer () {
     leftDrawerOpen.value = !leftDrawerOpen.value
@@ -125,13 +151,11 @@
     line-height: 1.1;
   }
 
-  /* Mejora la legibilidad del texto en el header */
   .q-header {
     backdrop-filter: blur(7px);
     background-color: rgba($primary, 0.95) !important;
   }
 
-  /* Efecto hover elegante para los items del menú lateral */
   .q-drawer .q-item {
     border-radius: 0 24px 24px 0;
     margin-right: 12px;
