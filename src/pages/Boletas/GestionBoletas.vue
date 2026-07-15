@@ -188,6 +188,15 @@
             </q-btn>
             <q-btn
               flat round dense
+              color="green-7"
+              icon="print"
+              class="btn-accion bg-green-1"
+              @click="reimprimirBoleta(props.row.id)"
+            >
+              <q-tooltip class="bg-green-9 text-weight-bold">Reimprimir Ticket</q-tooltip>
+            </q-btn>
+            <q-btn
+              flat round dense
               color="red-7"
               icon="picture_as_pdf"
               class="btn-accion bg-red-1"
@@ -240,6 +249,7 @@
   import { ref, onMounted, watch, computed } from 'vue'
   import { api } from 'boot/axios'
   import { useQuasar, date } from 'quasar'
+  import { PrintService } from 'src/services/PrintService'
 
   import ComponenteBoletaDetalles from 'components/Boletas/ComponenteBoletaDetalles.vue'
 
@@ -424,6 +434,21 @@
       $q.notify({ type: 'positive', message: 'Descarga finalizada', icon: 'download_done' })
     } catch (error) {
       $q.notify({ type: 'negative', message: 'Error al generar el PDF' })
+    } finally {
+      $q.loading.hide()
+    }
+  }
+
+  const reimprimirBoleta = async (id) => {
+    $q.loading.show({ message: 'Preparando reimpresión...' })
+    try {
+      const res = await api.get(`/api/boletas/${id}/detalles`)
+      const boletaCompleta = res.data
+      await PrintService.imprimirBoleta(boletaCompleta, boletaCompleta.calendarioPagos || boletaCompleta.calendario_pagos || [])
+      $q.notify({ type: 'positive', message: 'Enviado a impresora térmica', icon: 'print' })
+    } catch (error) {
+      console.error(error)
+      $q.notify({ type: 'negative', message: 'Error al reimprimir la boleta' })
     } finally {
       $q.loading.hide()
     }

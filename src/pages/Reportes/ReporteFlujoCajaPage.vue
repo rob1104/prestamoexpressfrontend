@@ -14,6 +14,9 @@
 
         <q-btn color="primary" icon="search" label="Consultar" @click="consultarFlujo" :loading="loading" class="q-ml-sm" />
         <q-btn color="grey-7" icon="print" label="Imprimir PDF" @click="imprimirPDF" :disable="!reporte" flat class="q-ml-xs" />
+        <q-space />
+        <q-btn color="positive" icon="add" label="Entrada" @click="mostrarEntrada = true" outline class="q-ml-xs bg-white text-weight-bold" />
+        <q-btn color="negative" icon="remove" label="Gasto / Salida" @click="mostrarSalida = true" outline class="q-ml-xs bg-white text-weight-bold" />
       </q-card-section>
     </q-card>
 
@@ -98,6 +101,9 @@
         </div>
       </q-card-section>
     </q-card>
+
+    <DialogoEntradaCaja v-model="mostrarEntrada" @entrada-registrada="consultarFlujo" />
+    <DialogoSalidaCaja v-model="mostrarSalida" @salida-registrada="consultarFlujo" />
   </q-page>
 </template>
 
@@ -106,9 +112,15 @@
   import { api } from 'boot/axios'
   import { date, useQuasar } from 'quasar'
 
+  import DialogoEntradaCaja from 'components/Caja/DialogoEntradaCaja.vue'
+  import DialogoSalidaCaja from 'components/Caja/DialogoSalidaCaja.vue'
+
   const $q = useQuasar()
   const loading = ref(false)
   const reporte = ref(null)
+
+  const mostrarEntrada = ref(false)
+  const mostrarSalida = ref(false)
 
   const form = ref({
     fecha_inicio: date.formatDate(new Date(), 'YYYY-MM-DD'),

@@ -58,8 +58,12 @@ export const PrintService = {
 
       const payload = {
         folio: boletaData.id,
-        // Concatenamos ID y Nombre como aparece en el ticket
-        cliente: `${boletaData.cliente_id} - ${boletaData.cliente.nombre} ${boletaData.cliente.apellido_paterno || ''} ${boletaData.cliente.apellido_materno || ''}`.trim(),
+        // Concatenamos ID y Nombre considerando que el backend podría enviar apellidos, o los campos por separado
+        cliente: (() => {
+          if (!boletaData.cliente) return `${boletaData.cliente_id} - DESCONOCIDO`;
+          const ape = boletaData.cliente.apellidos ? boletaData.cliente.apellidos : `${boletaData.cliente.apellido_paterno || ''} ${boletaData.cliente.apellido_materno || ''}`;
+          return `${boletaData.cliente_id} - ${boletaData.cliente.nombre || ''} ${ape}`.replace(/\s+/g, ' ').trim();
+        })(),
         fecha: boletaData.fecha_boleta,
         // Importante: Enviar el vencimiento formateado (ej: 26-mar-2026)
         vencimiento: boletaData.fecha_vencimiento,
@@ -185,7 +189,11 @@ export const PrintService = {
 
       // Datos del Cliente y Bolsa
       cliente_id: ticketdata.cliente?.id || '000',
-      cliente_nombre: ticketdata.cliente?.nombre + ' ' + ticketdata.cliente?.apellido_paterno + ' ' + ticketdata.cliente?.apellido_materno || 'PÚBLICO GENERAL',
+      cliente_nombre: (() => {
+        if (!ticketdata.cliente) return 'PÚBLICO GENERAL';
+        const ape = ticketdata.cliente.apellidos ? ticketdata.cliente.apellidos : `${ticketdata.cliente.apellido_paterno || ''} ${ticketdata.cliente.apellido_materno || ''}`;
+        return `${ticketdata.cliente.nombre || ''} ${ape}`.replace(/\s+/g, ' ').trim();
+      })(),
       bolsa: ticketdata.no_bolsa || 'N/A',
       numero_refrendo: ticketdata.numero_refrendo || '1',
 
@@ -219,7 +227,11 @@ export const PrintService = {
       accion: "PAGO_BOLETA",
       boleta: {
         id: boleta.id,
-        cliente: boleta.cliente.nombre + ' ' + boleta.cliente.apellido_paterno + ' ' + boleta.cliente.apellido_materno,
+        cliente: (() => {
+          if (!boleta.cliente) return 'DESCONOCIDO';
+          const ape = boleta.cliente.apellidos ? boleta.cliente.apellidos : `${boleta.cliente.apellido_paterno || ''} ${boleta.cliente.apellido_materno || ''}`;
+          return `${boleta.cliente.nombre || ''} ${ape}`.replace(/\s+/g, ' ').trim();
+        })(),
         fecha_boleta: boleta.fecha_boleta,
         fecha_vencimiento: boleta.fecha_vencimiento,
         prestamo: boleta.prestamo
