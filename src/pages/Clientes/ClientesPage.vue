@@ -1,11 +1,11 @@
 <template>
-  <q-page class="q-pa-lg bg-slate-50">
+  <q-page class="page-container">
     <div class="row items-center q-mb-lg">
       <div class="col">
-        <div class="text-h4 text-weight-bolder text-primary tracking-tight">
+        <div class="title-main">
           Gestión de Clientes
         </div>
-        <div class="text-subtitle1 text-grey-7">
+        <div class="title-sub">
           Directorio centralizado de clientes y su información de contacto
         </div>
       </div>
@@ -16,13 +16,13 @@
           icon="add"
           label="Nuevo Cliente"
           rounded
-          class="q-px-lg shadow-8 btn-premium"
+          class="q-px-lg btn-premium"
           @click="openForm()"
         />
       </div>
     </div>
 
-    <q-card class="table-container shadow-24">
+    <q-card class="card-premium">
       <q-table
         :rows="rows"
         :columns="columns"
@@ -31,7 +31,7 @@
         :loading="loading"
         :filter="filter"
         v-model:pagination="pagination"
-        class="sicae-premium-table shadow-24"
+        class="table-premium"
       >
 
         <template v-slot:top>
@@ -57,13 +57,11 @@
         </template>
 
         <template v-slot:header="props">
-          <q-tr :props="props" class="bg-primary text-white">
+          <q-tr :props="props">
             <q-th
               v-for="col in props.cols"
               :key="col.name"
               :props="props"
-              class="text-weight-bolder text-uppercase"
-              style="font-size: 0.8rem; letter-spacing: 0.05em; padding: 18px;"
             >
               {{ col.label }}
             </q-th>
@@ -361,64 +359,8 @@
 </script>
 
 <style lang="scss">
-
-  .bg-slate-50 {
-    background-color: #f8fafc;
-  }
-
-  .table-container {
-    border-radius: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-  }
-
-  .shadow-btn-premium {
-    box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3), 0 4px 6px -2px rgba(30, 58, 138, 0.1);
-    transition: all 0.3s ease;
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.25);
-    }
-  }
-
-
-  .sicae-premium-table {
-    background-color: transparent;
-
-    .q-table__middle {
-      border-radius: 12px;
-    }
-
-    // Mejoramos la legibilidad del texto monospaciado para IDs
-    .font-mono {
-      font-family: 'Roboto Mono', monospace;
-      letter-spacing: 0.5px;
-      color: #334155;
-    }
-
-    // Ajuste de filas para dar aire
-    tbody td {
-      height: 70px !important; // Más alto para acomodar las dos líneas de info
-      font-size: 13px;
-    }
-
-    // Sombra suave en las celdas de acciones para que resalten
-    .q-btn--round {
-      background: white;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      &:hover {
-        box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-      }
-    }
-  }
-
   .border-white {
     border: 2px solid white;
   }
-
-  .tracking-tight { letter-spacing: -0.025em; }
   .opacity-60 { opacity: 0.6; }
-
-
-
 </style>

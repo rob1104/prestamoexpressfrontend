@@ -139,18 +139,6 @@
 </script>
 
 <style lang="scss">
-  .border-bottom-soft {
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  .border-top-soft {
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  .leading-tight {
-    line-height: 1.1;
-  }
-
   .q-header {
     backdrop-filter: blur(7px);
     background-color: rgba($primary, 0.95) !important;
@@ -168,17 +156,4 @@
       font-weight: 600;
     }
   }
-
-  .fade-slide-enter-from {
-    opacity: 0;
-    transform: translateY(15px); /* Entra desde un poco más abajo */
-  }
-  .fade-slide-leave-to {
-    opacity: 0;
-    transform: translateY(-10px); /* Sale un poco hacia arriba */
-  }
-  .fade-slide-enter-active, .fade-slide-leave-active {
-    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); /* Curva de animación más suave */
-  }
-
 </style>

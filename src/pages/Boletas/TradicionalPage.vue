@@ -1,6 +1,6 @@
 <template>
-  <q-page class="q-pa-sm bg-blue-grey-1">
-    <div class="row q-col-gutter-xs q-mb-sm bg-white border-bottom q-pa-xs items-center">
+  <q-page class="page-container" style="padding: 12px;">
+    <q-card class="card-premium q-mb-md q-pa-sm row items-center">
       <div class="col-auto row q-gutter-xs">
         <q-btn flat dense color="grey-9" icon="save" label="F6 Confirmar" @click="saveBoleta" class="btn-sicae" stack />
         <q-btn flat dense color="blue-9" icon="refresh" label="F7 Limpiar" @click="resetForm" class="btn-sicae" stack />
@@ -8,11 +8,11 @@
       </div>
       <q-space />
       <div class="col-auto">
-        <div class="text-h6 text-weight-bolder text-italic q-mr-md text-primary tracking-tighter">
+        <div class="title-main text-italic" style="font-size: 1.2rem;">
           Préstamo TRADICIONAL
         </div>
       </div>
-    </div>
+    </q-card>
 
     <div class="row q-col-gutter-sm">
 
@@ -49,7 +49,7 @@
 
        <div v-if="form.categoria_id === 1 || form.categoria_id == '01'">
 
-          <div class="row items-center q-mb-sm q-mt-sm bg-white q-pa-sm border-bottom shadow-1">
+          <div class="row items-center q-mb-sm q-mt-sm q-pa-sm card-premium">
             <div class="text-caption text-weight-bold q-mr-sm text-primary uppercase">Cotización de Oro:</div>
             <q-select
               v-model="clasificacionActual"
@@ -95,7 +95,7 @@
                   @update:model-value="onPromocionChange"
                 />
               </div>
-        <q-card flat bordered class="bg-white shadow-2">
+        <q-card class="card-premium">
           <q-card-section class="row no-wrap items-center q-pa-none">
             <div class="col-12">
                <BoletaResumenFinanciero :resumen="form" @confirmar="saveBoleta" />
@@ -561,9 +561,7 @@
 </script>
 
 <style lang="scss" scoped>
-  .bg-blue-grey-1 { background-color: #f0f4f7; }
   .btn-sicae { font-size: 10px; width: 85px; border: 1px solid #ddd; margin-right: 2px; background: white; }
-  .border-bottom { border-bottom: 2px solid #bdbdbd; }
   .bg-yellow-1 { background-color: #fefce8; }
   .tracking-tighter { letter-spacing: -0.04em; }
   .select-none { user-select: none; }

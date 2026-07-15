@@ -1,1 +1,117 @@
 // app global css in SCSS form
+
+/* ==========================================================================
+   SISTEMA DE DISEÑO GLOBAL - PRESTAMO EXPRESS
+   ========================================================================== */
+
+/* Fondos y Contenedores */
+.page-container {
+  background-color: #f8fafc;
+  padding: 24px;
+}
+
+/* Tarjetas (Cards) */
+.card-premium {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  background-color: #ffffff;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.card-premium:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+}
+
+.card-standard {
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Tablas */
+.table-premium {
+  background-color: transparent !important;
+}
+.table-premium .q-table__middle {
+  border-radius: 12px;
+}
+.table-premium thead tr {
+  background-color: var(--q-primary);
+  color: white;
+}
+.table-premium thead th {
+  font-weight: 700 !important;
+  font-size: 0.8rem !important;
+  letter-spacing: 0.05em !important;
+  padding: 16px !important;
+  text-transform: uppercase;
+}
+.table-premium tbody td {
+  font-size: 13px !important;
+  height: 64px !important;
+}
+
+/* Monospaced text (para IDs, folios, etc.) */
+.font-mono {
+  font-family: 'Roboto Mono', monospace;
+  letter-spacing: 0.5px;
+  color: #334155;
+}
+
+/* Botones Premium */
+.btn-premium {
+  box-shadow: 0 4px 6px -1px rgba(30, 58, 138, 0.2), 0 2px 4px -1px rgba(30, 58, 138, 0.1);
+  transition: all 0.3s ease;
+}
+.btn-premium:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.25);
+}
+
+/* Action Buttons (en tablas) */
+.action-btn {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+.action-btn:hover {
+  box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  transform: scale(1.05);
+}
+
+/* Utilidades de Tipografía */
+.title-main {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--q-primary);
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+
+.title-sub {
+  font-size: 1rem;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.tracking-tight { letter-spacing: -0.025em; }
+.leading-tight { line-height: 1.1; }
+
+/* Separadores sutiles */
+.border-bottom-soft { border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+.border-top-soft { border-top: 1px solid rgba(0, 0, 0, 0.05); }
+
+/* Transiciones globales suaves */
+.fade-slide-enter-active, .fade-slide-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.fade-slide-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.fade-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}

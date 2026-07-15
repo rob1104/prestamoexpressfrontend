@@ -1,6 +1,6 @@
 <template>
-  <q-page class="q-pa-sm bg-blue-grey-1">
-    <div class="row q-col-gutter-xs q-mb-sm bg-white border-bottom q-pa-xs items-center shadow-1">
+  <q-page class="page-container" style="padding: 12px;">
+    <q-card class="card-premium q-mb-md q-pa-sm row items-center">
       <div class="col-auto row q-gutter-xs">
         <q-btn flat dense color="blue-grey-8" icon="receipt" label="F4 Nota Mostrador" @click="accionNotaMostrador" class="btn-sicae" stack />
         <q-btn flat dense color="blue-9" icon="file_download" label="F5 Carga Nota" @click="accionCargarNota" class="btn-sicae" stack />
@@ -9,12 +9,12 @@
         <q-btn flat dense color="red-9" icon="logout" label="F9 Salir" to="/" class="btn-sicae" stack />
       </div>
       <q-space />
-      <div class="text-h6 text-weight-bolder text-italic q-mr-md text-primary tracking-tighter uppercase">
+      <div class="title-main text-italic" style="font-size: 1.2rem;">
         Ventas de Joyería [ CAJA ]
       </div>
-    </div>
+    </q-card>
 
-    <q-card flat bordered class="q-mb-sm bg-white shadow-1">
+    <q-card class="card-premium q-mb-md">
       <q-card-section class="q-pa-sm">
         <div class="row q-col-gutter-sm">
 
@@ -105,8 +105,8 @@
 
     <div class="row q-col-gutter-sm">
       <div class="col-12 col-md-9">
-        <q-markup-table dense flat bordered class="bg-white shadow-1 table-sicae" style="height: 350px;">
-          <thead class="bg-grey-2">
+        <q-markup-table dense class="table-premium table-sicae" style="height: 350px;">
+          <thead>
             <tr>
               <th class="text-center" style="width: 50px">Cant.</th>
               <th class="text-left">Concepto</th>
@@ -134,11 +134,11 @@
 
       <div class="col-12 col-md-3 column justify-between">
         <div class="column q-gutter-y-sm q-mb-md">
-          <q-btn color="grey-9" icon="arrow_drop_up" label="Agregar" stack class="full-width shadow-2 text-weight-bold" @click="abrirModalConcepto" />
-          <q-btn color="grey-4" text-color="black" icon="arrow_drop_down" label="Quitar" stack class="full-width shadow-1" @click="quitarUltimoConcepto" :disable="carrito.length === 0" />
+          <q-btn color="primary" icon="arrow_drop_up" label="Agregar" stack class="full-width btn-premium text-weight-bold" @click="abrirModalConcepto" />
+          <q-btn color="grey-4" text-color="black" icon="arrow_drop_down" label="Quitar" stack class="full-width btn-premium" @click="quitarUltimoConcepto" :disable="carrito.length === 0" />
         </div>
 
-        <q-card flat bordered class="bg-white shadow-1">
+        <q-card class="card-premium">
           <q-card-section class="q-pa-sm column q-gutter-y-xs">
             <div class="financial-row-mov">
               <span class="text-weight-bold">Sub Total:</span>
@@ -442,7 +442,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .bg-blue-grey-1 { background-color: #f0f4f7; }
   .btn-sicae { font-size: 10px; width: 100px; border: 1px solid #ddd; background: white; }
   .border-bottom { border-bottom: 2px solid #bdbdbd; }
 

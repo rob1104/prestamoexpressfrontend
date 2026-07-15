@@ -1,11 +1,11 @@
 <template>
-  <q-page class="q-pa-lg bg-slate-50">
+  <q-page class="page-container">
     <div class="row items-center q-mb-lg">
       <div class="col">
-        <div class="text-h4 text-weight-bolder text-primary tracking-tight">
+        <div class="title-main">
           Gestión de Usuarios
         </div>
-        <div class="text-subtitle1 text-grey-7">
+        <div class="title-sub">
           Administración centralizada de accesos y perfiles
         </div>
       </div>
@@ -17,13 +17,13 @@
           rounded
           unelevated
           size="md"
-          class="shadow-btn-premium text-weight-bold"
+          class="btn-premium text-weight-bold"
           @click="openForm(false)"
         />
       </div>
     </div>
 
-    <q-card class="table-container shadow-24">
+    <q-card class="card-premium">
       <q-table
         :rows="rows"
         :columns="columns"
@@ -32,7 +32,7 @@
         :loading="loading"
         :filter="filter"
         :pagination="pagination"
-        class="sicae-premium-table"
+        class="table-premium"
       >
         <template v-slot:top-right>
           <q-input
@@ -51,13 +51,11 @@
         </template>
 
         <template v-slot:header="props">
-          <q-tr :props="props" class="bg-primary text-white">
+          <q-tr :props="props">
             <q-th
               v-for="col in props.cols"
               :key="col.name"
               :props="props"
-              class="text-weight-bolder text-uppercase cursor-pointer"
-              style="font-size: 0.75rem; letter-spacing: 0.1em; padding: 16px;"
             >
               {{ col.label }}
               </q-th>
@@ -236,53 +234,8 @@
 </script>
 
 <style lang="scss">
-
-  .bg-slate-50 {
-    background-color: #f8fafc;
-  }
-
-  .table-container {
-    border-radius: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-  }
-
-  .shadow-btn-premium {
-    box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3), 0 4px 6px -2px rgba(30, 58, 138, 0.1);
-    transition: all 0.3s ease;
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(30, 58, 138, 0.25);
-    }
-  }
-
-
-  .sicae-premium-table {
-    .q-table__top {
-      padding: 20px;
-    }
-
-
-
-    tbody tr {
-      transition: background-color 0.2s ease;
-      &:hover {
-        background-color: #f1f5f9 !important;
-      }
-    }
-
-    td {
-      padding: 12px 16px !important;
-      border-bottom: 1px solid #f1f5f9;
-    }
-  }
-
   .border-white {
     border: 2px solid white;
   }
-
-  .tracking-tight { letter-spacing: -0.025em; }
   .opacity-60 { opacity: 0.6; }
-
-
 </style>
