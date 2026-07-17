@@ -25,6 +25,8 @@ const routes = [
       { path: 'reportes', children: [
         { path: 'cartera', component: () => import('pages/Reportes/ReporteCarteraPage.vue'), meta: { requiresAuth: true, permission: 'reportes cartera'} },
         { path: 'flujocaja', component: () => import('pages/Reportes/ReporteFlujoCajaPage.vue'), meta: { requiresAuth: true, permission: 'reportes flujo caja'} },
+        { path: 'boletas-vencidas', component: () => import('pages/Reportes/ReporteBoletasVencidasPage.vue'), meta: { requiresAuth: true, permission: 'reportes boletas vencidas'} },
+        { path: 'ventas', component: () => import('pages/Reportes/ReporteVentasPage.vue'), meta: { requiresAuth: true, permission: 'reportes ventas'} },
       ]},
     ]
   },
