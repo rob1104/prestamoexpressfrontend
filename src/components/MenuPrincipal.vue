@@ -65,6 +65,10 @@
         <q-item-section avatar><q-icon name="point_of_sale" size="xs" /></q-item-section>
         <q-item-section>Ventas Detallado</q-item-section>
       </q-item>
+      <q-item v-if="authStore.can('cierre diario')" clickable v-ripple to="/reportes/cierre-diario" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="summarize" size="xs" /></q-item-section>
+        <q-item-section>Reporte de Cierres</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item icon="settings" label="Administración" class="q-mx-md menu-item" header-class="text-weight-bold">

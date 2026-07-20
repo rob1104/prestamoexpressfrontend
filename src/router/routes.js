@@ -27,6 +27,7 @@ const routes = [
         { path: 'flujocaja', component: () => import('pages/Reportes/ReporteFlujoCajaPage.vue'), meta: { requiresAuth: true, permission: 'reportes flujo caja'} },
         { path: 'boletas-vencidas', component: () => import('pages/Reportes/ReporteBoletasVencidasPage.vue'), meta: { requiresAuth: true, permission: 'reportes boletas vencidas'} },
         { path: 'ventas', component: () => import('pages/Reportes/ReporteVentasPage.vue'), meta: { requiresAuth: true, permission: 'reportes ventas'} },
+        { path: 'cierre-diario', component: () => import('pages/Reportes/CierreDiarioReportePage.vue'), meta: { requiresAuth: true, permission: 'cierre diario'} },
       ]},
     ]
   },
