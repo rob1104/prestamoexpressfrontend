@@ -200,9 +200,9 @@
               color="red-7"
               icon="picture_as_pdf"
               class="btn-accion bg-red-1"
-              @click="descargarPDF(props.row.id)"
+              @click="verPDF(props.row.id)"
             >
-              <q-tooltip class="bg-red-9 text-weight-bold">Descargar PDF</q-tooltip>
+              <q-tooltip class="bg-red-9 text-weight-bold">Ver PDF</q-tooltip>
             </q-btn>
             </q-td>
         </template>
@@ -419,19 +419,15 @@
     }, 500)
   }
 
-  const descargarPDF = async (id) => {
+  const verPDF = async (id) => {
     $q.loading.show({ message: 'Generando PDF...' })
     try {
       const res = await api.get(`/api/boletas/${id}/pdf`, { responseType: 'blob' })
-      const url = window.URL.createObjectURL(new Blob([res.data]))
-      const link = document.createElement('a')
-      link.href = url
-      link.setAttribute('download', `Boleta_XisPOS_${id}.pdf`)
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(url)
-      $q.notify({ type: 'positive', message: 'Descarga finalizada', icon: 'download_done' })
+      const blob = new Blob([res.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+      $q.notify({ type: 'positive', message: 'PDF generado correctamente', icon: 'picture_as_pdf' })
     } catch (error) {
       $q.notify({ type: 'negative', message: 'Error al generar el PDF' })
     } finally {
