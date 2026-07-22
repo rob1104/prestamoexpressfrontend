@@ -1,7 +1,7 @@
 <template>
   <div class="q-gutter-y-lg">
     <q-card flat bordered class="valuacion-card shadow-2">
-      <q-card-section class="bg-slate-800 text-white q-py-sm">
+      <q-card-section class="bg-blue-grey-10 text-white q-py-sm">
         <div class="row items-center justify-between">
           <div class="row items-center">
             <q-icon name="straighten" class="q-mr-sm" />

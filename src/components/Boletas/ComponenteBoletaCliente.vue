@@ -333,8 +333,8 @@ const abrirBusquedaAvanzada = async () => {
 
   /* Corregir alineación de etiquetas de texto fijo */
   .label-fixed {
-    width: 65px;
-    font-size: 10px;
+    width: 80px;
+    font-size: 11px;
     color: #475569;
     display: flex;
     align-items: center;

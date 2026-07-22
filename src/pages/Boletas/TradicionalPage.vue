@@ -22,46 +22,48 @@
           @cliente-cambiado="onClienteUpdate"
         >
           <template v-slot:plan-info>
-            <div class="column q-pa-sm">
-              <div class="text-caption text-weight-bold text-primary text-center uppercase">Plazo y Vencimiento</div>
+            <div class="column q-pa-sm" style="height: 100%; justify-content: center;">
+              <div class="row items-center justify-center q-mb-xs">
+                <q-icon name="calendar_month" size="xs" class="q-mr-xs text-primary" />
+                <div class="text-caption text-weight-bolder text-primary text-center uppercase tracking-tight">Plazo y Vencimiento</div>
+              </div>
               <q-select
                 v-model="form.plazo_dias"
                 :options="[
-                  { label:'30 DIAS', value:30 },
-                  { label:'15 DIAS', value:15 },
-                  { label:'07 DIAS', value:7 },
+                  { label:'30 DÍAS', value:30 },
+                  { label:'15 DÍAS', value:15 },
+                  { label:'07 DÍAS', value:7 },
                 ]"
                 outlined dense map-options emit-value
                 bg-color="white"
+                class="q-mb-xs"
                 @update:model-value="calcularVencimiento"
               />
               <q-input
                 v-model="form.fecha_vencimiento"
                 outlined dense readonly
-                bg-color="yellow-1"
-                input-class="text-center text-weight-bold"
-                class="q-mt-xs"
+                bg-color="orange-1"
+                input-class="text-center text-weight-bold text-orange-10"
               />
-
             </div>
           </template>
         </BoletaClienteHeader>
 
        <div v-if="form.categoria_id === 1 || form.categoria_id == '01'">
 
-          <div class="row items-center q-mb-sm q-mt-sm q-pa-sm card-premium">
-            <div class="text-caption text-weight-bold q-mr-sm text-primary uppercase">Cotización de Oro:</div>
+          <div class="row items-center q-mb-sm q-mt-sm q-pa-sm card-premium shadow-1 bg-white" style="border-radius: 4px; border: 1px solid #cbd5e1;">
+            <q-icon name="military_tech" color="orange-8" size="sm" class="q-mr-sm" />
+            <div class="text-caption text-weight-bolder q-mr-md text-primary uppercase tracking-tight">Cotización de Oro:</div>
             <q-select
               v-model="clasificacionActual"
-              :options="['NUEVO', 'BUENO', 'EXCELENTE', 'NUEVO']"
-              outlined dense bg-color="blue-1" class="col-4"
+              :options="['NUEVO', 'BUENO', 'EXCELENTE', 'COMPRA']"
+              outlined dense bg-color="white" class="col-4 col-md-3"
               @update:model-value="onClasificacionChange"
             >
-              <template v-slot:prepend><q-icon name="military_tech" color="orange-8" /></template>
             </q-select>
             <q-space />
-            <div v-if="hasSelectedClient" class="text-caption text-grey-7 italic">
-              El cambio se guardará en el perfil del cliente.
+            <div v-if="hasSelectedClient" class="text-caption text-grey-6 italic">
+              * El cambio se guardará en el perfil del cliente.
             </div>
           </div>
 
@@ -82,19 +84,23 @@
 
 
       <div class="col-12 col-md-4 q-gutter-y-sm">
-        <div class="row items-center no-wrap q-mt-xs">
-                <div class="text-caption text-weight-bold q-mr-xs">PROMOCIÓN:</div>
-                <q-select
-                  emit-value
-                  map-options
-                  v-model="form.promocion_id"
-                  :options="promocionesOptions"
-                  outlined dense
-                  class="col input-premium-compact"
-                  bg-color="blue-1"
-                  @update:model-value="onPromocionChange"
-                />
-              </div>
+        <q-card flat bordered class="q-mb-sm shadow-1" style="background: #f8fafc; border-color: #cbd5e1;">
+          <q-card-section class="q-pa-sm">
+            <div class="row items-center no-wrap">
+              <q-icon name="loyalty" color="primary" size="xs" class="q-mr-xs" />
+              <div class="text-caption text-weight-bolder text-primary q-mr-sm tracking-tight uppercase">PROMOCIÓN:</div>
+              <q-select
+                emit-value
+                map-options
+                v-model="form.promocion_id"
+                :options="promocionesOptions"
+                outlined dense
+                class="col input-premium-compact bg-white"
+                @update:model-value="onPromocionChange"
+              />
+            </div>
+          </q-card-section>
+        </q-card>
         <q-card class="card-premium">
           <q-card-section class="row no-wrap items-center q-pa-none">
             <div class="col-12">
