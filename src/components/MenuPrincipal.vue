@@ -111,48 +111,54 @@
   .menu-principal-list {
     
     .menu-item {
-      border-radius: 8px;
-      margin-bottom: 6px;
-      transition: all 0.3s ease;
+      border-radius: 0 24px 24px 0;
+      margin-right: 16px;
+      margin-bottom: 4px;
+      margin-top: 4px;
+      color: #5f6368;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
       /* Al pasar el mouse por un módulo principal */
-      &:hover { background-color: rgba($primary, 0.05); }
+      &:hover { 
+        background-color: rgba($primary, 0.05); 
+        color: $primary;
+      }
     }
 
     .q-expansion-item__container {
-      border-radius: 8px;
+      border-radius: 0 24px 24px 0;
     }
 
     /* Modulo Principal Activo (Panel Principal) */
     .menu-item-active {
-      background: linear-gradient(90deg, rgba($primary, 0.15) 0%, rgba($primary, 0.05) 100%);
+      background: linear-gradient(90deg, rgba($primary, 0.12) 0%, rgba($primary, 0.02) 100%);
       color: $primary;
-      border-left: 5px solid $primary;
+      border-left: 4px solid $primary;
       font-weight: 700;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+      border-radius: 0 24px 24px 0;
     }
 
     /* Sub-menús (Las opciones dentro de los desplegables) */
     .submenu-item {
-      border-radius: 6px;
-      margin: 2px 10px 4px 10px; /* Margen para anidarlos visualmente */
-      padding-left: 10px;
+      border-radius: 12px;
+      margin: 4px 12px 4px 36px; /* Aumento del margen izquierdo para mejor jerarquía visual (orgánico) */
+      padding-left: 12px;
       color: $grey-8;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
       
       &:hover {
         background-color: rgba($primary, 0.08);
         color: $primary;
-        transform: translateX(3px); /* Pequeña animación a la derecha */
+        transform: translateX(4px); /* Animación suave */
       }
     }
 
     /* El Sub-menú Activo (Para que contraste fuertemente dónde estás) */
     .submenu-item-active {
-      background-color: $primary !important;
+      background: linear-gradient(135deg, $primary 0%, scale-color($primary, $lightness: 15%) 100%) !important;
       color: white !important;
       font-weight: 600;
-      box-shadow: 0 4px 10px rgba($primary, 0.3);
+      box-shadow: 0 4px 12px rgba($primary, 0.35);
       transform: scale(1.02);
       
       /* Aseguramos que los íconos también sean blancos */
