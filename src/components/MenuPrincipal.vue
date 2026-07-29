@@ -69,6 +69,10 @@
         <q-item-section avatar><q-icon name="summarize" size="xs" /></q-item-section>
         <q-item-section>Reporte de Cierres</q-item-section>
       </q-item>
+      <q-item v-if="authStore.can('reportes flujo caja')" clickable v-ripple to="/reportes/detalles-movimientos" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="list_alt" size="xs" /></q-item-section>
+        <q-item-section>Detalles de Movimientos</q-item-section>
+      </q-item>
     </q-expansion-item>
 
     <q-expansion-item icon="settings" label="Administración" class="q-mx-md menu-item" header-class="text-weight-bold">
