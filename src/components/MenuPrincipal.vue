@@ -44,18 +44,33 @@
       </q-item>
     </q-expansion-item>
 
-    <q-expansion-item icon="assessment" label="Caja y Reportes" class="q-mx-md menu-item" header-class="text-weight-bold">
+    <q-expansion-item icon="point_of_sale" label="Caja" class="q-mx-md menu-item" header-class="text-weight-bold">
+      <q-item clickable v-ripple @click="mostrarEntrada = true" class="submenu-item">
+        <q-item-section avatar><q-icon name="add_circle" size="xs" color="positive" /></q-item-section>
+        <q-item-section>Entrada de Dinero</q-item-section>
+      </q-item>
+      <q-item clickable v-ripple @click="mostrarSalida = true" class="submenu-item">
+        <q-item-section avatar><q-icon name="remove_circle" size="xs" color="negative" /></q-item-section>
+        <q-item-section>Salida de Dinero</q-item-section>
+      </q-item>
       <q-item v-if="authStore.can('cierre diario')" clickable v-ripple to="/operaciones/cierre" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="lock_clock" size="xs" /></q-item-section>
         <q-item-section>Cierre Diario</q-item-section>
       </q-item>
+    </q-expansion-item>
+
+    <q-expansion-item icon="analytics" label="Reportes" class="q-mx-md menu-item" header-class="text-weight-bold">
       <q-item v-if="authStore.can('reportes cartera')" clickable v-ripple to="/reportes/cartera" active-class="submenu-item-active" class="submenu-item">
-        <q-item-section avatar><q-icon name="analytics" size="xs" /></q-item-section>
+        <q-item-section avatar><q-icon name="trending_up" size="xs" /></q-item-section>
         <q-item-section>Cartera</q-item-section>
       </q-item>
       <q-item v-if="authStore.can('reportes flujo caja')" clickable v-ripple to="/reportes/flujocaja" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="account_balance_wallet" size="xs" /></q-item-section>
         <q-item-section>Flujo de Caja</q-item-section>
+      </q-item>
+      <q-item v-if="authStore.can('reportes flujo caja')" clickable v-ripple to="/reportes/detalles-movimientos" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="list_alt" size="xs" /></q-item-section>
+        <q-item-section>Detalles de Movimientos</q-item-section>
       </q-item>
       <q-item v-if="authStore.can('reportes boletas vencidas')" clickable v-ripple to="/reportes/boletas-vencidas" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="warning" size="xs" /></q-item-section>
@@ -69,13 +84,13 @@
         <q-item-section avatar><q-icon name="summarize" size="xs" /></q-item-section>
         <q-item-section>Reporte de Cierres</q-item-section>
       </q-item>
-      <q-item v-if="authStore.can('reportes flujo caja')" clickable v-ripple to="/reportes/detalles-movimientos" active-class="submenu-item-active" class="submenu-item">
-        <q-item-section avatar><q-icon name="list_alt" size="xs" /></q-item-section>
-        <q-item-section>Detalles de Movimientos</q-item-section>
-      </q-item>
     </q-expansion-item>
 
     <q-expansion-item icon="settings" label="Administración" class="q-mx-md menu-item" header-class="text-weight-bold">
+      <q-item clickable v-ripple to="/administracion/conceptos-flujo" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="category" size="xs" /></q-item-section>
+        <q-item-section>Conceptos de Flujo</q-item-section>
+      </q-item>
       <q-item v-if="authStore.can('configurar catalogos joyeria')" clickable v-ripple to="/config/conceptosjoyeria" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="inventory" size="xs" /></q-item-section>
         <q-item-section>Conceptos Joyería</q-item-section>
@@ -101,14 +116,26 @@
         <q-item-section avatar><q-icon name="verified_user" size="xs" /></q-item-section>
         <q-item-section>Logs Auditoría</q-item-section>
       </q-item>
+      <q-item v-if="authStore.can('database.backup')" clickable v-ripple to="/administracion/base-datos" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="storage" size="xs" /></q-item-section>
+        <q-item-section>Base de Datos</q-item-section>
+      </q-item>
     </q-expansion-item>
 
+    <DialogoEntradaCaja v-model="mostrarEntrada" />
+    <DialogoSalidaCaja v-model="mostrarSalida" />
   </q-list>
 </template>
 
 <script setup>
+  import { ref } from 'vue'
   import { useAuthStore } from 'src/stores/auth'
+  import DialogoEntradaCaja from 'src/components/Caja/DialogoEntradaCaja.vue'
+  import DialogoSalidaCaja from 'src/components/Caja/DialogoSalidaCaja.vue'
+
   const authStore = useAuthStore()
+  const mostrarEntrada = ref(false)
+  const mostrarSalida = ref(false)
 </script>
 
 <style lang="scss">

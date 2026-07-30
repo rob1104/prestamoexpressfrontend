@@ -22,6 +22,10 @@ const routes = [
         { path: 'parametros', component: () => import('pages/Cotizaciones/ParametrosPage.vue'), meta: { requiresAuth: true, permission: 'configurar parametros'} },
         { path: 'conceptosjoyeria', component: () => import('pages/Catalogos/CatalogosJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'configurar catalogos joyeria'} },
       ]},
+      { path: 'administracion', children: [
+        { path: 'base-datos', component: () => import('pages/Administracion/DatabaseAdminPage.vue'), meta: { requiresAuth: true, permission: 'database.backup'} },
+        { path: 'conceptos-flujo', component: () => import('pages/Administracion/ConceptosFlujoPage.vue'), meta: { requiresAuth: true } },
+      ]},
       { path: 'reportes', children: [
         { path: 'cartera', component: () => import('pages/Reportes/ReporteCarteraPage.vue'), meta: { requiresAuth: true, permission: 'reportes cartera'} },
         { path: 'flujocaja', component: () => import('pages/Reportes/ReporteFlujoCajaPage.vue'), meta: { requiresAuth: true, permission: 'reportes flujo caja'} },
