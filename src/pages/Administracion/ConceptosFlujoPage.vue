@@ -47,10 +47,10 @@
 
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props">
-            <q-btn flat round dense color="primary" icon="edit" @click="abrirDialogo(props.row)">
+            <q-btn flat round dense class="action-btn" color="blue-8" icon="edit" @click="abrirDialogo(props.row)">
               <q-tooltip>Editar</q-tooltip>
             </q-btn>
-            <q-btn flat round dense color="negative" icon="delete" @click="confirmarEliminar(props.row)">
+            <q-btn flat round dense class="action-btn" color="negative" icon="delete" @click="confirmarEliminar(props.row)">
               <q-tooltip>Eliminar</q-tooltip>
             </q-btn>
           </q-td>

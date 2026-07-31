@@ -88,8 +88,8 @@
         <template v-slot:body-cell-role="props">
           <q-td :props="props" class="text-center">
             <q-badge
-              :color="props.row.roles?.[0]?.name === 'Administrador' ? 'secondary' : 'indigo-1'"
-              :text-color="props.row.roles?.[0]?.name === 'Administrador' ? 'primary' : 'indigo-9'"
+              :color="props.row.roles?.[0]?.name === 'Administrador' ? 'primary' : 'indigo-1'"
+              :text-color="props.row.roles?.[0]?.name === 'Administrador' ? 'white' : 'indigo-9'"
               class="q-px-md q-py-xs text-weight-bolder shadow-1"
               style="border-radius: 6px;"
             >
@@ -114,7 +114,7 @@
         <template v-slot:body-cell-actions="props">
           <q-td :props="props" class="text-right">
             <div class="q-gutter-x-sm">
-              <q-btn v-if="authStore.can('editar usuarios')" flat round color="blue-7" icon="edit_note" size="sm" @click="openForm(true, props.row)">
+              <q-btn v-if="authStore.can('editar usuarios')" flat round class="action-btn" color="blue-8" icon="edit" size="sm" @click="openForm(true, props.row)">
                 <q-tooltip>Editar</q-tooltip>
               </q-btn>
               <q-btn
@@ -127,8 +127,8 @@
               >
                 <q-tooltip>{{ props.row.active ? 'Desactivar' : 'Activar' }}</q-tooltip>
               </q-btn>
-              <q-btn v-if="authStore.can('borrar usuarios')" flat round color="negative" icon="delete_sweep" size="sm" @click="confirmDelete(props.row)">
-                <q-tooltip>Borrar</q-tooltip>
+              <q-btn v-if="authStore.can('borrar usuarios')" flat round class="action-btn" color="negative" icon="delete" size="sm" @click="confirmDelete(props.row)">
+                <q-tooltip>Eliminar</q-tooltip>
               </q-btn>
             </div>
           </q-td>

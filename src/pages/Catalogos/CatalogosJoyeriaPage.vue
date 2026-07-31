@@ -20,8 +20,8 @@
               <tr v-for="cat in categorias" :key="cat.id">
                 <td class="text-weight-bold">{{ cat.nombre }}</td>
                 <td class="text-right">
-                  <q-btn flat round dense color="blue-8" icon="edit" size="sm" @click="editar('categorias', cat)" />
-                  <q-btn flat round dense color="red-8" icon="delete" size="sm" @click="eliminar('categorias', cat.id)" />
+                  <q-btn flat round dense class="action-btn" color="blue-8" icon="edit" size="sm" @click="editar('categorias', cat)" />
+                  <q-btn flat round dense class="action-btn" color="negative" icon="delete" size="sm" @click="eliminar('categorias', cat.id)" />
                 </td>
               </tr>
               <tr v-if="categorias.length === 0"><td colspan="2" class="text-center text-grey">Sin registros</td></tr>
@@ -45,8 +45,8 @@
               <tr v-for="clasif in clasificaciones" :key="clasif.id">
                 <td class="text-weight-bold">{{ clasif.nombre }}</td>
                 <td class="text-right">
-                  <q-btn flat round dense color="blue-8" icon="edit" size="sm" @click="editar('clasificaciones', clasif)" />
-                  <q-btn flat round dense color="red-8" icon="delete" size="sm" @click="eliminar('clasificaciones', clasif.id)" />
+                  <q-btn flat round dense class="action-btn" color="blue-8" icon="edit" size="sm" @click="editar('clasificaciones', clasif)" />
+                  <q-btn flat round dense class="action-btn" color="negative" icon="delete" size="sm" @click="eliminar('clasificaciones', clasif.id)" />
                 </td>
               </tr>
               <tr v-if="clasificaciones.length === 0"><td colspan="2" class="text-center text-grey">Sin registros</td></tr>

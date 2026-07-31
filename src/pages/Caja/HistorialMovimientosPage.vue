@@ -74,10 +74,10 @@
         <!-- Botones de Acción -->
         <template v-slot:body-cell-acciones="props">
           <q-td :props="props" class="text-center">
-            <q-btn flat round color="primary" icon="print" size="sm" @click="reimprimirTicket(props.row)">
+            <q-btn flat round class="action-btn" color="primary" icon="print" size="sm" @click="reimprimirTicket(props.row)">
               <q-tooltip>Reimprimir Ticket</q-tooltip>
             </q-btn>
-            <q-btn flat round color="secondary" icon="info" size="sm" @click="verDetalles(props.row)">
+            <q-btn flat round class="action-btn" color="cyan-9" icon="visibility" size="sm" @click="verDetalles(props.row)">
               <q-tooltip>Ver Detalles</q-tooltip>
             </q-btn>
           </q-td>

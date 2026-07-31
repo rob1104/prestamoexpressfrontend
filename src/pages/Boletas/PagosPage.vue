@@ -447,6 +447,21 @@
     }).onOk(() => procesarBoleta())
   }
 
+  const mostrarBoletaPDF = async (id) => {
+    try {
+      $q.loading.show({ message: 'Generando PDF...' })
+      const res = await api.get(`/api/boletas/${id}/pdf`, { responseType: 'blob' })
+      const blob = new Blob([res.data], { type: 'application/pdf' })
+      const url = window.URL.createObjectURL(blob)
+      window.open(url, '_blank')
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+    } catch (error) {
+      $q.notify({ type: 'negative', message: 'Error al generar el PDF de la boleta.' })
+    } finally {
+      $q.loading.hide()
+    }
+  }
+
   const procesarBoleta = async () => {
     $q.loading.show({ message: 'Guardando boleta en pagos...' })
     try {
@@ -509,6 +524,7 @@
     try {
       await api.post(`/api/movimientoscaja/${idReciente.value}/registrar-efectivo`, data)
       $q.notify({ type: 'positive', message: 'Operación finalizada con éxito.' })
+      await mostrarBoletaPDF(idReciente.value)
       resetForm()
     } catch (error) {
       $q.notify({ type: 'negative', message: 'Error en caja: ' + error.message })

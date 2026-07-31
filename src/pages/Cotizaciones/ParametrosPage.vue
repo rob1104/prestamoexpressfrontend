@@ -249,8 +249,8 @@
                 <td><q-input v-model.number="com.mes_superior" dense borderless type="number" /></td>
                 <td class="bg-blue-0 text-weight-bold text-primary"><q-input v-model.number="com.porcentaje_comision" dense borderless type="number" suffix="%" /></td>
                 <td class="text-center">
-                  <q-btn flat round icon="edit" color="blue" size="sm" @click="openAuxiliar(com, index)" />
-                  <q-btn flat round icon="delete" color="negative" size="sm" @click="removeRow('comisiones', index)" />
+                  <q-btn flat round class="action-btn" icon="edit" color="blue-8" size="sm" @click="openAuxiliar(com, index)" />
+                  <q-btn flat round class="action-btn" icon="delete" color="negative" size="sm" @click="removeRow('comisiones', index)" />
                 </td>
               </tr>
             </tbody>
@@ -310,7 +310,7 @@
                   />
                 </td>
                 <td class="text-center">
-                  <q-btn flat round icon="delete" color="negative" size="sm" @click="removeRow('recargos', index)" />
+                  <q-btn flat round class="action-btn" icon="delete" color="negative" size="sm" @click="removeRow('recargos', index)" />
                 </td>
               </tr>
             </tbody>

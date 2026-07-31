@@ -98,6 +98,7 @@
                     flat 
                     dense 
                     round 
+                    class="action-btn"
                     color="primary" 
                     icon="download" 
                     @click="descargarRespaldo(props.row.name)"
@@ -109,6 +110,7 @@
                     flat 
                     dense 
                     round 
+                    class="action-btn"
                     color="warning" 
                     icon="restore" 
                     @click="confirmarRestauracion(props.row.name)"
@@ -119,6 +121,7 @@
                     flat 
                     dense 
                     round 
+                    class="action-btn"
                     color="negative" 
                     icon="delete" 
                     @click="confirmarEliminacion(props.row.name)"

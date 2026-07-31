@@ -88,8 +88,8 @@
             </q-td>
 
             <q-td key="actions" :props="props" class="text-center">
-              <q-btn flat round color="cyan-9" icon="visibility" @click="viewDetails(props.row)">
-                <q-tooltip>Ver cambios realizados</q-tooltip>
+              <q-btn flat round class="action-btn" color="cyan-9" icon="visibility" @click="viewDetails(props.row)">
+                <q-tooltip>Ver Detalles</q-tooltip>
               </q-btn>
             </q-td>
           </q-tr>
