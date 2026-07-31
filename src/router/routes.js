@@ -17,6 +17,9 @@ const routes = [
       { path: 'ventajoyeria', component: () => import('pages/Ventas/VentasJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'ventas joyeria'} },
       { path: 'ventaelectronicos', component: () => import('pages/Ventas/VentasElectronicosPage.vue'), meta: { requiresAuth: true, permission: 'ventas electronicos'} },
       { path: '/operaciones/cierre', component: () => import('pages/Cierre/ProcesarCierrePage.vue'), meta: { requiresAuth: true, permission: 'cierre diario'} },
+      { path: 'caja', children: [
+        { path: 'historial', component: () => import('pages/Caja/HistorialMovimientosPage.vue'), meta: { requiresAuth: true } },
+      ]},
       { path: 'config', children: [
         { path: 'cotizacionoro', component: () => import('pages/Cotizaciones/OroPage.vue'), meta: { requiresAuth: true, permission: 'configurar cotizacion oro'} },
         { path: 'parametros', component: () => import('pages/Cotizaciones/ParametrosPage.vue'), meta: { requiresAuth: true, permission: 'configurar parametros'} },

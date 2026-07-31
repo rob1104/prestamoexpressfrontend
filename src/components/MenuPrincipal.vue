@@ -45,13 +45,9 @@
     </q-expansion-item>
 
     <q-expansion-item icon="point_of_sale" label="Caja" class="q-mx-md menu-item" header-class="text-weight-bold">
-      <q-item clickable v-ripple @click="mostrarEntrada = true" class="submenu-item">
-        <q-item-section avatar><q-icon name="add_circle" size="xs" color="positive" /></q-item-section>
-        <q-item-section>Entrada de Dinero</q-item-section>
-      </q-item>
-      <q-item clickable v-ripple @click="mostrarSalida = true" class="submenu-item">
-        <q-item-section avatar><q-icon name="remove_circle" size="xs" color="negative" /></q-item-section>
-        <q-item-section>Salida de Dinero</q-item-section>
+      <q-item clickable v-ripple to="/caja/historial" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="history" size="xs" color="primary" /></q-item-section>
+        <q-item-section>Entradas/Salidas</q-item-section>
       </q-item>
       <q-item v-if="authStore.can('cierre diario')" clickable v-ripple to="/operaciones/cierre" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="lock_clock" size="xs" /></q-item-section>
@@ -121,26 +117,18 @@
         <q-item-section>Base de Datos</q-item-section>
       </q-item>
     </q-expansion-item>
-
-    <DialogoEntradaCaja v-model="mostrarEntrada" />
-    <DialogoSalidaCaja v-model="mostrarSalida" />
   </q-list>
 </template>
 
 <script setup>
-  import { ref } from 'vue'
   import { useAuthStore } from 'src/stores/auth'
-  import DialogoEntradaCaja from 'src/components/Caja/DialogoEntradaCaja.vue'
-  import DialogoSalidaCaja from 'src/components/Caja/DialogoSalidaCaja.vue'
 
   const authStore = useAuthStore()
-  const mostrarEntrada = ref(false)
-  const mostrarSalida = ref(false)
 </script>
 
 <style lang="scss">
   .menu-principal-list {
-    
+
     .menu-item {
       border-radius: 0 24px 24px 0;
       margin-right: 16px;
@@ -150,8 +138,8 @@
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 
       /* Al pasar el mouse por un módulo principal */
-      &:hover { 
-        background-color: rgba($primary, 0.05); 
+      &:hover {
+        background-color: rgba($primary, 0.05);
         color: $primary;
       }
     }
@@ -176,7 +164,7 @@
       padding-left: 12px;
       color: $grey-8;
       transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-      
+
       &:hover {
         background-color: rgba($primary, 0.08);
         color: $primary;
@@ -191,7 +179,7 @@
       font-weight: 600;
       box-shadow: 0 4px 12px rgba($primary, 0.35);
       transform: scale(1.02);
-      
+
       /* Aseguramos que los íconos también sean blancos */
       .q-icon {
         color: white !important;
