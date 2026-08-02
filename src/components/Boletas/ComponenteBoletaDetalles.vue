@@ -227,9 +227,9 @@
     const subtotalSinIva = totalComision / 1.16
     const iva = totalComision - subtotalSinIva
     
-    // Mismos cálculos matemáticos que en el PDF
-    const mIntDiv = subtotalSinIva * 0.20
-    const mAlmacenaje = subtotalSinIva * 0.80
+    // Mismos cálculos matemáticos que en el PDF (VB6 compatible: 26.1% y 73.9%)
+    const mIntDiv = subtotalSinIva * 0.261
+    const mAlmacenaje = subtotalSinIva * 0.739
     
     const diferencia = Math.round((subtotalSinIva - (mIntDiv + mAlmacenaje)) * 100) / 100
     
