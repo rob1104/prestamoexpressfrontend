@@ -19,7 +19,7 @@
       </q-item>
       <q-item v-if="authStore.can('ver clientes')" clickable v-ripple to="/clienteshistorial" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="history" size="xs" /></q-item-section>
-        <q-item-section>Historial de Operaciones</q-item-section>
+        <q-item-section>Historial</q-item-section>
       </q-item>
     </q-expansion-item>
 
@@ -90,7 +90,7 @@
       <q-item-label header class="text-caption text-grey-7 q-pb-none">Operación Diaria</q-item-label>
       <q-item v-if="authStore.can('ver caja')" clickable v-ripple to="/cajahistorial" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="receipt_long" size="xs"  /></q-item-section>
-        <q-item-section>Historial y Movimientos</q-item-section>
+        <q-item-section>Movimientos</q-item-section>
       </q-item>
       <q-item v-if="authStore.can('cierre diario')" clickable v-ripple to="/operacionescierre" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="lock_clock" size="xs" /></q-item-section>
@@ -144,7 +144,7 @@
         <q-item-section avatar><q-icon name="warning" size="xs" /></q-item-section>
         <q-item-section>Boletas Vencidas</q-item-section>
       </q-item>
-      
+
       <q-separator inset class="q-my-sm" />
       <q-item-label header class="text-caption text-grey-7 q-pb-none">Comercial</q-item-label>
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportesventas" active-class="submenu-item-active" class="submenu-item">
@@ -202,7 +202,7 @@
         <q-item-section avatar><q-icon name="history" size="xs" /></q-item-section>
         <q-item-section>Logs de Actividad</q-item-section>
       </q-item>
-      
+
       <q-item v-if="authStore.can('database.backup')" clickable v-ripple to="/adminbasedatos" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="storage" size="xs" /></q-item-section>
         <q-item-section>Base de Datos</q-item-section>

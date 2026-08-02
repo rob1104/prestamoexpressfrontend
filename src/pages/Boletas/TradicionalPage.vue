@@ -365,6 +365,21 @@
       return
     }
 
+    // Validar que la caja tenga fondos suficientes
+    try {
+      $q.loading.show({ message: 'Verificando fondos en caja...' })
+      const resInv = await api.get('/api/caja/inventario')
+      if (resInv.data.total < form.value.prestamo) {
+        $q.loading.hide()
+        $q.notify({ type: 'negative', message: `Fondo insuficiente en caja. Tienes $${formatMoney(resInv.data.total)} y el préstamo es de $${formatMoney(form.value.prestamo)}.` })
+        return
+      }
+    } catch (e) {
+      console.error(e)
+    } finally {
+      $q.loading.hide()
+    }
+
     $q.dialog({
       title: 'Confirmar Operación',
       message: '¿Los datos son correctos? Se procederá a generar e imprimir.',

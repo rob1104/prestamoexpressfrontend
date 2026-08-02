@@ -15,22 +15,27 @@
     <q-card flat bordered class="q-mb-sm bg-white">
       <q-card-section class="q-pa-sm">
         <div class="row q-col-gutter-sm items-center">
-          <div class="col-12 col-md-3 row items-center no-wrap">
-            <div class="label-fixed-mov text-weight-bold q-mr-xs">Folio:</div>
+          <div class="col-12 col-md-8 row items-center no-wrap">
+            <div class="label-fixed-mov text-weight-bold q-mr-sm text-blue-grey-8">Buscar Boleta:</div>
             <q-input
               v-model="busquedaFolio"
               outlined dense
-              class="col input-premium-compact"
+              placeholder="Teclee el folio y presione Enter..."
+              class="col input-premium-compact q-mr-sm"
               input-class="text-weight-bolder text-primary"
               @keyup.enter="buscarBoleta"
               autofocus
-            >
-            <template v-slot:append>
-             <q-btn round dense flat icon="search" color="primary" @click="dialogoBuscador = true" />
-           </template>
-          </q-input>
+            />
+            <q-btn 
+              unelevated 
+              color="primary" 
+              icon="person_search" 
+              label="Buscar por Cliente (F2)" 
+              @click="dialogoBuscador = true" 
+              class="shadow-1 text-weight-bold" 
+            />
           </div>
-          <div class="col-12 col-md-6 row items-center no-wrap">
+          <div class="col-12 col-md-4 row items-center no-wrap q-ml-auto">
             <div class="label-fixed-mov text-weight-bold q-mr-xs">Fecha Movimiento:</div>
             <q-input
               v-model="fechaMovimiento"
@@ -447,7 +452,7 @@
         comision: data.comision,
         total_pagar: data.total_pagar,
         fecha_vencimiento: fechaFormateada(data.fecha_vencimiento),
-        plazo: data.tradicional.dias_reales + ' DIAS',
+        plazo: (data.tradicional && data.tradicional.length > 0 ? data.tradicional[0].dias_reales : (data.plazo_dias || 30)) + ' DÍAS',
         pago_facil: 'SI',
         descripcion: data.partidas.map(p =>
           `${p.gramos_cantidad} grs ${p.subtipo}: ${p.descripcion}`

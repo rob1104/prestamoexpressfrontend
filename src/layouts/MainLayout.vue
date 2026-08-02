@@ -65,7 +65,7 @@
       v-model="leftDrawerOpen"
       show-if-above
       bordered
-      :width="320"
+      :width="290"
       class="bg-secondary text-white"
     >
       <q-scroll-area class="fit">
@@ -112,14 +112,8 @@
   const leftDrawerOpen = ref(false)
 
   onMounted(async () => {
-    try {
-      const res = await api.get('/api/caja/check-apertura')
-      if (!res.data.apertura_realizada) {
-      requiereApertura.value = true
-    }
-    } catch (error) {
-      console.error('Error al verificar apertura:', error)
-    }
+    // La apertura automática se ha desactivado a petición del cliente.
+    // El usuario ingresará el fondo a través del módulo manualmente.
   })
 
   const desbloquearSistema = (monto) => {

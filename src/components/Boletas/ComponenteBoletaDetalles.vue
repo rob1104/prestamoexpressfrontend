@@ -23,7 +23,15 @@
           <q-card flat bordered class="bg-grey-1 q-pa-sm full-height">
             <div class="text-overline text-primary text-weight-bold">DATOS DEL CLIENTE</div>
             <div class="text-h6 text-blue-grey-9 text-weight-bold">
-              {{ boleta.cliente?.nombre }} {{ boleta.cliente?.apellidos }}
+              {{ boleta.cliente?.nombre }} {{ boleta.cliente?.apellido_paterno }} {{ boleta.cliente?.apellido_materno }}
+            </div>
+            <div class="text-caption text-grey-8 q-mb-xs">
+              <q-icon name="phone" size="14px" class="q-mr-xs" />
+              {{ boleta.cliente?.telefono1 || 'Sin teléfono' }}
+              <span v-if="boleta.cliente?.callenum">
+                &nbsp;|&nbsp;<q-icon name="place" size="14px" class="q-mr-xs" />
+                {{ boleta.cliente.callenum }}, {{ boleta.cliente.colonia }}
+              </span>
             </div>
             <div class="text-caption text-grey-7">Préstamo otorgado el: <b>{{ formatDate(boleta.fecha_boleta) }}</b></div>
             <div class="text-caption text-grey-7">Vencimiento: <b>{{ formatDate(boleta.fecha_vencimiento) }}</b></div>

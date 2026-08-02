@@ -29,24 +29,29 @@
     <q-card flat bordered class="q-mb-sm bg-white">
       <q-card-section class="q-pa-sm">
         <div class="row q-col-gutter-sm items-center">
-          <div class="col-12 col-md-3 row items-center no-wrap">
-            <div class="label-fixed-mov text-weight-bold q-mr-xs">Folio Boleta:</div>
+          <div class="col-12 col-md-8 row items-center no-wrap">
+            <div class="label-fixed-mov text-weight-bold q-mr-sm text-blue-grey-8">Buscar Boleta:</div>
             <q-input
               autofocus
               v-model="busquedaFolio"
               outlined dense
-              placeholder="Escriba Folio + ENTER"
-              class="col input-premium-compact"
+              placeholder="Teclee el folio y presione Enter..."
+              class="col input-premium-compact q-mr-sm"
+              input-class="text-weight-bolder text-primary"
               @keyup.enter="buscarBoleta"
               mask="#########"
               unmasked-value
-            >
-              <template v-slot:append>
-                <q-btn round dense flat icon="search" color="primary" @click="dialogoBuscador = true" />
-              </template>
-            </q-input>
+            />
+            <q-btn 
+              unelevated 
+              color="primary" 
+              icon="person_search" 
+              label="Buscar por Cliente (F2)" 
+              @click="dialogoBuscador = true" 
+              class="shadow-1 text-weight-bold" 
+            />
           </div>
-          <div class="col-12 col-md-6 text-caption text-grey-8 italic">
+          <div class="col-12 col-md-4 text-caption text-grey-8 italic">
             * Busque un folio vigente para realizar pagos, refrendos, liquidaciones o abonos a capital. La boleta debe ser tipo "Pagos"
           </div>
         </div>
