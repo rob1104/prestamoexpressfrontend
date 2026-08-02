@@ -21,7 +21,7 @@
           <div class="col-6 column q-gutter-y-sm">
             <div v-for="billete in listaBilletes" :key="billete" class="row items-center justify-between">
               <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ billete }}</span>
-              <q-input v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
+              <q-input autofocus v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
               <span class="text-weight-bolder text-primary" style="width: 80px; text-align: right">{{ formatMoney((conteo.billetes[billete] || 0) * billete) }}</span>
             </div>
           </div>

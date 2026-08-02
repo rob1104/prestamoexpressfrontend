@@ -16,7 +16,7 @@
             <div class="row q-col-gutter-sm">
               <div class="col-12 text-overline text-primary q-mb-xs">Datos de Identidad</div>
               <div class="col-12">
-  <q-input v-model="localForm.nombre" label="Nombre(s)" outlined dense class="text-uppercase" @update:model-value="calcularRFC" />
+  <q-input autofocus v-model="localForm.nombre" label="Nombre(s)" outlined dense class="text-uppercase" @update:model-value="calcularRFC" />
 </div>
 <div class="col-6">
   <q-input v-model="localForm.apellido_paterno" label="Apellido Paterno" outlined dense class="text-uppercase" @update:model-value="calcularRFC" />
@@ -46,11 +46,20 @@
               <div class="col-6">
                 <q-input
                   v-model="localForm.identificacion"
-                  label="Identificación (INE/CURP)"
+                  label="CURP"
                   outlined dense
                   class="text-uppercase"
                   @update:model-value="val => onInputUpdate('identificacion', val)"
                   :rules="[val => !!val || 'Requerido']"
+                />
+              </div>
+              <div class="col-6">
+                <q-input
+                  v-model="localForm.numero_ine"
+                  label="Número de INE (OCR/CIC)"
+                  outlined dense
+                  class="text-uppercase"
+                  @update:model-value="val => onInputUpdate('numero_ine', val)"
                 />
               </div>
               <div class="col-6">

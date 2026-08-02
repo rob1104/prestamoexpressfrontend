@@ -64,11 +64,15 @@
       label="Punto de Venta"
       class="q-mx-md menu-item"
       header-class="text-weight-bold"
-      :default-opened="isOpened(['/ventasjoyeria', '/ventaselectronicos'])"
+      :default-opened="isOpened(['/ventasjoyeria', '/comprasjoyeria', '/ventaselectronicos'])"
     >
       <q-item v-if="authStore.can('ventas joyeria')" clickable v-ripple to="/ventasjoyeria" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="diamond" size="xs" /></q-item-section>
-        <q-item-section>Joyería</q-item-section>
+        <q-item-section>Ventas de Joyería</q-item-section>
+      </q-item>
+      <q-item v-if="authStore.can('ventas joyeria')" clickable v-ripple to="/comprasjoyeria" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="shopping_bag" size="xs" /></q-item-section>
+        <q-item-section>Compras de Joyería</q-item-section>
       </q-item>
       <q-item v-if="authStore.can('ventas electronicos')" clickable v-ripple to="/ventaselectronicos" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="radio" size="xs" /></q-item-section>

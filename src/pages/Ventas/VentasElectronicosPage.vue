@@ -20,7 +20,7 @@
 
           <div class="col-12 col-md-3 row items-center no-wrap">
             <div class="label-fixed-mov text-weight-bold q-mr-xs">Tipo de Venta:</div>
-            <q-select
+            <q-select autofocus
               v-model="form.tipo_venta"
               :options="['TOTAL', 'SEPARADO', 'PAGOS']"
               outlined dense

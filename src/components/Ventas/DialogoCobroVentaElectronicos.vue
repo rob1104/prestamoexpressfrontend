@@ -23,7 +23,7 @@
           </div>
           <div class="row items-center justify-between no-wrap">
             <div class="text-subtitle1 text-weight-bold text-blue-grey-9">Importe Separado:</div>
-            <q-input
+            <q-input autofocus
               v-model.number="form.importe_separado"
               type="number" outlined dense bg-color="white" prefix="$"
               input-class="text-right text-weight-bolder text-h6 text-primary"

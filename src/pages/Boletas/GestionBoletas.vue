@@ -66,7 +66,7 @@
             </template>
           </q-input>
 
-          <q-input
+          <q-input autofocus
             v-model="filtros.search"
             outlined dense
             bg-color="white"

@@ -5,7 +5,7 @@
         <div class="text-h6 text-primary q-mr-md text-weight-bolder">REPORTE DE VENTAS DETALLADO</div>
 
         <div class="col-12 col-sm-auto">
-          <q-input v-model="form.fecha_inicio" outlined dense type="date" label="Fecha Inicio" bg-color="white" />
+          <q-input autofocus v-model="form.fecha_inicio" outlined dense type="date" label="Fecha Inicio" bg-color="white" />
         </div>
         
         <div class="col-12 col-sm-auto">

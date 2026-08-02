@@ -176,6 +176,55 @@
         </q-card>
       </div>
 
+      <!-- Fila 3: Inventario Físico -->
+      <div class="col-12 text-h6 text-primary q-mt-xl q-mb-sm text-weight-bold">
+        <q-icon name="inventory" class="q-mr-sm" /> Inventario de Mi Caja
+      </div>
+
+      <div class="col-12" v-if="inventarioCaja">
+        <q-card class="dashboard-card bg-white q-pa-md" flat bordered>
+          <div class="row justify-between items-center q-mb-md">
+            <div class="text-subtitle1 text-grey-8 text-weight-bold">Conteo Actual de Billetes y Monedas</div>
+            <div class="text-h4 text-weight-bolder text-green-9">
+              Total: ${{ formatMoney(inventarioCaja.total) }}
+            </div>
+          </div>
+          
+          <div class="row q-col-gutter-lg">
+            <div class="col-12 col-md-6">
+              <div class="text-caption text-grey-7 text-uppercase text-weight-bold q-mb-sm">Billetes</div>
+              <div class="row q-col-gutter-sm">
+                <div v-for="(cant, denom) in inventarioCaja.billetes" :key="'b'+denom" class="col-4 col-sm-3 col-md-4">
+                  <q-card class="bg-grey-1" flat bordered>
+                    <q-card-section class="q-pa-sm text-center">
+                      <div class="text-weight-bold text-grey-9">${{ denom }}</div>
+                      <q-badge :color="cant > 0 ? 'green-7' : 'grey-5'" class="text-weight-bold q-mt-xs">
+                        {{ cant }} pzs
+                      </q-badge>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="text-caption text-grey-7 text-uppercase text-weight-bold q-mb-sm">Monedas</div>
+              <div class="row q-col-gutter-sm">
+                <div v-for="(cant, denom) in inventarioCaja.monedas" :key="'m'+denom" class="col-4 col-sm-3 col-md-3">
+                  <q-card class="bg-grey-1" flat bordered>
+                    <q-card-section class="q-pa-sm text-center">
+                      <div class="text-weight-bold text-grey-9">${{ denom }}</div>
+                      <q-badge :color="cant > 0 ? 'orange-8' : 'grey-5'" class="text-weight-bold q-mt-xs">
+                        {{ cant }} pzs
+                      </q-badge>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </div>
+            </div>
+          </div>
+        </q-card>
+      </div>
+
     </div>
   </q-page>
 </template>
@@ -200,6 +249,8 @@ const resumen = ref({
   intereses_cobrados: 0
 })
 
+const inventarioCaja = ref(null)
+
 const formatMoney = (val) => {
   if (val === undefined || val === null) return '0.00'
   return Number(val).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -208,9 +259,29 @@ const formatMoney = (val) => {
 const fetchDashboardData = async () => {
   loading.value = true
   try {
-    const res = await api.get('/api/dashboard/resumen')
-    if (res.data) {
-      resumen.value = res.data
+    const [resResumen, resInventario] = await Promise.all([
+      api.get('/api/dashboard/resumen'),
+      api.get('/api/caja/inventario')
+    ])
+
+    if (resResumen.data) {
+      resumen.value = resResumen.data
+    }
+    if (resInventario.data) {
+      // Ordenamos las denominaciones de mayor a menor para una mejor visualización
+      const sortedBilletes = {}
+      Object.keys(resInventario.data.billetes).sort((a,b) => b - a).forEach(k => {
+        sortedBilletes[k] = resInventario.data.billetes[k]
+      })
+      const sortedMonedas = {}
+      Object.keys(resInventario.data.monedas).sort((a,b) => b - a).forEach(k => {
+        sortedMonedas[k] = resInventario.data.monedas[k]
+      })
+      inventarioCaja.value = {
+        total: resInventario.data.total,
+        billetes: sortedBilletes,
+        monedas: sortedMonedas
+      }
     }
   } catch (error) {
     console.error('Error cargando dashboard', error)

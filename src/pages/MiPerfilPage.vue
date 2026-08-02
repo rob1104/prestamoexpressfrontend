@@ -21,7 +21,7 @@
           
           <q-card-section class="q-pa-lg">
             <q-form @submit="updateProfile" class="q-gutter-md">
-              <q-input
+              <q-input autofocus
                 v-model="form.name"
                 label="Nombre Completo"
                 outlined

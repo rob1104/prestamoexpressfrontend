@@ -5,7 +5,7 @@
         <div class="text-h6 text-primary q-mr-md text-weight-bolder">BOLETAS VENCIDAS / POR VENCER</div>
 
         <div class="col-12 col-sm-auto">
-          <q-input v-model="form.fecha_corte" outlined dense type="date" label="Fecha de Corte" bg-color="white" />
+          <q-input autofocus v-model="form.fecha_corte" outlined dense type="date" label="Fecha de Corte" bg-color="white" />
         </div>
 
         <div class="col-12 col-sm-auto">

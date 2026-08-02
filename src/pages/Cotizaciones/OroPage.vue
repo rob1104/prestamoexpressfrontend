@@ -56,7 +56,7 @@
                   <td class="text-weight-bolder text-primary text-h6" style="width: 200px">
                     {{ item.descripcion }}
                   </td>
-                  <td><q-input v-model.number="item.precio_nuevo" dense outlined prefix="$" type="number" class="price-input" /></td>
+                  <td><q-input autofocus v-model.number="item.precio_nuevo" dense outlined prefix="$" type="number" class="price-input" /></td>
                   <td><q-input v-model.number="item.precio_bueno" dense outlined prefix="$" type="number" class="price-input" /></td>
                   <td><q-input v-model.number="item.precio_excelente" dense outlined prefix="$" type="number" class="price-input" /></td>
                   <td class="bg-blue-0"><q-input v-model.number="item.precio_compra" dense outlined prefix="$" type="number" class="price-input purchase-style" /></td>

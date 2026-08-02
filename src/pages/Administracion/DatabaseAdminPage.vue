@@ -47,7 +47,7 @@
           </q-card-section>
 
           <q-card-section>
-            <q-input 
+            <q-input autofocus 
               v-model="confirmacionReset" 
               label="Escriba CONFIRMAR para habilitar" 
               outlined

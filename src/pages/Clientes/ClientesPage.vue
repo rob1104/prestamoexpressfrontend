@@ -37,7 +37,7 @@
         <template v-slot:top>
           <div class="row full-width items-center q-gutter-md q-pa-sm">
             <q-space />
-            <q-input
+            <q-input autofocus
               outlined
               dense
               debounce="300"
@@ -90,6 +90,9 @@
               <div class="row items-center">
                 <q-icon name="fingerprint" color="primary" class="q-mr-xs" size="xs" />
                 <span class="text-weight-medium font-mono">{{ props.row.identificacion }}</span>
+              </div>
+              <div v-if="props.row.numero_ine" class="text-caption text-grey-8" style="font-size: 11px;">
+                INE: {{ props.row.numero_ine }}
               </div>
               <div class="text-caption text-purple-5 text-bold" style="font-size: 12px;">No: {{ props.row.id }}</div>
             </div>

@@ -5,7 +5,7 @@
         <div class="text-h6 text-primary q-mr-md text-weight-bolder">REPORTE DE CARTERA</div>
 
         <div class="col-12 col-sm-auto">
-          <q-input v-model="form.fecha" outlined dense label="Fecha de Corte" bg-color="white">
+          <q-input autofocus v-model="form.fecha" outlined dense label="Fecha de Corte" bg-color="white">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                 <q-popup-proxy cover transition-show="scale" transition-hide="scale">

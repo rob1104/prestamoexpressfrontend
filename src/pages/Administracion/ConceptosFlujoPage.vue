@@ -66,7 +66,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-md">
-          <q-input
+          <q-input autofocus
             v-model="form.nombre"
             label="Nombre del Concepto *"
             outlined

@@ -10,7 +10,7 @@
       </div>
       <q-space />
       <div class="title-main text-italic" style="font-size: 1.2rem;">
-        Ventas de Joyería [ CAJA ]
+        Compras de Joyería [ CAJA ]
       </div>
     </q-card>
 
@@ -100,7 +100,6 @@
               <th class="text-left">Concepto</th>
               <th class="text-right">Importe</th>
               <th class="text-left">Categoría</th>
-              <th class="text-left">Clasificación</th>
             </tr>
           </thead>
           <tbody>
@@ -109,11 +108,10 @@
               <td class="text-left text-weight-bold">{{ item.concepto }}</td>
               <td class="text-right font-mono text-primary">$ {{ formatMoney(item.importe) }}</td>
               <td class="text-left">{{ item.categoria_nombre }}</td>
-              <td class="text-left">{{ item.clasificacion_nombre }}</td>
             </tr>
             <tr v-if="carrito.length === 0">
-              <td colspan="5" class="text-center text-grey-5 italic q-pa-lg">
-                No hay conceptos agregados a la venta. Haga clic en "Agregar".
+              <td colspan="4" class="text-center text-grey-5 italic q-pa-lg">
+                No hay conceptos agregados a la compra. Haga clic en "Agregar".
               </td>
             </tr>
           </tbody>
@@ -155,6 +153,7 @@
     </div>
     <DialogoAgregarConceptoJoyeria
       v-model="modalConceptoVisible"
+      tipo-operacion="COMPRA"
       @concepto-agregado="recibirConcepto"
     />
 
@@ -199,7 +198,7 @@
 
   const recibirConcepto = (nuevoArticulo) => {
     carrito.value.push(nuevoArticulo)
-    $q.notify({ message: 'Concepto agregado a la venta', color: 'positive', icon: 'check_circle' })
+    $q.notify({ message: 'Concepto agregado a la compra', color: 'positive', icon: 'check_circle' })
   }
 
   // --- ESTADO DEL FORMULARIO ---
@@ -212,7 +211,7 @@
     cliente: '',
     descuento: 0,
     efectivo_recibido: 0,
-    tipo_operacion: 'VENTA'
+    tipo_operacion: 'COMPRA'
   })
 
   const obtenerSiguienteFolio = async () => {
@@ -304,7 +303,7 @@
         }
       }
 
-      $q.notify({ type: 'positive', message: '¡Venta registrada con éxito!', icon: 'check_circle' })
+      $q.notify({ type: 'positive', message: '¡Compra registrada con éxito!', icon: 'check_circle' })
 
       // Limpiamos y cerramos todo
       showDenominaciones.value = false

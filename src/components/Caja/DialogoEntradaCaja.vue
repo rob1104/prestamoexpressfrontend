@@ -29,7 +29,7 @@
             Ingrese los detalles del efectivo a recibir
           </div>
 
-          <q-select
+          <q-select autofocus
             v-model="conceptoSeleccionado"
             :options="opcionesConceptos"
             option-value="id"

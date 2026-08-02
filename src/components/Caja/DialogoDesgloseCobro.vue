@@ -30,7 +30,7 @@
                 $ {{ b }}
               </div>
               <div class="col-4">
-                <q-input
+                <q-input autofocus
                   v-model.number="conteo.billetes[b]"
                   type="number"
                   dense outlined bg-color="white"

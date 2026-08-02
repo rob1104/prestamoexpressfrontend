@@ -19,6 +19,7 @@ const routes = [
       { path: 'movimientostpagos', component: () => import('pages/Boletas/MovimientosPagosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas' } },
       
       { path: 'ventasjoyeria', component: () => import('pages/Ventas/VentasJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'ventas joyeria' } },
+      { path: 'comprasjoyeria', component: () => import('pages/Ventas/ComprasJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'ventas joyeria' } },
       { path: 'ventaselectronicos', component: () => import('pages/Ventas/VentasElectronicosPage.vue'), meta: { requiresAuth: true, permission: 'ventas electronicos' } },
       
       { path: 'operacionescierre', component: () => import('pages/Cierre/ProcesarCierrePage.vue'), meta: { requiresAuth: true, permission: 'cierre diario' } },

@@ -20,7 +20,7 @@
 
           <div class="col-12 col-md-8">
             <div class="text-caption text-weight-bold text-grey-8 q-mb-xs">Clasificación Aparato:</div>
-            <q-select
+            <q-select autofocus
               v-model="datos.clasificacion"
               :options="tiposAparatos"
               outlined dense

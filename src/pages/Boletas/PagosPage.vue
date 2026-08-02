@@ -25,7 +25,7 @@
             <div class="column q-pa-sm q-gutter-y-xs">
               <div class="text-caption text-weight-bold text-green-8 text-center uppercase">Esquema de Pagos</div>
 
-              <q-select
+              <q-select autofocus
                 v-model="form.meses"
                 :options="[1, 2, 3, 4, 5, 6]"
                 :option-label="opt => opt + (opt === 1 ? ' MES' : ' MESES')"

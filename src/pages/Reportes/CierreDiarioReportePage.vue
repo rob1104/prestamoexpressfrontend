@@ -18,7 +18,7 @@
       <q-card-section>
         <div class="row q-col-gutter-md items-center">
           <div class="col-12 col-md-3">
-            <q-input v-model="filtros.fecha_inicio" label="Fecha Inicio" type="date" dense outlined />
+            <q-input autofocus v-model="filtros.fecha_inicio" label="Fecha Inicio" type="date" dense outlined />
           </div>
           <div class="col-12 col-md-3">
             <q-input v-model="filtros.fecha_fin" label="Fecha Fin" type="date" dense outlined />

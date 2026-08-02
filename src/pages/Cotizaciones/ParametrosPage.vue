@@ -52,7 +52,7 @@
         <q-tab-panel name="generales" class="q-pa-lg">
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-2">
-              <q-input v-model.number="form.generales.no_sucursal" label="No. Sucursal" outlined dense type="number" />
+              <q-input autofocus v-model.number="form.generales.no_sucursal" label="No. Sucursal" outlined dense type="number" />
             </div>
             <div class="col-12 col-md-10">
               <q-input v-model="form.generales.nombre_sucursal" label="Nombre de la Sucursal" outlined dense class="text-uppercase" />

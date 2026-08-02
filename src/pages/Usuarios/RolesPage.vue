@@ -25,7 +25,7 @@
         class="table-premium"
       >
         <template v-slot:top-right>
-          <q-input outlined dense debounce="300" v-model="filter" placeholder="Buscar rol..." class="q-ml-md" style="min-width: 250px;">
+          <q-input autofocus outlined dense debounce="300" v-model="filter" placeholder="Buscar rol..." class="q-ml-md" style="min-width: 250px;">
             <template v-slot:append><q-icon name="search" color="primary" /></template>
           </q-input>
         </template>

@@ -5,7 +5,7 @@
         <div class="text-h6 text-primary q-mr-md text-weight-bolder">REPORTE DE COMPRAS DETALLADO</div>
 
         <div class="col-12 col-sm-auto">
-          <q-input v-model="form.fecha_inicio" outlined dense type="date" label="Fecha Inicio" bg-color="white" />
+          <q-input autofocus v-model="form.fecha_inicio" outlined dense type="date" label="Fecha Inicio" bg-color="white" />
         </div>
         
         <div class="col-12 col-sm-auto">
@@ -106,6 +106,7 @@ const columnas = [
   { name: 'folio', label: 'FOLIO COMPRA', field: 'folio', align: 'left', sortable: true },
   { name: 'fecha', label: 'FECHA', field: 'fecha', align: 'left', sortable: true },
   { name: 'cliente', label: 'CLIENTE', field: 'cliente', align: 'left', sortable: true },
+  { name: 'categoria_detalle', label: 'TIPO / KILATAJE', field: 'categoria_detalle', align: 'left', sortable: true },
   { name: 'articulo', label: 'ARTÍCULO', field: 'articulo', align: 'left' },
   { name: 'categoria', label: 'CATEGORÍA', field: 'categoria', align: 'left' },
   { name: 'precio_compra', label: 'PRECIO COMPRA', field: 'precio_compra', align: 'right', sortable: true },

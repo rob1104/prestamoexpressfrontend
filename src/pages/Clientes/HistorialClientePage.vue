@@ -19,7 +19,7 @@
     <q-card class="q-mb-md shadow-2" style="border-radius: 12px;">
       <q-card-section class="row items-center q-gutter-md">
         <div class="text-subtitle2 text-weight-bold">Tipo Consulta:</div>
-        <q-select
+        <q-select autofocus
           v-model="searchType"
           :options="['1. FOLIO', '2. FECHA BOLETA', '3. DESCRIPCION', '4. CLIENTE', '5. PRESTAMO', '6. NUMERO BOLSA']"
           outlined

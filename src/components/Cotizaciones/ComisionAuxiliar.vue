@@ -22,7 +22,7 @@
           </div>
 
           <div class="col-6 q-gutter-y-sm">
-            <q-input
+            <q-input autofocus
               v-model.number="localItem.limite_inferior"
               label="Límite Inferior PESOS:"
               outlined dense prefix="$"

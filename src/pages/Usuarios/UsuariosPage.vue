@@ -35,7 +35,7 @@
         class="table-premium"
       >
         <template v-slot:top-right>
-          <q-input
+          <q-input autofocus
             outlined
             dense
             debounce="300"

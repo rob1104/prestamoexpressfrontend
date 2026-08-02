@@ -28,7 +28,7 @@
             <tr v-for="k in kilatajes" :key="k.subtipo" class="valuacion-row">
               <td class="text-weight-bold text-blue-10 text-caption">{{ k.label }}</td>
               <td>
-                <q-input
+                <q-input autofocus
                   v-if="valores[k.subtipo]"
                   v-model.number="valores[k.subtipo].cantidad"
                   type="number" dense borderless

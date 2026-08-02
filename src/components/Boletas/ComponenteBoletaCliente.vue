@@ -24,7 +24,6 @@
           <div class="row items-center no-wrap">
             <div class="label-fixed text-caption text-weight-bold">ID CLIENTE:</div>
             <q-input
-              autofocus
               v-model.number="modelValue.cliente_id"
               outlined dense readonly
               bg-color="grey-2"
@@ -158,7 +157,7 @@
 </template>
 
 <script setup>
-  import { ref, computed, nextTick } from 'vue'
+  import { ref, computed, nextTick, onMounted } from 'vue'
   import { useQuasar } from 'quasar'
   import { api } from 'boot/axios'
   import ClienteForm from '../Clientes/ClienteForm.vue'
@@ -179,6 +178,16 @@
   const nuevoClienteData = ref({})
 
   const $q = useQuasar()
+  const selectClienteRef = ref(null)
+
+  onMounted(() => {
+    // Forzamos el foco con un pequeño retraso para asegurar que Quasar haya renderizado el componente
+    setTimeout(() => {
+      if (selectClienteRef.value) {
+        selectClienteRef.value.focus()
+      }
+    }, 300)
+  })
 
 
   const abrirFormularioNuevo = () => {

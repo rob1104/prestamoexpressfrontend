@@ -15,13 +15,14 @@
         <div class="row q-col-gutter-md">
 
           <div class="col-12 col-md-6 q-gutter-y-md">
-            <q-select
+            <q-select autofocus
               v-model="form.categoria"
               :options="categorias"
               label="Categoría:"
               outlined dense bg-color="white"
             />
             <q-select
+              v-if="tipoOperacion !== 'COMPRA'"
               v-model="form.clasificacion"
               :options="clasificaciones"
               label="Clasificación:"
@@ -92,7 +93,8 @@
   const $q = useQuasar()
 
   const props = defineProps({
-    modelValue: { type: Boolean, required: true }
+    modelValue: { type: Boolean, required: true },
+    tipoOperacion: { type: String, default: 'VENTA' }
   })
 
   const emit = defineEmits(['update:modelValue', 'concepto-agregado'])

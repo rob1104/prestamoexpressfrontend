@@ -29,7 +29,7 @@
             Ingrese los detalles del gasto o retiro
           </div>
 
-          <q-select
+          <q-select :ref="el => inputConcepto = el"
             v-model="conceptoSeleccionado"
             :options="opcionesConceptos"
             option-value="id"
@@ -110,9 +110,12 @@
 
           <div class="row q-col-gutter-md">
             <div class="col-6 column q-gutter-y-sm">
-              <div v-for="billete in listaBilletes" :key="billete" class="row items-center justify-between">
+              <div v-for="(billete, index) in listaBilletes" :key="billete" class="row items-center justify-between">
                 <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ billete }}</span>
-                <q-input v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
+                <div style="width: 100px" class="column items-center">
+                  <q-input :ref="el => { if(index === 0) inputPrimerBillete = el }" v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" :error="inventario && (conteo.billetes[billete] || 0) > (inventario.billetes[billete] || 0)" hide-bottom-space />
+                  <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.billetes[billete] || 0) : '...' }}</span>
+                </div>
                 <span class="text-weight-bolder text-negative" style="width: 80px; text-align: right">{{ formatMoney((conteo.billetes[billete] || 0) * billete) }}</span>
               </div>
             </div>
@@ -120,7 +123,10 @@
             <div class="col-6 column q-gutter-y-sm">
               <div v-for="moneda in listaMonedas" :key="moneda.valor" class="row items-center justify-between">
                 <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ moneda.etiqueta }}</span>
-                <q-input v-model.number="conteo.monedas[moneda.key]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" />
+                <div style="width: 100px" class="column items-center">
+                  <q-input v-model.number="conteo.monedas[moneda.key]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" :error="inventario && (conteo.monedas[moneda.key] || 0) > (inventario.monedas[moneda.invKey] || 0)" hide-bottom-space />
+                  <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.monedas[moneda.invKey] || 0) : '...' }}</span>
+                </div>
                 <span class="text-weight-bolder text-negative" style="width: 80px; text-align: right">{{ formatMoney((conteo.monedas[moneda.key] || 0) * moneda.valor) }}</span>
               </div>
             </div>
@@ -158,7 +164,7 @@
               label="Registrar Salida"
               icon="save"
               class="text-weight-bold shadow-2 q-px-xl"
-              :disable="diferencia !== 0 || montoRequerido <= 0"
+              :disable="diferencia !== 0 || montoRequerido <= 0 || tieneExceso"
             />
           </q-stepper-navigation>
         </template>
@@ -192,6 +198,8 @@ const autorizadoPor = ref('')
 const adicional1 = ref('')
 const adicional2 = ref('')
 const esPagoRelacionado = ref(false)
+const inputPrimerBillete = ref(null)
+const inputConcepto = ref(null)
 
 onMounted(() => {
   cargarConceptos()
@@ -214,12 +222,12 @@ const mostrar = computed({
 const listaBilletes = ['1000', '500', '200', '100', '50', '20']
 
 const listaMonedas = [
-  {valor: 10, etiqueta: '10', key: 'm10'},
-  {valor: 5, etiqueta: '5', key: 'm5'},
-  {valor: 2, etiqueta: '2', key: 'm2'},
-  {valor: 1, etiqueta: '1', key: 'm1'},
-  {valor: 0.50, etiqueta: '0.50', key: 'm050'},
-  {valor: 0.01, etiqueta: '0.01', key: 'm001'}
+  {valor: 10, etiqueta: '10', key: 'm10', invKey: '10'},
+  {valor: 5, etiqueta: '5', key: 'm5', invKey: '5'},
+  {valor: 2, etiqueta: '2', key: 'm2', invKey: '2'},
+  {valor: 1, etiqueta: '1', key: 'm1', invKey: '1'},
+  {valor: 0.50, etiqueta: '0.50', key: 'm050', invKey: '0.5'},
+  {valor: 0.01, etiqueta: '0.01', key: 'm001', invKey: '0.01'}
 ]
 
 const conteo = reactive({
@@ -240,6 +248,38 @@ const diferencia = computed(() => {
   return Number((montoRequerido.value - totalRetirado.value).toFixed(2))
 })
 
+const inventario = ref(null)
+
+const cargarInventario = async () => {
+  try {
+    const res = await api.get('/api/caja/inventario')
+    inventario.value = res.data
+  } catch (e) {
+    console.error('Error cargando inventario de caja', e)
+  }
+}
+
+const tieneExceso = computed(() => {
+  if (!inventario.value) return false
+  for (const b of listaBilletes) {
+    if ((conteo.billetes[b] || 0) > (inventario.value.billetes[b] || 0)) return true
+  }
+  for (const m of listaMonedas) {
+    if ((conteo.monedas[m.key] || 0) > (inventario.value.monedas[m.invKey] || 0)) return true
+  }
+  return false
+})
+
+watch(step, (newVal) => {
+  if (newVal === 2) {
+    setTimeout(() => {
+      if (inputPrimerBillete.value) {
+        inputPrimerBillete.value.focus()
+      }
+    }, 300)
+  }
+})
+
 watch(mostrar, (val) => {
   if (val) {
     step.value = 1
@@ -248,12 +288,19 @@ watch(mostrar, (val) => {
     conceptoSeleccionado.value = null
     observaciones.value = ''
     montoRequerido.value = null
+    cargarInventario()
     recibidoPor.value = ''
     entregadoPor.value = ''
     autorizadoPor.value = ''
     adicional1.value = ''
     adicional2.value = ''
     esPagoRelacionado.value = false
+    
+    setTimeout(() => {
+      if (inputConcepto.value) {
+        inputConcepto.value.focus()
+      }
+    }, 300)
   }
 })
 
