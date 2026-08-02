@@ -116,34 +116,28 @@
 
               <div class="col-4 col-md-2">
                 <div class="text-caption text-grey-7 text-weight-bold">INTERÉS</div>
-                <div class="text-subtitle1 text-weight-bolder font-mono text-primary">${{ formatMoney(boleta.tradicional[0].interes) }}</div>
+                <div class="text-subtitle1 text-weight-bolder font-mono text-primary">${{ formatMoney(calculosTradicional.interes) }}</div>
               </div>
 
               <div class="col-4 col-md-2">
                 <div class="text-caption text-grey-7 text-weight-bold">ALMACENAJE</div>
-                <div class="text-subtitle1 text-weight-bolder font-mono">${{ formatMoney(boleta.tradicional[0].almacenaje) }}</div>
+                <div class="text-subtitle1 text-weight-bolder font-mono">${{ formatMoney(calculosTradicional.almacenaje) }}</div>
               </div>
 
               <div class="col-4 col-md-2">
                 <div class="text-caption text-grey-7 text-weight-bold">ADMIN.</div>
-                <div class="text-subtitle1 text-weight-bolder font-mono">${{ formatMoney(boleta.tradicional[0].administracion) }}</div>
+                <div class="text-subtitle1 text-weight-bolder font-mono">${{ formatMoney(calculosTradicional.administracion) }}</div>
               </div>
 
               <div class="col-4 col-md-2">
                 <div class="text-caption text-grey-7 text-weight-bold">IVA</div>
-                <div class="text-subtitle1 text-weight-bolder font-mono">${{ formatMoney(boleta.tradicional[0].iva_interes) }}</div>
+                <div class="text-subtitle1 text-weight-bolder font-mono">${{ formatMoney(calculosTradicional.iva) }}</div>
               </div>
 
               <div class="col-4 col-md-2" style="border-left: 2px solid #cfd8dc;">
                 <div class="text-caption text-indigo text-weight-bold">TOTAL</div>
                 <div class="text-subtitle1 text-weight-bolder font-mono text-indigo-9">
-                  ${{ formatMoney(
-                        Number(boleta.tradicional[0].interes) +
-                        Number(boleta.tradicional[0].almacenaje) +
-                        Number(boleta.tradicional[0].administracion) +
-                        Number(boleta.tradicional[0].custodia) +
-                        Number(boleta.tradicional[0].iva_interes)
-                     ) }}
+                  ${{ formatMoney(calculosTradicional.total) }}
                 </div>
               </div>
             </div>
@@ -220,6 +214,33 @@
     // Si llega un número que no está en la lista, muestra el número o "Desconocido"
     return tipos[tipo] || `MOVIMIENTO ${tipo || 'DESCONOCIDO'}`
   }
+
+  const calculosTradicional = computed(() => {
+    if (!boleta.value || !boleta.value.tradicional || boleta.value.tradicional.length === 0) {
+      return { interes: 0, almacenaje: 0, administracion: 0, iva: 0, total: 0 }
+    }
+    
+    const trad = boleta.value.tradicional[0]
+    
+    // En la base de datos 'interes' guarda el TOTAL a cobrar (comisión completa con IVA)
+    const totalComision = Number(trad.interes) || 0
+    const subtotalSinIva = totalComision / 1.16
+    const iva = totalComision - subtotalSinIva
+    
+    // Mismos cálculos matemáticos que en el PDF
+    const mIntDiv = subtotalSinIva * 0.20
+    const mAlmacenaje = subtotalSinIva * 0.80
+    
+    const diferencia = Math.round((subtotalSinIva - (mIntDiv + mAlmacenaje)) * 100) / 100
+    
+    return {
+      interes: mIntDiv,
+      almacenaje: mAlmacenaje + diferencia,
+      administracion: 0,
+      iva: iva,
+      total: totalComision
+    }
+  })
 
 
   // --- CALCULADORA EN TIEMPO REAL DEL CALENDARIO (BLINDADA) ---
