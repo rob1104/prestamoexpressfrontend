@@ -17,7 +17,7 @@
         <div class="col-12 col-md row items-center justify-end q-gutter-x-md q-gutter-y-sm">
 
           <q-btn
-            color="blue-5"
+            color="secondary"
             text-color="white"
             unelevated
             class="shadow-1 text-weight-bold"

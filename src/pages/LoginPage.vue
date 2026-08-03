@@ -89,7 +89,7 @@
             </q-card>
 
             <div class="text-center q-mt-xl text-white text-caption tracking-wide text-weight-medium" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
-              © 2026 PRESTAMO EXPRESS - Todos los derechos reservados <br> Versión 0.0.40
+              © 2026 PRESTAMO EXPRESS - Todos los derechos reservados <br> Versión 0.0.41
             </div>
           </div>
         </div>

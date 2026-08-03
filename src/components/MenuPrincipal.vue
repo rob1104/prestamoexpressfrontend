@@ -30,7 +30,7 @@
       header-class="text-weight-bold"
       :default-opened="isOpened(['/boletas', '/boletastradicional', '/boletaspagos', '/movimientostradicional', '/movimientostpagos'])"
     >
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Crear Boletas</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Crear Boletas</q-item-label>
       <q-item v-if="authStore.can('crear boletas')" clickable v-ripple to="/boletastradicional" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="money" size="xs" /></q-item-section>
         <q-item-section>Empeño Tradicional</q-item-section>
@@ -87,7 +87,7 @@
       header-class="text-weight-bold"
       :default-opened="isOpened(['/cajahistorial', '/operacionescierre'])"
     >
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Operación Diaria</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Operaciones</q-item-label>
       <q-item v-if="authStore.can('ver caja')" clickable v-ripple to="/cajahistorial" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="receipt_long" size="xs"  /></q-item-section>
         <q-item-section>Movimientos</q-item-section>
@@ -105,7 +105,7 @@
       header-class="text-weight-bold"
       :default-opened="isOpened(['/reportescartera', '/reportesflujocaja', '/reportesboletasdiarias', '/reportesdetallesmovimientos', '/reportesboletasvencidas', '/reportesventas', '/reportescompras', '/reportescierrediario', '/reportespagosdeposito', '/reportesrefrendos'])"
     >
-      <q-item-label header class="text-caption text-grey-4 q-pb-none">Operación Diaria</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Boletas</q-item-label>
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportesboletasdiarias" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="receipt_long" size="xs" /></q-item-section>
         <q-item-section>Boletas Creadas</q-item-section>
@@ -120,7 +120,7 @@
       </q-item>
 
       <q-separator inset class="q-my-sm" />
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Caja y Flujo</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Caja y Flujo</q-item-label>
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportesflujocaja" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="account_balance_wallet" size="xs" /></q-item-section>
         <q-item-section>Flujo de Caja</q-item-section>
@@ -135,7 +135,7 @@
       </q-item>
 
       <q-separator inset class="q-my-sm" />
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Cartera y Clientes</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Cartera y Clientes</q-item-label>
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportescartera" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="pie_chart" size="xs" /></q-item-section>
         <q-item-section>Cartera Activa</q-item-section>
@@ -146,7 +146,7 @@
       </q-item>
 
       <q-separator inset class="q-my-sm" />
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Comercial</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Comercial</q-item-label>
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportesventas" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="point_of_sale" size="xs" /></q-item-section>
         <q-item-section>Ventas Detalladas</q-item-section>
@@ -186,7 +186,7 @@
       </q-item>
       <q-separator inset class="q-my-sm" />
       <q-separator inset class="q-my-sm" />
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Usuarios y Roles</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Usuarios y Roles</q-item-label>
       <q-item v-if="authStore.can('ver usuarios')" clickable v-ripple to="/users" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="manage_accounts" size="xs" /></q-item-section>
         <q-item-section>Usuarios</q-item-section>
@@ -197,7 +197,7 @@
       </q-item>
 
       <q-separator inset class="q-my-sm" />
-      <q-item-label header class="text-caption text-grey-7 q-pb-none">Sistema</q-item-label>
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Sistema</q-item-label>
       <q-item v-if="authStore.can('ver logs')" clickable v-ripple to="/logs" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="history" size="xs" /></q-item-section>
         <q-item-section>Logs de Actividad</q-item-section>

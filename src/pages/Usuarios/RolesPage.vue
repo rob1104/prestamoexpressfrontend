@@ -1,16 +1,25 @@
-﻿<template>
+<template>
   <q-page class="page-container">
-    <!-- Header with a more vibrant look -->
-    <div class="row items-center q-mb-xl bg-primary text-white rounded-borders q-pa-lg shadow-4" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="row items-center q-mb-lg">
       <div class="col">
-        <div class="text-h4 text-weight-bold row items-center">
-          <q-icon name="admin_panel_settings" size="xl" class="q-mr-md" />
+        <div class="title-main">
           Roles y Permisos
         </div>
-        <div class="text-subtitle1 q-mt-sm opacity-80">Define y controla exactamente qué puede hacer cada grupo de usuarios en el sistema</div>
+        <div class="title-sub">
+          Define y controla exactamente qué puede hacer cada grupo de usuarios en el sistema
+        </div>
       </div>
       <div class="col-auto" v-if="authStore.can('crear roles')">
-        <q-btn color="white" text-color="primary" icon="add_moderator" label="Nuevo Rol" rounded unelevated size="lg" class="btn-premium shadow-2 text-weight-bold" @click="openForm(false)" />
+        <q-btn 
+          color="primary" 
+          icon="add_moderator" 
+          label="Nuevo Rol" 
+          rounded 
+          unelevated 
+          size="md" 
+          class="btn-premium text-weight-bold" 
+          @click="openForm(false)" 
+        />
       </div>
     </div>
 
@@ -25,14 +34,24 @@
         class="table-premium"
       >
         <template v-slot:top-right>
-          <q-input autofocus outlined dense debounce="300" v-model="filter" placeholder="Buscar rol..." class="q-ml-md" style="min-width: 250px;">
-            <template v-slot:append><q-icon name="search" color="primary" /></template>
+          <q-input autofocus 
+            outlined 
+            dense 
+            debounce="300" 
+            v-model="filter" 
+            placeholder="Buscar rol..." 
+            class="bg-white shadow-1" 
+            style="width: 300px; border-radius: 8px;"
+          >
+            <template v-slot:append>
+              <q-icon name="search" color="primary" />
+            </template>
           </q-input>
         </template>
 
         <template v-slot:header="props">
           <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-uppercase text-weight-bold text-grey-8">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props" class="text-uppercase text-weight-bold text-grey-4">
               {{ col.label }}
             </q-th>
           </q-tr>
@@ -55,10 +74,10 @@
         <template v-slot:body-cell-permissions="props">
           <q-td :props="props">
             <div class="row q-gutter-xs items-center">
-              <q-badge 
-                v-for="p in props.row.permissions.slice(0, 5)" 
-                :key="p.id" 
-                :color="getPermColor(p.name).bg" 
+              <q-badge
+                v-for="p in props.row.permissions.slice(0, 5)"
+                :key="p.id"
+                :color="getPermColor(p.name).bg"
                 :text-color="getPermColor(p.name).text"
                 class="q-pa-xs q-px-sm text-weight-medium border-radius-small"
               >
@@ -84,7 +103,7 @@
             </q-btn>
           </q-td>
         </template>
-        
+
         <!-- Empty State -->
         <template v-slot:no-data>
           <div class="full-width row flex-center text-accent q-gutter-sm q-pa-xl">

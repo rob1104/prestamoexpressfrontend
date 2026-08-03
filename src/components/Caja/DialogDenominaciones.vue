@@ -1,114 +1,89 @@
 <template>
   <q-dialog v-model="visible" persistent @show="onShow">
-    <q-card style="width: 750px; max-width: 95vw; border-radius: 12px;">
-      <q-card-section class="text-center q-pb-none">
-        <div class="text-h3 text-orange-9 text-weight-bolder" style="text-decoration: underline;">
-          CAJA NUMERO: 1
+    <q-card style="width: 650px; max-width: 95vw;" class="shadow-24 border-orange">
+      <q-card-section class="bg-orange-8 text-white row items-center q-pb-sm">
+        <div class="text-h6 text-weight-bold uppercase">
+          <q-icon name="payments" size="sm" class="q-mr-sm" />
+          Captura de Billetes y Monedas (Salida)
         </div>
-        <div class="text-h5 text-purple-7 text-weight-bold q-mt-sm uppercase">
-          PRESTAMOS TRADICIONAL <br> [ SALIDA ]
-        </div>
-        <div class="text-h2 text-weight-bolder text-grey-8 q-my-md">
-          $ {{ formatMoney(montoObjetivo) }}
-        </div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
 
-      <q-card-section class="bg-orange-1 q-mx-md q-mb-md rounded-borders border-orange">
-        <div class="text-subtitle1 text-orange-9 text-weight-bold text-center q-mb-md">
-          Captura de Denominación de BILLETES y MONEDAS
+      <q-card-section class="q-pa-md bg-orange-1">
+        <div class="text-center text-subtitle2 text-orange-10 text-weight-bold q-mb-md">
+          Capture los billetes y monedas que se entregarán al cliente
         </div>
 
-        <div class="row q-col-gutter-lg">
-          <div class="col-12 col-md-6 q-gutter-y-xs">
-            <div v-for="(b, index) in listaBilletes" :key="'b'+b" class="row items-center no-wrap">
-              <div class="col-4 text-weight-bold text-grey-8">Billete ${{ b }}:</div>
-              <div style="width: 100px" class="column items-center">
-                <q-input :ref="el => { if(index === 0) inputPrimerBillete = el }"
-                  v-model.number="conteo.billetes[b]"
-                  type="number"
-                  dense
-                  outlined
-                  bg-color="white"
-                  input-class="text-center text-weight-bold"
-                  @focus="$event.target.select()"
-                  :error="inventario && (conteo.billetes[b] || 0) > (inventario.billetes[b] || 0)"
-                  hide-bottom-space
-                />
-                <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.billetes[b] || 0) : '...' }}</span>
-              </div>
-              <div class="col-4 text-right text-primary text-weight-bold">
-                $ {{ formatMoney(conteo.billetes[b] * b) }}
-              </div>
-            </div>
-          </div>
-
-          <div class="col-12 col-md-6 q-gutter-y-xs">
-            <div v-for="m in listaMonedas" :key="'m'+m.valor" class="row items-center no-wrap">
-              <div class="col-4 text-weight-bold text-grey-8">Moneda ${{ m.etiqueta }}:</div>
-              <div style="width: 100px" class="column items-center">
-                <q-input
-                  v-model.number="conteo.monedas[m.key]"
-                  type="number"
-                  dense
-                  min="0"
-                  outlined
-                  bg-color="white"
-                  input-class="text-center text-weight-bold"
-                  @focus="$event.target.select()"
-                  :error="inventario && (conteo.monedas[m.key] || 0) > (inventario.monedas[m.invKey] || 0)"
-                  hide-bottom-space
-                />
-                <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.monedas[m.invKey] || 0) : '...' }}</span>
-              </div>
-              <div class="col-4 text-right text-brown text-weight-bold">
-                $ {{ formatMoney(conteo.monedas[m.key] * m.valor) }}
-              </div>
-            </div>
-          </div>
+        <div class="row justify-between items-center bg-white q-pa-sm border-orange rounded-borders q-mb-md shadow-1">
+          <div class="text-subtitle1 text-weight-bold text-grey-8">MONTO REQUERIDO:</div>
+          <div class="text-h6 text-weight-bolder text-orange-9">{{ formatMoney(montoObjetivo) }}</div>
         </div>
-      </q-card-section>
 
-      <q-card-section class="q-pt-none">
         <div class="row q-col-gutter-md">
-          <div class="col-6">
-            <div class="total-box">
-              <div class="text-h3 text-weight-bolder text-center">{{ totalPiezas }}</div>
-              <div class="text-caption text-center uppercase text-weight-bold">Piezas Totales</div>
+          <div class="col-6 column q-gutter-y-sm">
+            <div v-for="(billete, index) in listaBilletes" :key="billete" class="row items-center justify-between">
+              <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ billete }}</span>
+              <div style="width: 100px" class="column items-center">
+                <q-input :ref="el => { if(index === 0) inputPrimerBillete = el }" v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" :error="inventario && (conteo.billetes[billete] || 0) > (inventario.billetes[billete] || 0)" hide-bottom-space />
+                <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.billetes[billete] || 0) : '...' }}</span>
+              </div>
+              <span class="text-weight-bolder text-orange-9" style="width: 80px; text-align: right">{{ formatMoney((conteo.billetes[billete] || 0) * billete) }}</span>
             </div>
           </div>
-          <div class="col-6">
-            <div
-              class="total-box"
-              :class="diferencia === 0 ? 'bg-green-1 border-green' : 'bg-red-1 border-red'"
-            >
-              <div class="text-h3 text-weight-bolder text-center">$ {{ formatMoney(totalDinero) }}</div>
-              <div class="text-caption text-center uppercase text-weight-bold">
-                {{ diferencia === 0 ? 'Efectivo Cuadrado' : `Faltan: $${formatMoney(diferencia)}` }}
+
+          <div class="col-6 column q-gutter-y-sm">
+            <div v-for="moneda in listaMonedas" :key="moneda.valor" class="row items-center justify-between">
+              <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ moneda.etiqueta }}</span>
+              <div style="width: 100px" class="column items-center">
+                <q-input v-model.number="conteo.monedas[moneda.key]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" :error="inventario && (conteo.monedas[moneda.key] || 0) > (inventario.monedas[moneda.invKey] || 0)" hide-bottom-space />
+                <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.monedas[moneda.invKey] || 0) : '...' }}</span>
               </div>
+              <span class="text-weight-bolder text-orange-9" style="width: 80px; text-align: right">{{ formatMoney((conteo.monedas[moneda.key] || 0) * moneda.valor) }}</span>
             </div>
           </div>
         </div>
+
+        <q-separator class="q-my-md" color="orange-3" />
+
+        <div class="row justify-between items-center bg-white q-pa-sm border-orange rounded-borders" :class="{'bg-red-1': diferencia !== 0, 'bg-green-1 border-green': diferencia === 0}">
+          <div class="text-subtitle1 text-weight-bold text-grey-8">TOTAL CONTADO:</div>
+          <div class="text-h6 text-weight-bolder text-orange-9">{{ formatMoney(totalDinero) }}</div>
+        </div>
+        <div v-if="diferencia !== 0" class="text-center text-caption text-negative q-mt-xs text-weight-bold">
+          Faltan/Sobran: {{ formatMoney(diferencia) }} para coincidir con el monto requerido.
+        </div>
+        <div v-if="tieneExceso" class="text-center text-caption text-negative q-mt-xs text-weight-bold">
+          Fondos insuficientes en la caja para cubrir este desglose.
+        </div>
       </q-card-section>
 
-      <q-card-actions align="center" class="q-pb-lg">
-        <q-btn
-          label="ACEPTAR"
-          color="grey-4"
-          text-color="black"
-          class="q-px-xl text-weight-bold"
-          size="lg"
-          unelevated
-          :disable="diferencia !== 0 || tieneExceso"
-          @click="confirmarEnvio"
-        />
+      <q-card-actions class="row justify-between border-top q-pa-md bg-white">
+        <q-btn flat color="grey-8" label="Cancelar" v-close-popup class="text-weight-bold" />
+        <div>
+          <q-btn v-if="tieneExceso" outline color="negative" class="text-weight-bold q-mr-md" icon="add_card" label="Ingresar Dinero" @click="abrirEntradaCaja" />
+          <q-btn
+            label="CONFIRMAR ENTREGA"
+            color="orange-9"
+            class="text-weight-bold q-px-md"
+            unelevated
+            icon="check_circle"
+            :disable="diferencia !== 0 || tieneExceso"
+            @click="confirmarEnvio"
+          />
+        </div>
       </q-card-actions>
     </q-card>
+
+    <!-- Dialogo para ingresar dinero -->
+    <DialogoEntradaCaja v-model="dialogoEntradaAbierto" @entrada-registrada="cargarInventario" />
   </q-dialog>
 </template>
 
 <script setup>
   import { ref, reactive, computed } from 'vue'
   import { api } from 'boot/axios'
+  import DialogoEntradaCaja from 'src/components/Caja/DialogoEntradaCaja.vue'
 
   const props = defineProps({
     montoObjetivo: { type: Number, default: 0 }
@@ -156,6 +131,11 @@
   })
 
   const inventario = ref(null)
+  const dialogoEntradaAbierto = ref(false)
+
+  const abrirEntradaCaja = () => {
+    dialogoEntradaAbierto.value = true
+  }
 
   const cargarInventario = async () => {
     try {
@@ -213,14 +193,5 @@
 <style scoped>
   .border-orange { border: 2px solid #fb8c00; }
   .border-green { border: 2px solid #2e7d32; }
-  .border-red { border: 2px solid #c62828; }
-  .total-box {
-    border: 2px solid #bdbdbd;
-    padding: 12px;
-    border-radius: 8px;
-    min-height: 100px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
+  .border-top { border-top: 1px solid #e0e0e0; }
 </style>

@@ -1,5 +1,5 @@
-﻿<template>
-  <q-card class="role-form-card shadow-24" style="min-width: 800px; max-width: 90vw; border-radius: 20px;">
+<template>
+  <q-card class="role-form-card shadow-24" style="width: 650px; max-width: 95vw; border-radius: 12px;">
     <q-card-section class="bg-primary text-white row items-center">
       <div class="text-h6 flex items-center">
         <q-icon name="security" size="28px" class="q-mr-sm text-secondary" />
@@ -9,9 +9,9 @@
       <q-btn icon="close" flat round dense v-close-popup />
     </q-card-section>
 
-    <q-card-section class="q-pa-lg scroll" style="max-height: 80vh;">
-      <q-form @submit="onSubmit" class="q-gutter-y-md">
-        <div class="row q-col-gutter-md">
+    <q-card-section class="q-pa-md scroll" style="max-height: 80vh;">
+      <q-form @submit="onSubmit" class="q-gutter-y-sm">
+        <div class="row q-col-gutter-sm items-center">
           <div class="col-12 col-md-6">
             <q-input
               autofocus
@@ -29,73 +29,76 @@
           <div class="col-12 col-md-6 flex items-center justify-end q-gutter-x-sm">
             <q-btn 
               v-if="formData.name !== 'Administrador'"
-              outline 
+              outline dense
               color="negative" 
               icon="clear_all" 
-              label="Deseleccionar Todos" 
+              label="Ninguno" 
+              class="q-px-sm"
               @click="deselectAllPermissions"
             />
             <q-btn 
               v-if="formData.name !== 'Administrador'"
-              outline 
+              outline dense
               color="secondary" 
               icon="done_all" 
-              label="Seleccionar Todos" 
+              label="Todos" 
+              class="q-px-sm"
               @click="selectAllPermissions"
             />
           </div>
         </div>
 
-        <div class="text-h6 text-primary q-mt-lg border-bottom-soft q-pb-xs">
+        <div class="text-subtitle1 text-weight-bold text-primary q-mt-md border-bottom-soft q-pb-none">
           Privilegios del Sistema
+          <span class="text-caption text-grey-7 q-ml-sm fw-normal">Selecciona los accesos de este rol</span>
         </div>
-        <div class="text-caption text-grey-7 q-mb-md">Selecciona los módulos a los que este rol tendrá acceso.</div>
 
-        <div class="row q-col-gutter-md">
-          <div v-for="(group, groupName) in groupedPermissions" :key="groupName" class="col-12 col-md-6">
-            <q-card flat bordered class="permission-card">
-              <q-card-section class="bg-grey-1 row items-center q-pb-sm q-pt-sm">
-                <q-icon :name="group.icon" size="sm" color="primary" class="q-mr-sm" />
-                <div class="text-subtitle1 text-weight-bold text-primary">{{ groupName }}</div>
+        <div class="row q-col-gutter-sm">
+          <div v-for="(group, groupName) in groupedPermissions" :key="groupName" class="col-12 col-md-6 col-lg-4">
+            <q-card flat bordered class="permission-card bg-white">
+              <q-card-section class="bg-grey-1 row items-center q-pa-xs q-px-sm">
+                <q-icon :name="group.icon" size="xs" color="primary" class="q-mr-xs" />
+                <div class="text-subtitle2 text-weight-bold text-primary">{{ groupName }}</div>
                 <q-space />
                 <q-checkbox 
                   v-if="formData.name !== 'Administrador'"
                   :model-value="isGroupSelected(groupName)"
                   @update:model-value="val => toggleGroup(groupName, val)"
                   color="secondary"
-                  dense
+                  dense size="xs"
                 >
-                  <q-tooltip>Seleccionar todo el módulo</q-tooltip>
+                  <q-tooltip>Seleccionar módulo</q-tooltip>
                 </q-checkbox>
               </q-card-section>
               <q-separator />
-              <q-card-section class="q-pa-sm">
-                <div class="q-gutter-y-xs">
-                  <q-checkbox 
-                    v-for="perm in group.perms" 
-                    :key="perm.id"
-                    v-model="formData.permissions" 
-                    :val="perm.name" 
-                    color="secondary"
-                    :disable="formData.name === 'Administrador'"
-                    class="full-width hover-bg rounded-borders q-px-sm"
-                  >
-                    <div class="text-body2 text-grey-9 text-capitalize">{{ formatPermissionName(perm.name) }}</div>
-                  </q-checkbox>
+              <q-card-section class="q-pa-xs">
+                <div class="row">
+                  <div v-for="perm in group.perms" :key="perm.id" class="col-12">
+                    <q-checkbox 
+                      v-model="formData.permissions" 
+                      :val="perm.name" 
+                      color="secondary"
+                      :disable="formData.name === 'Administrador'"
+                      dense size="sm"
+                      class="full-width hover-bg rounded-borders q-px-xs q-py-none"
+                    >
+                      <div class="text-caption text-grey-9 text-capitalize" style="line-height: 1.2;">{{ formatPermissionName(perm.name) }}</div>
+                    </q-checkbox>
+                  </div>
                 </div>
               </q-card-section>
             </q-card>
           </div>
         </div>
 
-        <div class="row justify-end q-mt-xl q-gutter-x-md">
-          <q-btn label="Cancelar" flat color="grey-7" v-close-popup />
+        <div class="row justify-end q-mt-md q-gutter-x-sm">
+          <q-btn label="Cancelar" flat dense color="grey-7" v-close-popup class="q-px-sm" />
           <q-btn
-            label="Guardar Cambios"
+            label="Guardar"
             type="submit"
             color="primary"
-            unelevated
-            class="btn-premium q-px-xl"
+            unelevated dense
+            class="btn-premium q-px-md text-weight-bold"
             icon="save"
           />
         </div>

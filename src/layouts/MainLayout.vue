@@ -17,7 +17,7 @@
             <q-icon name="storefront" size="24px" />
           </q-avatar>
           <div class="gt-xs text-white" style="letter-spacing: 0.5px;">Préstamo Express <span class="text-weight-light text-grey-3">SICAE</span></div>
-          <q-badge color="accent" class="q-ml-md text-caption q-py-xs q-px-sm" rounded>v0.0.40</q-badge>
+          <q-badge color="accent" class="q-ml-md text-caption q-py-xs q-px-sm" rounded>v0.0.41</q-badge>
         </q-toolbar-title>
 
         <q-space />
@@ -71,7 +71,7 @@
       <q-scroll-area class="fit">
         <div class="q-pa-lg text-center border-bottom-soft bg-dark">
           <q-img src="../assets/logo.png" class="q-mb-md" style="max-width: 150px; margin: 0 auto; display: block;" />
-          <div class="text-caption text-grey-4 q-mt-sm">Operaciones del día</div>
+          <div class="text-caption text-grey-4 q-mt-sm">Sistema de Casa de Empeño</div>
         </div>
 
         <div class="q-mt-md">
