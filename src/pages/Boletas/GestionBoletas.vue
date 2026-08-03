@@ -176,34 +176,44 @@
         </template>
 
         <template v-slot:body-cell-acciones="props">
-          <q-td :props="props" class="q-gutter-x-sm text-center">
-            <q-btn
-              flat round dense
-              color="blue-7"
-              icon="visibility"
-              class="btn-accion bg-blue-1"
-              @click="verDetalles(props.row.id)"
-            >
-              <q-tooltip class="bg-blue-9 text-weight-bold">Ver Detalles</q-tooltip>
-            </q-btn>
-            <q-btn
-              flat round dense
-              color="green-7"
-              icon="print"
-              class="btn-accion bg-green-1"
-              @click="reimprimirBoleta(props.row.id)"
-            >
-              <q-tooltip class="bg-green-9 text-weight-bold">Reimprimir Ticket</q-tooltip>
-            </q-btn>
-            <q-btn
-              flat round dense
-              color="red-7"
-              icon="picture_as_pdf"
-              class="btn-accion bg-red-1"
-              @click="verPDF(props.row.id)"
-            >
-              <q-tooltip class="bg-red-9 text-weight-bold">Ver PDF</q-tooltip>
-            </q-btn>
+            <q-td :props="props" class="q-gutter-x-sm text-center">
+              <q-btn
+                v-if="props.row.estatus !== 'CA' && authStore.can('cancelar boletas')"
+                flat round dense
+                color="red-10"
+                icon="cancel"
+                class="btn-accion bg-red-1"
+                @click="abrirDialogoCancelar(props.row)"
+              >
+                <q-tooltip class="bg-red-9 text-weight-bold">Cancelar Boleta</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat round dense
+                color="blue-7"
+                icon="visibility"
+                class="btn-accion bg-blue-1"
+                @click="verDetalles(props.row.id)"
+              >
+                <q-tooltip class="bg-blue-9 text-weight-bold">Ver Detalles</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat round dense
+                color="green-7"
+                icon="print"
+                class="btn-accion bg-green-1"
+                @click="reimprimirBoleta(props.row.id)"
+              >
+                <q-tooltip class="bg-green-9 text-weight-bold">Reimprimir Ticket</q-tooltip>
+              </q-btn>
+              <q-btn
+                flat round dense
+                color="red-7"
+                icon="picture_as_pdf"
+                class="btn-accion bg-red-1"
+                @click="verPDF(props.row.id)"
+              >
+                <q-tooltip class="bg-red-9 text-weight-bold">Ver PDF</q-tooltip>
+              </q-btn>
             </q-td>
         </template>
 
@@ -242,6 +252,123 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
+
+    <q-dialog v-model="dialogoCancelar" persistent>
+      <q-card style="min-width: 800px; max-width: 900px" class="bg-grey-3 border-radius-lg shadow-10">
+        <!-- Barra de titulo superior (similar al de SICAE) -->
+        <q-card-section class="bg-blue-grey-9 text-white row items-center q-py-sm">
+          <q-icon name="cancel_presentation" size="sm" class="q-mr-sm" />
+          <div class="text-subtitle1 text-weight-bold">SICAE - BOLETAS - Opciones: Utilerías: Cancelaciones: Boletas</div>
+          <q-space />
+          <q-btn icon="close" flat round dense v-close-popup color="white" />
+        </q-card-section>
+
+        <!-- Botones Superiores -->
+        <div class="row q-pa-sm bg-grey-4 border-bottom q-gutter-x-sm shadow-1">
+           <q-btn flat dense icon="check" color="black" stack label="F6 Confirmar" @click="confirmarCancelacion" :disable="!motivoCancelacion" class="bg-white border text-caption shadow-1" style="width: 100px; border: 1px solid #ccc; border-radius: 4px;"/>
+           <q-btn flat dense icon="delete_sweep" color="black" stack label="F7 Limpiar Datos" @click="motivoCancelacion = ''" class="bg-white border text-caption shadow-1" style="width: 100px; border: 1px solid #ccc; border-radius: 4px;"/>
+           <q-btn flat dense icon="directions_walk" color="black" stack label="F9 Salir" v-close-popup class="bg-white border text-caption shadow-1" style="width: 100px; border: 1px solid #ccc; border-radius: 4px;"/>
+        </div>
+
+        <q-card-section class="q-pt-md q-pb-xl" v-if="boletaACancelar">
+          <!-- Primera Fila: Folio y Fecha -->
+          <div class="row q-col-gutter-md q-mb-md items-center">
+            <div class="col-6 row items-center no-wrap">
+              <span class="q-mr-sm text-weight-medium text-right" style="width: 120px;">Folio de Boleta:</span>
+              <q-input :model-value="boletaACancelar.id" outlined dense readonly class="col bg-yellow-1 text-weight-bold" input-class="text-weight-bold" />
+            </div>
+            <div class="col-6 row items-center no-wrap">
+              <span class="q-mr-sm text-weight-medium text-right" style="width: 140px;">Fecha del Movimiento:</span>
+              <q-input :model-value="date.formatDate(Date.now(), 'dddd, MMMM DD YYYY')" outlined dense readonly class="col bg-white text-weight-bold" input-class="text-weight-bold text-capitalize" />
+            </div>
+          </div>
+
+          <q-separator class="q-my-md bg-grey-4" />
+
+          <!-- Formulario Grid -->
+          <div class="row q-col-gutter-x-lg q-col-gutter-y-sm items-center">
+            <!-- Cliente -->
+            <div class="col-12 row items-center no-wrap">
+              <span class="q-mr-sm text-weight-medium text-right" style="width: 120px;">Cliente:</span>
+              <q-input :model-value="`${boletaACancelar.cliente?.nombre} ${boletaACancelar.cliente?.apellido_paterno} ${boletaACancelar.cliente?.apellido_materno || ''}`" outlined dense readonly class="col bg-white" />
+            </div>
+            
+            <!-- Identificacion -->
+            <div class="col-12 row items-center no-wrap">
+              <span class="q-mr-sm text-weight-medium text-right" style="width: 120px;">Identificación:</span>
+              <q-input :model-value="boletaACancelar.cliente?.identificacion || 'N/A'" outlined dense readonly class="col bg-white" />
+            </div>
+
+            <!-- Bloque de 3 columnas -->
+            <!-- Columna 1 -->
+            <div class="col-4 q-mt-sm">
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 80px;">No. Bolsa:</span>
+                <q-input :model-value="boletaACancelar.no_bolsa" outlined dense readonly class="col bg-white" />
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 80px;">Plazo:</span>
+                <q-input :model-value="`${boletaACancelar.meses} MESES`" outlined dense readonly class="col bg-white" />
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 80px;"></span>
+                <div class="col"></div>
+              </div>
+            </div>
+
+            <!-- Columna 2 -->
+            <div class="col-4 q-mt-sm">
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 80px;">Préstamo:</span>
+                <q-input :model-value="`$${Number(boletaACancelar.prestamo).toFixed(2)}`" outlined dense readonly class="col bg-white" />
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 80px;">Fecha:</span>
+                <q-input :model-value="boletaACancelar.fecha_boleta" outlined dense readonly class="col bg-white" />
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 80px;">Vencimiento:</span>
+                <q-input :model-value="boletaACancelar.fecha_vencimiento" outlined dense readonly class="col bg-white" />
+              </div>
+            </div>
+
+            <!-- Columna 3 -->
+            <div class="col-4 q-mt-sm">
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 100px;">Número de Pagos:</span>
+                <q-input :model-value="boletaACancelar.pagos || '1'" outlined dense readonly class="col bg-white" />
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 100px;">Tipo de Pago:</span>
+                <q-input :model-value="boletaACancelar.tipo_prestamo?.toUpperCase()" outlined dense readonly class="col bg-white" />
+              </div>
+              <div class="row items-center no-wrap q-mb-xs">
+                <span class="q-mr-sm text-caption text-right" style="width: 100px;">Estatus:</span>
+                <q-input :model-value="configEstatus(boletaACancelar.estatus).label" outlined dense readonly class="col bg-white" />
+              </div>
+            </div>
+          </div>
+
+          <div class="q-mt-xl q-pa-md bg-grey-3" style="border: 3px solid #222; border-radius: 4px;">
+            <div class="row items-center no-wrap">
+              <span class="q-mr-sm text-weight-bold" style="width: 80px; font-size: 16px;">Motivo:</span>
+              <q-input
+                v-model="motivoCancelacion"
+                outlined
+                dense
+                autofocus
+                class="col bg-white text-body1"
+                placeholder="Indique el motivo..."
+                @keyup.f6="confirmarCancelacion"
+                @keyup.f7="motivoCancelacion = ''"
+                @keyup.f9="dialogoCancelar = false"
+              />
+            </div>
+          </div>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
   </q-page>
 </template>
 
@@ -250,10 +377,12 @@
   import { api } from 'boot/axios'
   import { useQuasar, date } from 'quasar'
   import { PrintService } from 'src/services/PrintService'
+  import { useAuthStore } from 'src/stores/auth'
 
   import ComponenteBoletaDetalles from 'components/Boletas/ComponenteBoletaDetalles.vue'
 
   const $q = useQuasar()
+  const authStore = useAuthStore()
 
   const cargando = ref(false)
   const boletas = ref([])
@@ -266,6 +395,10 @@
   const dialogoFolio = ref(false)
   const inputFolio = ref('')
   const folioActivo = ref(null)
+
+  const dialogoCancelar = ref(false)
+  const boletaACancelar = ref(null)
+  const motivoCancelacion = ref('')
 
   const abrirBuscadorFolio = () => {
     inputFolio.value = ''
@@ -410,6 +543,31 @@
   }
 
   const onRequest = (props) => cargarBoletas(props)
+
+  const abrirDialogoCancelar = (boleta) => {
+    boletaACancelar.value = boleta
+    motivoCancelacion.value = ''
+    dialogoCancelar.value = true
+  }
+
+  const confirmarCancelacion = async () => {
+    if (!motivoCancelacion.value.trim()) return
+
+    try {
+      $q.loading.show({ message: 'Cancelando boleta...' })
+      await api.post(`/api/boletas/${boletaACancelar.value.id}/cancelar`, {
+        motivo: motivoCancelacion.value
+      })
+      $q.notify({ type: 'positive', message: 'Boleta cancelada exitosamente' })
+      dialogoCancelar.value = false
+      cargarBoletas()
+    } catch (error) {
+      const msg = error.response?.data?.message || 'Error al cancelar la boleta'
+      $q.notify({ type: 'negative', message: msg })
+    } finally {
+      $q.loading.hide()
+    }
+  }
 
   const onSearchInput = () => {
     clearTimeout(timeoutBusqueda.value)

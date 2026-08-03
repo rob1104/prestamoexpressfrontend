@@ -10,6 +10,7 @@
       </div>
       
       <div class="q-gutter-sm">
+        <q-btn color="primary" icon="point_of_sale" label="Arqueo" @click="mostrarArqueo = true" unelevated class="text-weight-bold" />
         <q-btn color="positive" icon="add" label="Entrada" @click="mostrarEntrada = true" unelevated class="text-weight-bold" />
         <q-btn color="negative" icon="remove" label="Salida / Gasto" @click="mostrarSalida = true" unelevated class="text-weight-bold" />
       </div>
@@ -88,6 +89,7 @@
     <!-- Dialogos de Entrada y Salida -->
     <DialogoEntradaCaja v-model="mostrarEntrada" @entrada-registrada="fetchHistorial" />
     <DialogoSalidaCaja v-model="mostrarSalida" @salida-registrada="fetchHistorial" />
+    <DialogoArqueoCaja v-model="mostrarArqueo" @arqueo-realizado="fetchHistorial" />
 
     <!-- Dialogo Detalles -->
     <q-dialog v-model="mostrarDetalles">
@@ -158,6 +160,7 @@ import { useQuasar, date } from 'quasar'
 import { useAuthStore } from 'src/stores/auth'
 import DialogoEntradaCaja from 'src/components/Caja/DialogoEntradaCaja.vue'
 import DialogoSalidaCaja from 'src/components/Caja/DialogoSalidaCaja.vue'
+import DialogoArqueoCaja from 'src/components/Caja/DialogoArqueoCaja.vue'
 
 const $q = useQuasar()
 const authStore = useAuthStore()
@@ -179,6 +182,7 @@ const pagination = ref({
 
 const mostrarEntrada = ref(false)
 const mostrarSalida = ref(false)
+const mostrarArqueo = ref(false)
 
 const mostrarDetalles = ref(false)
 const movimientoSeleccionado = ref(null)
