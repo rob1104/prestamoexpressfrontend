@@ -158,10 +158,6 @@
               <span class="label">Recargos (Mora):</span>
               <div class="val-box text-negative">$ {{ formatMoney(calculos.recargos) }}</div>
             </div>
-            <div class="financial-row-mov text-positive" v-if="calculos.bonificacion > 0">
-              <span class="label font-bold">Bonificación NC (-):</span>
-              <div class="val-box text-positive">$ {{ formatMoney(calculos.bonificacion) }}</div>
-            </div>
 
             <q-separator class="q-my-sm" />
 

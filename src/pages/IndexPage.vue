@@ -37,7 +37,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Ingresos de Hoy</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 ${{ formatMoney(resumen.ingresos_caja) }}
               </div>
             </div>
@@ -57,7 +57,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Salidas de Hoy</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 ${{ formatMoney(resumen.egresos_caja) }}
               </div>
             </div>
@@ -77,7 +77,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Intereses Cobrados</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 ${{ formatMoney(resumen.intereses_cobrados) }}
               </div>
             </div>
@@ -97,7 +97,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Ventas (Mostrador)</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 ${{ formatMoney(resumen.ventas_total) }}
               </div>
             </div>
@@ -122,7 +122,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Préstamos Entregados</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 ${{ formatMoney(resumen.empenos_monto) }}
               </div>
               <div class="text-caption text-blue-grey-5 q-mt-sm text-weight-bold"><q-icon name="trending_up" class="q-mr-xs"/> En {{ resumen.empenos_count }} boletas</div>
@@ -143,7 +143,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Cartera Activa</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 ${{ formatMoney(resumen.cartera_activa) }}
               </div>
               <div class="text-caption text-blue-grey-5 q-mt-sm text-weight-bold"><q-icon name="public" class="q-mr-xs"/> Capital en la calle</div>
@@ -164,7 +164,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Boletas Vencidas</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 {{ resumen.boletas_vencidas }}
               </div>
               <div class="text-caption text-orange-8 q-mt-sm text-weight-bold"><q-icon name="warning" class="q-mr-xs"/> Requieren atención</div>
@@ -185,7 +185,7 @@
           <q-card-section class="row items-center no-wrap">
             <div class="col">
               <div class="text-subtitle2 text-grey-6 text-uppercase text-weight-bolder letter-space-1">Clientes Nuevos</div>
-              <div class="text-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
+              <div class="text-h5 text-md-h4 text-weight-bolder text-grey-9 q-mt-sm font-mono">
                 {{ resumen.clientes_nuevos }}
               </div>
               <div class="text-caption text-indigo-5 q-mt-sm text-weight-bold"><q-icon name="person_add" class="q-mr-xs"/> Registrados hoy</div>
@@ -223,11 +223,11 @@
                 <div class="text-subtitle2 text-blue-grey-3 text-uppercase text-weight-bolder letter-space-1 q-mb-md">
                   <q-icon name="payments" class="q-mr-sm"/> Billetes
                 </div>
-                <div class="row q-col-gutter-md">
-                  <div v-for="(cant, denom) in inventarioCaja.billetes" :key="'b'+denom" class="col-4 col-sm-3 col-md-4">
+                <div class="row q-col-gutter-sm">
+                  <div v-for="(cant, denom) in inventarioCaja.billetes" :key="'b'+denom" class="col-6 col-sm-4 col-md-4">
                     <q-card class="vault-item" flat>
                       <q-card-section class="q-pa-sm text-center">
-                        <div class="text-h6 text-weight-bolder text-white">${{ denom }}</div>
+                        <div class="text-subtitle1 text-md-h6 text-weight-bolder text-white">${{ denom }}</div>
                         <q-badge :color="cant > 0 ? 'green-5' : 'blue-grey-7'" class="text-weight-bold q-mt-xs q-px-sm q-py-xs" text-color="black">
                           {{ cant }} pzs
                         </q-badge>
@@ -242,11 +242,11 @@
                 <div class="text-subtitle2 text-blue-grey-3 text-uppercase text-weight-bolder letter-space-1 q-mb-md">
                   <q-icon name="toll" class="q-mr-sm"/> Monedas
                 </div>
-                <div class="row q-col-gutter-md">
-                  <div v-for="(cant, denom) in inventarioCaja.monedas" :key="'m'+denom" class="col-4 col-sm-3 col-md-3">
+                <div class="row q-col-gutter-sm">
+                  <div v-for="(cant, denom) in inventarioCaja.monedas" :key="'m'+denom" class="col-6 col-sm-4 col-md-4">
                     <q-card class="vault-item" flat>
                       <q-card-section class="q-pa-sm text-center">
-                        <div class="text-h6 text-weight-bolder text-white">${{ denom }}</div>
+                        <div class="text-subtitle1 text-md-h6 text-weight-bolder text-white">${{ denom }}</div>
                         <q-badge :color="cant > 0 ? 'orange-4' : 'blue-grey-7'" class="text-weight-bold q-mt-xs q-px-sm q-py-xs" text-color="black">
                           {{ cant }} pzs
                         </q-badge>

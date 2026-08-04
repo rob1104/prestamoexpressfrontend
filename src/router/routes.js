@@ -17,6 +17,8 @@ const routes = [
       { path: 'boletaspagos', component: () => import('pages/Boletas/PagosPage.vue'), meta: { requiresAuth: true, permission: 'crear boletas' } },
       { path: 'movimientostradicional', component: () => import('pages/Boletas/MovimientosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas' } },
       { path: 'movimientostpagos', component: () => import('pages/Boletas/MovimientosPagosPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas' } },
+      { path: 'adjudicacionesmanual', component: () => import('pages/Adjudicaciones/ManualPage.vue'), meta: { requiresAuth: true, permission: 'ver boletas' } },
+
       
       { path: 'ventasjoyeria', component: () => import('pages/Ventas/VentasJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'ventas joyeria' } },
       { path: 'comprasjoyeria', component: () => import('pages/Ventas/ComprasJoyeriaPage.vue'), meta: { requiresAuth: true, permission: 'ventas joyeria' } },
@@ -45,6 +47,7 @@ const routes = [
       { path: 'reportescompras', component: () => import('pages/Reportes/ReporteComprasPage.vue'), meta: { requiresAuth: true, permission: 'ver reportes' } },
       { path: 'reportescierrediario', component: () => import('pages/Reportes/CierreDiarioReportePage.vue'), meta: { requiresAuth: true, permission: 'ver reportes' } },
       { path: 'reportesdetallesmovimientos', component: () => import('pages/Reportes/ReporteDetallesMovimientosPage.vue'), meta: { requiresAuth: true, permission: 'ver reportes' } },
+      { path: 'reportespagosalmacenaje', component: () => import('pages/Reportes/ReportePagosAlmacenajePage.vue'), meta: { requiresAuth: true, permission: 'ver reportes' } },
     ]
   },
   {

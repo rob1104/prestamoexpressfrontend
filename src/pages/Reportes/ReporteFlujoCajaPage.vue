@@ -29,166 +29,179 @@
         <div class="text-h5 text-weight-bolder uppercase">PRESTAMO EXPRESS MATRIZ</div>
         <div class="text-subtitle2">CORPORATIVO EXPRESS S.A. DE C.V.</div>
         <div class="text-subtitle2">SISTEMA DE CASAS DE EMPEÑO "SICAE"</div>
+        <div class="text-subtitle2">FLUJO DE CAJA</div>
       </q-card-section>
 
       <!-- METADATOS -->
       <q-card-section class="q-pt-sm">
         <div class="row info-grid q-pa-sm">
-          <div class="col-6 col-md-3 text-weight-bold">REPORTE:</div>
-          <div class="col-6 col-md-3">FLUJO DE CAJA GENERAL</div>
-          <div class="col-6 col-md-3 text-weight-bold text-right">FECHA IMP.:</div>
-          <div class="col-6 col-md-3 text-right">{{ formatFechaHoy() }}</div>
-
-          <div class="col-6 col-md-3 text-weight-bold">CAJA:</div>
-          <div class="col-6 col-md-3 uppercase">{{ reporte.config.caja }}</div>
-          <div class="col-6 col-md-3 text-weight-bold text-right">HORA IMP.:</div>
-          <div class="col-6 col-md-3 text-right">{{ formatHoraHoy() }}</div>
+          <div class="col-6 col-md-3 text-weight-bold">FECHA:</div>
+          <div class="col-6 col-md-3 uppercase">{{ reporte.config.fecha_impresion }}</div>
+          <div class="col-6 col-md-3 text-weight-bold text-right">HORA:</div>
+          <div class="col-6 col-md-3 text-right">{{ reporte.config.hora_impresion }}</div>
 
           <div class="col-6 col-md-3 text-weight-bold">PERÍODO:</div>
           <div class="col-6 col-md-3 uppercase">{{ reporte.config.fecha_rango }}</div>
           <div class="col-6 col-md-3 text-weight-bold text-right">PÁGINA:</div>
           <div class="col-6 col-md-3 text-right">1</div>
+
+          <div class="col-6 col-md-3 text-weight-bold">CAJA:</div>
+          <div class="col-6 col-md-3 uppercase">TODAS</div>
+          <div class="col-6 col-md-3"></div>
+          <div class="col-6 col-md-3"></div>
         </div>
       </q-card-section>
 
       <!-- SALDOS INICIALES -->
       <q-card-section class="q-pt-none">
-        <div class="section-header">SALDOS INICIALES</div>
-        <div class="row justify-between q-px-md q-pt-sm">
-          <span>Fondo Fijo de Caja:</span>
-          <span class="text-weight-bold">$ {{ formatMoney(fondoFijo) }}</span>
+        <div class="section-header">FLUJO DE CAJA TODAS LAS CAJAS</div>
+        <div class="row justify-between q-px-md q-pt-sm text-weight-bold">
+          <span>FONDO FIJO DE CAJA</span>
+          <span>{{ formatMoney(reporte.config.fondo_fijo) }}</span>
         </div>
-        <div class="row justify-between q-px-md">
-          <span>Saldo Inicial Histórico:</span>
-          <span class="text-weight-bold">$ {{ formatMoney(reporte.config.saldo_inicial) }}</span>
+        <div class="row justify-between q-px-md text-weight-bold">
+          <span>SALDO INICIAL</span>
+          <span>{{ formatMoney(reporte.config.saldo_inicial) }}</span>
         </div>
       </q-card-section>
 
       <!-- ENTRADAS Y SALIDAS -->
       <q-card-section class="q-pt-none">
-        <div class="section-header">
-          <div class="row">
-            <div class="col-6 text-center">E N T R A D A S</div>
-            <div class="col-6 text-center">S A L I D A S</div>
-          </div>
-        </div>
-        
         <div class="row table-split q-mt-sm">
           <!-- COLUMNA ENTRADAS -->
           <div class="col-12 col-md-6 column-left">
+            <div class="section-header-col text-center">E N T R A D A S</div>
+            
             <div class="cat-title">PAGOS</div>
-            <div class="row justify-between item-row"><span>+ Capital Recuperado</span><span>$ {{ formatMoney(reporte.entradas.pagos_capital) }}</span></div>
-            <div class="row justify-between item-row"><span>+ Intereses e IVA</span><span>$ {{ formatMoney(reporte.entradas.pagos_interes) }}</span></div>
-            <div class="row justify-between item-row"><span>+ Recargos</span><span>$ {{ formatMoney(reporte.entradas.pagos_recargos) }}</span></div>
-            <div class="row justify-between item-row"><span>+ Com. Restructura</span><span>$ 0.00</span></div>
-            <div class="row justify-between item-row"><span>+ Com. Cambio Plan</span><span>$ 0.00</span></div>
-            <div class="row justify-between item-row"><span>+ Com. Cambio Trad.</span><span>$ 0.00</span></div>
-            <div class="row justify-between item-row"><span>- Notas de Crédito</span><span>$ 0.00</span></div>
+            <div class="row justify-between item-row"><span>+ PAGOS:</span><span>{{ formatMoney(reporte.entradas.pagos.pagos) }}</span></div>
+            <div class="row justify-between item-row"><span>+ RECARGOS:</span><span>{{ formatMoney(reporte.entradas.pagos.recargos) }}</span></div>
+            <div class="row justify-between item-row"><span>+ COMISION RESTRUCTURA PRESTAMO:</span><span>{{ formatMoney(reporte.entradas.pagos.comision_restructura) }}</span></div>
+            <div class="row justify-between item-row"><span>+ COMISION CAMBIO PLAN PAGO:</span><span>{{ formatMoney(reporte.entradas.pagos.comision_cambio_plan) }}</span></div>
+            <div class="row justify-between item-row"><span>+ COMISION CAMBIO TRADICIONAL.:</span><span>{{ formatMoney(reporte.entradas.pagos.comision_cambio_trad) }}</span></div>
+            <div class="row justify-between item-row"><span>- NOTAS DE CREDITO:</span><span>{{ formatMoney(reporte.entradas.pagos.notas_credito) }}</span></div>
             <div class="row justify-between subtotal-row">
-              <span>Subtotal Pagos</span><span class="text-weight-bold">$ {{ formatMoney(reporte.entradas.pagos_capital + reporte.entradas.pagos_interes + reporte.entradas.pagos_recargos) }}</span>
+              <span></span><span class="text-weight-bold">{{ formatMoney(reporte.entradas.pagos.total) }}</span>
             </div>
 
             <div class="cat-title">TRADICIONAL</div>
-            <div class="item-row">+ Refrendos</div>
-            <div class="row justify-between subitem-row"><span>Comisión</span><span>$ 0.00</span></div>
-            <div class="row justify-between subitem-row"><span>Recargos</span><span>$ 0.00</span></div>
-            <div class="item-row">+ Liquidaciones</div>
-            <div class="row justify-between subitem-row"><span>Capital</span><span>$ 0.00</span></div>
-            <div class="row justify-between subitem-row"><span>Comisión</span><span>$ 0.00</span></div>
-            <div class="row justify-between subitem-row"><span>Recargos</span><span>$ 0.00</span></div>
-            <div class="row justify-between subtotal-row"><span>Subtotal Tradicional</span><span class="text-weight-bold">$ 0.00</span></div>
+            <div class="item-row">+ REFRENDOS</div>
+            <div class="row justify-between subitem-row"><span>COMISION:</span><span>{{ formatMoney(reporte.entradas.tradicional.refrendos.comision) }}</span></div>
+            <div class="row justify-between subitem-row"><span>RECARGOS:</span><span>{{ formatMoney(reporte.entradas.tradicional.refrendos.recargos) }}</span></div>
+            <div class="row justify-between subtotal-row"><span></span><span class="text-weight-bold">{{ formatMoney(reporte.entradas.tradicional.refrendos.total) }}</span></div>
 
-            <div class="cat-title">VENTAS</div>
-            <div class="row text-weight-bold"><div class="col-4"></div><div class="col-4 text-center">ELEC.</div><div class="col-4 text-right">ORO</div></div>
-            <div class="row item-row"><div class="col-4">Ventas</div><div class="col-4 text-center">$ 0.00</div><div class="col-4 text-right">$ 0.00</div></div>
-            <div class="row item-row"><div class="col-4">Abonos</div><div class="col-4 text-center">$ 0.00</div><div class="col-4 text-right">$ 0.00</div></div>
-            <div class="row item-row"><div class="col-4">Liq. Sep</div><div class="col-4 text-center">$ 0.00</div><div class="col-4 text-right">$ 0.00</div></div>
-            <div class="row justify-between subtotal-row"><span>Subtotal Ventas</span><span class="text-weight-bold">$ 0.00</span></div>
+            <div class="item-row">+ LIQUIDACIONES</div>
+            <div class="row justify-between subitem-row"><span>CAPITAL:</span><span>{{ formatMoney(reporte.entradas.tradicional.liquidaciones.capital) }}</span></div>
+            <div class="row justify-between subitem-row"><span>COMISION:</span><span>{{ formatMoney(reporte.entradas.tradicional.liquidaciones.comision) }}</span></div>
+            <div class="row justify-between subitem-row"><span>RECARGOS:</span><span>{{ formatMoney(reporte.entradas.tradicional.liquidaciones.recargos) }}</span></div>
+            <div class="row justify-between subtotal-row"><span></span><span class="text-weight-bold">{{ formatMoney(reporte.entradas.tradicional.liquidaciones.total) }}</span></div>
 
-            <div class="cat-title">OTROS</div>
-            <div class="row justify-between item-row"><span>Pagos de Servicios</span><span>$ 0.00</span></div>
-            <div class="row justify-between item-row"><span>Aportaciones de Cajas</span><span>$ 0.00</span></div>
-            <div class="row justify-between item-row"><span>Venta de Dólares</span><span>$ 0.00</span></div>
-            <div class="row justify-between item-row"><span>Entradas Diversas</span><span>$ {{ formatMoney(reporte.entradas.otros) }}</span></div>
+            <div class="row justify-between item-row q-mt-sm"><span>- NOTAS DE CREDITO:</span><span>{{ formatMoney(reporte.entradas.tradicional.notas_credito) }}</span></div>
+            <div class="row justify-between subtotal-row"><span></span><span class="text-weight-bold">{{ formatMoney(reporte.entradas.tradicional.total) }}</span></div>
 
-            <div class="total-box text-green-9 bg-green-1">
-              <div class="row justify-between text-weight-bolder">
-                <span>TOTAL DE ENTRADAS</span>
-                <span>$ {{ formatMoney(totalEntradas) }}</span>
-              </div>
+            <div class="row text-weight-bold q-mt-md"><div class="col-5">VENTAS</div><div class="col-3 text-center">ELECTRONICOS</div><div class="col-3 text-right">ORO</div></div>
+            <div class="line-top q-mb-xs"></div>
+            <div class="row item-row"><div class="col-5">VENTAS:</div><div class="col-3 text-center">{{ formatMoney(reporte.entradas.ventas.electronicos.ventas) }}</div><div class="col-3 text-right">{{ formatMoney(reporte.entradas.ventas.oro.ventas) }}</div></div>
+            <div class="row item-row"><div class="col-5">SEPARADO Y ABONOS:</div><div class="col-3 text-center">{{ formatMoney(reporte.entradas.ventas.electronicos.separado) }}</div><div class="col-3 text-right">{{ formatMoney(reporte.entradas.ventas.oro.separado) }}</div></div>
+            <div class="row item-row"><div class="col-5">LIQ SEPARADO:</div><div class="col-3 text-center">{{ formatMoney(reporte.entradas.ventas.electronicos.liq_separado) }}</div><div class="col-3 text-right">{{ formatMoney(reporte.entradas.ventas.oro.liq_separado) }}</div></div>
+            <div class="row item-row text-weight-bold">
+              <div class="col-5"></div>
+              <div class="col-3 text-center subtotal-row">{{ formatMoney(reporte.entradas.ventas.electronicos.total) }}</div>
+              <div class="col-3 text-right subtotal-row">{{ formatMoney(reporte.entradas.ventas.oro.total) }}</div>
+            </div>
+
+            <div class="cat-title q-mt-md">PAGOS DE SERVICIOS:</div>
+            <div class="row justify-between subitem-row"><span>IMPORTE:</span><span>{{ formatMoney(reporte.entradas.otros.pagos_servicios.importe) }}</span></div>
+            <div class="row justify-between subitem-row"><span>COMISION:</span><span>{{ formatMoney(reporte.entradas.otros.pagos_servicios.comision) }}</span></div>
+            <div class="row justify-between item-row"><span>TOTAL DE PAGOS DE SERVICIOS:</span><span class="subtotal-row text-weight-bold">{{ formatMoney(reporte.entradas.otros.pagos_servicios.total) }}</span></div>
+
+            <div class="row justify-between item-row q-mt-md"><span>VENTA DE DOLARES:</span><span>{{ formatMoney(reporte.entradas.otros.venta_dolares) }}</span></div>
+            <div class="row justify-between item-row"><span>APORTACIONES DE CAJAS:</span><span>{{ formatMoney(reporte.entradas.otros.aportaciones_cajas) }}</span></div>
+            <div class="row justify-between item-row"><span>NOTAS DE EXTRAVIO:</span><span>{{ formatMoney(reporte.entradas.otros.notas_extravio) }}</span></div>
+            <div class="row justify-between item-row"><span>ENTRADAS A CAJA:</span><span>{{ formatMoney(reporte.entradas.otros.entradas_caja) }}</span></div>
+            <div class="row justify-between item-row"><span>ABONITOS:</span><span>{{ formatMoney(reporte.entradas.otros.abonitos) }}</span></div>
+
+            <div class="row justify-between text-weight-bolder total-box q-mt-md">
+                <span>TOTAL DE ENTRADAS:</span>
+                <span>{{ formatMoney(reporte.entradas.total_general) }}</span>
             </div>
           </div>
 
           <!-- COLUMNA SALIDAS -->
-          <div class="col-12 col-md-6 column-right flex column justify-between">
+          <div class="col-12 col-md-6 column-right flex column">
+            <div class="section-header-col text-center">S A L I D A S</div>
+            
             <div>
               <div class="cat-title">PAGOS</div>
-              <div class="row justify-between item-row"><span>+ Préstamos Nuevos</span><span>$ 0.00</span></div>
-              <div class="row justify-between item-row"><span>- Canc. Cap. C. Plan Pago</span><span>$ 0.00</span></div>
-              <div class="row justify-between item-row"><span>- Canc. Cap. Cambiate Trad.</span><span>$ 0.00</span></div>
-              <div class="row justify-between subtotal-row"><span>Total Préstamos Nuevos</span><span class="text-weight-bold">$ 0.00</span></div>
+              <div class="row justify-between item-row"><span>+ PRESTAMOS NUEVOS:</span><span>{{ formatMoney(reporte.salidas.pagos.prestamos_nuevos) }}</span></div>
+              <div class="row justify-between item-row"><span>- CANC. CAPITAL CAMBIO PLAN PAGO:</span><span>{{ formatMoney(reporte.salidas.pagos.canc_capital_cambio_plan) }}</span></div>
+              <div class="row justify-between item-row"><span>- CANC. CAPITAL CAMBIATE TRAD.:</span><span>{{ formatMoney(reporte.salidas.pagos.canc_capital_cambio_trad) }}</span></div>
+              <div class="row justify-between subtotal-row"><span>= TOTAL DE PRESTAMOS NUEVOS:</span><span class="text-weight-bold">{{ formatMoney(reporte.salidas.pagos.total) }}</span></div>
 
               <div class="cat-title">TRADICIONAL</div>
-              <div class="row justify-between item-row"><span>Préstamos Nuevos</span><span>$ {{ formatMoney(reporte.salidas.prestamos) }}</span></div>
+              <div class="row justify-between item-row"><span>PRESTAMOS NUEVOS:</span><span>{{ formatMoney(reporte.salidas.tradicional.prestamos_nuevos) }}</span></div>
 
-              <div class="cat-title">GASTOS Y RETIROS</div>
-              <div class="row justify-between item-row"><span>Compra de Dólares</span><span>$ 0.00</span></div>
-              <div class="row justify-between item-row"><span>Retiros de Cajas</span><span>$ 0.00</span></div>
-              <div class="row justify-between item-row"><span>Gastos Generales / Varios</span><span>$ {{ formatMoney(reporte.salidas.otros) }}</span></div>
-              <div class="row justify-between item-row"><span>Salidas de Caja</span><span>$ 0.00</span></div>
-              <div class="row justify-between item-row"><span>Compra de Oro y Plata</span><span>$ {{ formatMoney(reporte.salidas.compras_oro) }}</span></div>
-              <div class="row justify-between item-row"><span>Dep. Vouchers Oro/Elec.</span><span>$ 0.00</span></div>
-            </div>
-            
-            <div class="total-box text-red-9 bg-red-1" style="margin-top: 15px;">
-              <div class="row justify-between text-weight-bolder">
-                <span>TOTAL DE SALIDAS</span>
-                <span>$ {{ formatMoney(totalSalidas) }}</span>
+              <div class="row justify-between item-row q-mt-md"><span>COMPRA DE DOLARES:</span><span>{{ formatMoney(reporte.salidas.otros.compra_dolares) }}</span></div>
+              <div class="row justify-between item-row"><span>RETIROS DE CAJAS:</span><span>{{ formatMoney(reporte.salidas.otros.retiros_cajas) }}</span></div>
+              <div class="row justify-between item-row"><span>GASTOS GENERALES:</span><span>{{ formatMoney(reporte.salidas.otros.gastos_generales) }}</span></div>
+              <div class="row justify-between item-row"><span>SALIDAS DE CAJA:</span><span>{{ formatMoney(reporte.salidas.otros.salidas_caja) }}</span></div>
+              <div class="row justify-between item-row"><span>COMPRA DE ORO Y PLATA:</span><span>{{ formatMoney(reporte.salidas.otros.compra_oro_plata) }}</span></div>
+              <div class="row justify-between item-row"><span>DEPOSITOS DE VOUCHERS ORO Y ELECT.:</span><span>{{ formatMoney(reporte.salidas.otros.depositos_vouchers) }}</span></div>
+              
+              <div class="row justify-between subtotal-row text-weight-bolder q-mt-sm">
+                <span>TOTAL DE SALIDAS:</span>
+                <span>{{ formatMoney(reporte.salidas.total_general) }}</span>
               </div>
             </div>
+
+            <!-- CORTE DE DOLARES (Inside Right Column) -->
+            <div class="section-header-col text-center q-mt-xl">CORTE DE DOLARES</div>
+            <div class="row justify-between text-weight-bold q-mt-sm"><span>FONDO FIJO DE CAJA</span><span>{{ formatMoney(reporte.dolares.fondo_fijo) }}</span></div>
+            <div class="row justify-between text-weight-bold"><span>SALDO INICIAL</span><span>{{ formatMoney(reporte.dolares.saldo_inicial) }}</span></div>
+            <div class="row justify-between item-row q-mt-sm"><span>+ APORTACIONES DE CAJAS:</span><span>{{ formatMoney(reporte.dolares.aportaciones) }}</span></div>
+            <div class="row justify-between item-row"><span>- RETIROS DE CAJAS:</span><span>{{ formatMoney(reporte.dolares.retiros) }}</span></div>
+            
+            <div class="row item-row">
+                <div class="col-4">+ COMPRAS:</div><div class="col-4">Movimientos: 0</div><div class="col-4 text-right">{{ formatMoney(reporte.dolares.compras) }}</div>
+            </div>
+            <div class="row item-row">
+                <div class="col-4">- VENTAS:</div><div class="col-4">Movimientos: 0</div><div class="col-4 text-right">{{ formatMoney(reporte.dolares.ventas) }}</div>
+            </div>
+            
+            <div class="row justify-between text-weight-bold subtotal-row"><span>TOTAL DE DOLARES:</span><span>{{ formatMoney(reporte.dolares.total) }}</span></div>
+
+            <div class="row justify-between text-weight-bold q-mt-md"><span>SALDO FINAL</span><span>{{ formatMoney(reporte.dolares.saldo_final) }}</span></div>
+            <div class="row justify-between text-weight-bold"><span>MENOS FONDO FIJO DE CAJA</span><span>{{ formatMoney(reporte.dolares.menos_fondo) }}</span></div>
+            <div class="row justify-between text-weight-bold subtotal-row"><span></span><span>{{ formatMoney(reporte.dolares.saldo_final - reporte.dolares.menos_fondo) }}</span></div>
+
+            <div class="row justify-between text-weight-bold q-mt-md"><span>TIPO CAMBIO PROMEDIO COMPRA:</span><span>{{ formatMoney(reporte.dolares.tipo_cambio_compra) }}</span></div>
+            <div class="row justify-between text-weight-bold"><span>TIPO CAMBIO PROMEDIO VENTA:</span><span>{{ formatMoney(reporte.dolares.tipo_cambio_venta) }}</span></div>
+            
+            <div class="row justify-between text-weight-bold q-mt-md"><span>UTILIDAD CAMBIARIA EN VENTA:</span><span>{{ formatMoney(reporte.dolares.utilidad) }}</span></div>
+
           </div>
         </div>
-      </q-card-section>
 
-      <!-- DOLARES Y DIVISAS -->
-      <q-card-section class="q-pt-none">
-        <div class="section-header">CORTE DE DÓLARES Y DIVISAS</div>
-        <div class="row q-mt-sm">
-          <div class="col-12 col-md-6 column-left">
-            <div class="row justify-between"><span>Fondo Fijo de Caja</span><span>$ 0.00</span></div>
-            <div class="row justify-between"><span>Saldo Inicial</span><span>$ 0.00</span></div>
-            <div class="row justify-between"><span>+ Aportaciones Cajas</span><span>$ 0.00</span></div>
-            <div class="row justify-between"><span>- Retiros Cajas</span><span>$ 0.00</span></div>
-            <div class="row justify-between"><span>+ Compras (0 movs)</span><span>$ 0.00</span></div>
-            <div class="row justify-between"><span>- Ventas (0 movs)</span><span>$ 0.00</span></div>
-            <div class="line-bottom q-my-xs"></div>
-            <div class="row justify-between text-weight-bold"><span>TOTAL DE DOLARES</span><span>$ 0.00</span></div>
-          </div>
-          <div class="col-12 col-md-6 column-right">
-            <div class="row justify-between"><span>Tipo Cambio Prom. Compra:</span><span>$ 0.000000</span></div>
-            <div class="row justify-between"><span>Tipo Cambio Prom. Venta:</span><span>$ 0.000000</span></div>
-            <br>
-            <div class="row justify-between text-weight-bold"><span>Utilidad Cambiaria en Venta:</span><span>$ 0.00</span></div>
-          </div>
+        <div class="row justify-center q-mt-xl text-weight-bold" style="font-size: 14px;">
+            <div class="col-12 col-md-8">
+                <div class="row justify-between">
+                    <span class="col-6">SALDO FINAL EN CAJA</span>
+                    <span class="col-6 text-right">{{ formatMoney(reporte.config.saldo_final) }}</span>
+                </div>
+                <div class="row justify-between text-weight-regular">
+                    <span class="col-6 text-right">MENOS FONDO DE CAJA</span>
+                    <span class="col-6 text-right">{{ formatMoney(reporte.config.fondo_fijo) }}</span>
+                </div>
+                <div class="row justify-between text-weight-regular">
+                    <span class="col-6 text-right">MENOS GASTOS POR COMPROBAR</span>
+                    <span class="col-6 text-right">0.00</span>
+                </div>
+                <div class="row justify-between subtotal-row q-mt-sm">
+                    <span class="col-6 text-right text-weight-bold">DIFERENCIA</span>
+                    <span class="col-6 text-right text-weight-bold">{{ formatMoney(reporte.config.saldo_final - reporte.config.fondo_fijo) }}</span>
+                </div>
+            </div>
         </div>
       </q-card-section>
-
-      <!-- ARQUEO FINAL -->
-      <q-card-section class="q-pt-sm">
-        <div class="arqueo-box bg-blue-grey-10 text-white q-pa-md">
-          <div class="row justify-between items-center q-mb-md">
-            <span class="text-body1 text-weight-light">SALDO FINAL CALCULADO EN CAJA</span>
-            <span class="text-h5 text-weight-bolder">$ {{ formatMoney(saldoFinalCalculado) }}</span>
-          </div>
-          <div class="row justify-between items-center diferencia-row q-pt-md">
-            <span class="text-body1">DIFERENCIA (Faltante / Sobrante)</span>
-            <span class="text-h4 text-weight-bolder" :class="diferencia >= 0 ? 'text-positive' : 'text-negative'">
-              $ {{ formatMoney(diferencia) }}
-            </span>
-          </div>
-        </div>
-      </q-card-section>
-
     </q-card>
 
     <DialogoEntradaCaja v-model="mostrarEntrada" @entrada-registrada="consultarFlujo" />
@@ -197,7 +210,7 @@
 </template>
 
 <script setup>
-  import { ref, computed } from 'vue'
+  import { ref } from 'vue'
   import { api } from 'boot/axios'
   import { date, useQuasar } from 'quasar'
 
@@ -217,51 +230,12 @@
     caja_id: 1
   })
 
-  // Constantes de simulación para cuadraturas
-  const fondoFijo = computed(() => {
-    return reporte.value ? Number(reporte.value.config.fondo_fijo || 0) : 0
-  })
-  const gastosPorComprobar = ref(0.00)
-
-  // Cálculos Computados
-  const totalEntradas = computed(() => {
-    if (!reporte.value) return 0
-    const r = reporte.value
-    return Number(r.entradas.pagos_capital) +
-           Number(r.entradas.pagos_interes) +
-           Number(r.entradas.pagos_recargos) +
-           Number(r.entradas.otros)
-  })
-
-  const totalSalidas = computed(() => {
-    if (!reporte.value) return 0
-    return Number(reporte.value.salidas.prestamos) + Number(reporte.value.salidas.compras_oro) + Number(reporte.value.salidas.otros)
-  })
-
-  const saldoFinalCalculado = computed(() => {
-    if (!reporte.value) return 0
-    const saldoInicial = Number(reporte.value.config.saldo_inicial) || 0
-    return fondoFijo.value + saldoInicial + totalEntradas.value - totalSalidas.value
-  })
-
-  const diferencia = computed(() => {
-    return saldoFinalCalculado.value
-  })
-
   // Utilidades
   const formatMoney = (val) => {
     return Number(val || 0).toLocaleString('en-US', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     })
-  }
-
-  const formatFechaHoy = () => {
-    return date.formatDate(new Date(), 'DD-MMM-YYYY').toUpperCase()
-  }
-
-  const formatHoraHoy = () => {
-    return date.formatDate(new Date(), 'hh:mm a')
   }
 
   const consultarFlujo = async () => {
@@ -295,28 +269,34 @@
   .reporte-container {
     max-width: 1000px;
     margin: 0 auto;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: Arial, Helvetica, sans-serif;
     font-size: 13px;
   }
   
   .info-grid {
-    border-top: 2px solid #000;
     border-bottom: 2px solid #000;
   }
   
   .section-header {
-    font-weight: bold;
     text-align: center;
     padding: 6px;
     border-top: 1px solid #000;
     border-bottom: 1px solid #000;
-    background-color: #f4f4f4;
     margin-top: 16px;
+    font-size: 15px;
+  }
+  .section-header-col {
+    text-align: center;
+    padding: 2px;
+    border-top: 1px solid #000;
+    border-bottom: 1px solid #000;
+    margin-bottom: 10px;
+    font-weight: bold;
     font-size: 14px;
   }
   
   .column-left {
-    border-right: 1px solid #ccc;
+    border-right: 1px solid #000;
     padding-right: 20px;
   }
   .column-right {
@@ -330,37 +310,31 @@
   }
   .item-row {
     padding-left: 15px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
   .subitem-row {
     padding-left: 35px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+    padding-top: 2px;
+    padding-bottom: 2px;
   }
   .subtotal-row {
-    padding-top: 6px;
-    margin-top: 2px;
-    border-top: 1px solid #eee;
-    font-style: italic;
+    border-top: 1px solid #000;
+    padding-top: 2px;
   }
   
   .total-box {
     border-top: 2px solid #000;
     border-bottom: 2px solid #000;
-    padding: 10px;
-    font-size: 14px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    font-size: 13px;
   }
   
   .line-bottom {
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid #000;
   }
-  
-  .arqueo-box {
-    border-radius: 6px;
-    margin-top: 15px;
-  }
-  .diferencia-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  .line-top {
+    border-top: 1px solid #000;
   }
 </style>

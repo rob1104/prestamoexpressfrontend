@@ -28,7 +28,7 @@
       label="Empeños"
       class="q-mx-md menu-item"
       header-class="text-weight-bold"
-      :default-opened="isOpened(['/boletas', '/boletastradicional', '/boletaspagos', '/movimientostradicional', '/movimientostpagos'])"
+      :default-opened="isOpened(['/boletas', '/boletastradicional', '/boletaspagos', '/movimientostradicional', '/movimientostpagos', '/adjudicacionesmanual'])"
     >
       <q-item-label header class="text-caption text-grey-4 q-pb-none">Crear Boletas</q-item-label>
       <q-item v-if="authStore.can('crear boletas')" clickable v-ripple to="/boletastradicional" active-class="submenu-item-active" class="submenu-item">
@@ -49,6 +49,13 @@
       <q-item v-if="authStore.can('ver boletas')" clickable v-ripple to="/movimientostpagos" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="credit_score" size="xs" /></q-item-section>
         <q-item-section>Mov. en Pagos</q-item-section>
+      </q-item>
+
+      <q-separator inset class="q-my-sm" />
+      <q-item-label header class="text-caption text-grey-4 q-pb-none">Adjudicaciones</q-item-label>
+      <q-item v-if="authStore.can('ver boletas')" clickable v-ripple to="/adjudicacionesmanual" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="gavel" size="xs" /></q-item-section>
+        <q-item-section>Manual</q-item-section>
       </q-item>
 
       <q-separator inset class="q-my-sm" />
@@ -103,7 +110,7 @@
       label="Reportes"
       class="q-mx-md menu-item"
       header-class="text-weight-bold"
-      :default-opened="isOpened(['/reportescartera', '/reportesflujocaja', '/reportesboletasdiarias', '/reportesdetallesmovimientos', '/reportesboletasvencidas', '/reportesventas', '/reportescompras', '/reportescierrediario', '/reportespagosdeposito', '/reportesrefrendos'])"
+      :default-opened="isOpened(['/reportescartera', '/reportesflujocaja', '/reportesboletasdiarias', '/reportesdetallesmovimientos', '/reportesboletasvencidas', '/reportesventas', '/reportescompras', '/reportescierrediario', '/reportespagosdeposito', '/reportesrefrendos', '/reportespagosalmacenaje'])"
     >
       <q-item-label header class="text-caption text-grey-4 q-pb-none">Boletas</q-item-label>
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportesboletasdiarias" active-class="submenu-item-active" class="submenu-item">
@@ -117,6 +124,10 @@
       <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportesrefrendos" active-class="submenu-item-active" class="submenu-item">
         <q-item-section avatar><q-icon name="sync" size="xs" /></q-item-section>
         <q-item-section>Refrendos</q-item-section>
+      </q-item>
+      <q-item v-if="authStore.can('ver reportes')" clickable v-ripple to="/reportespagosalmacenaje" active-class="submenu-item-active" class="submenu-item">
+        <q-item-section avatar><q-icon name="account_balance_wallet" size="xs" /></q-item-section>
+        <q-item-section>Pagos Almacenaje</q-item-section>
       </q-item>
 
       <q-separator inset class="q-my-sm" />

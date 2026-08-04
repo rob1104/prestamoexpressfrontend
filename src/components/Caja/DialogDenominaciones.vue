@@ -1,72 +1,132 @@
 <template>
   <q-dialog v-model="visible" persistent @show="onShow">
-    <q-card style="width: 650px; max-width: 95vw;" class="shadow-24 border-orange">
-      <q-card-section class="bg-orange-8 text-white row items-center q-pb-sm">
-        <div class="text-h6 text-weight-bold uppercase">
+    <q-card style="width: 850px; max-width: 95vw;" class="shadow-24 border-orange">
+      <q-card-section class="bg-orange-8 text-white row items-center q-pb-sm q-pt-sm">
+        <div class="text-h6 text-weight-bold uppercase" style="font-size: 1.1rem;">
           <q-icon name="payments" size="sm" class="q-mr-sm" />
-          Captura de Billetes y Monedas (Salida)
+          Captura de Efectivo (Salida)
         </div>
         <q-space />
         <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
 
-      <q-card-section class="q-pa-md bg-orange-1">
-        <div class="text-center text-subtitle2 text-orange-10 text-weight-bold q-mb-md">
-          Capture los billetes y monedas que se entregarán al cliente
-        </div>
-
-        <div class="row justify-between items-center bg-white q-pa-sm border-orange rounded-borders q-mb-md shadow-1">
+      <q-card-section class="q-pa-sm bg-orange-1">
+        <!-- Resumen Cabecera -->
+        <div class="row justify-between items-center bg-white q-pa-sm border-orange rounded-borders q-mb-sm shadow-1">
           <div class="text-subtitle1 text-weight-bold text-grey-8">MONTO REQUERIDO:</div>
-          <div class="text-h6 text-weight-bolder text-orange-9">{{ formatMoney(montoObjetivo) }}</div>
+          <div class="text-h5 text-weight-bolder text-orange-9">{{ formatMoney(montoObjetivo) }}</div>
         </div>
 
-        <div class="row q-col-gutter-md">
-          <div class="col-6 column q-gutter-y-sm">
-            <div v-for="(billete, index) in listaBilletes" :key="billete" class="row items-center justify-between">
-              <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ billete }}</span>
-              <div style="width: 100px" class="column items-center">
-                <q-input :ref="el => { if(index === 0) inputPrimerBillete = el }" v-model.number="conteo.billetes[billete]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" :error="inventario && (conteo.billetes[billete] || 0) > (inventario.billetes[billete] || 0)" hide-bottom-space />
-                <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.billetes[billete] || 0) : '...' }}</span>
-              </div>
-              <span class="text-weight-bolder text-orange-9" style="width: 80px; text-align: right">{{ formatMoney((conteo.billetes[billete] || 0) * billete) }}</span>
-            </div>
+        <div class="row q-col-gutter-sm">
+          <!-- PANEL BILLETES (Mitad izquierda) -->
+          <div class="col-12 col-md-6">
+            <q-card flat bordered class="bg-white">
+              <q-card-section class="q-pa-xs bg-grey-2 text-center text-weight-bold text-grey-8 border-bottom">
+                BILLETES
+              </q-card-section>
+              <q-card-section class="q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                  <div v-for="(billete, index) in listaBilletes" :key="billete" class="col-6">
+                    <div class="denominacion-box row items-center no-wrap">
+                      <div class="etiqueta bg-green-1 text-green-9 text-weight-bolder">
+                        ${{ billete }}
+                      </div>
+                      <div class="input-container col">
+                        <q-input
+                          :ref="el => { if(index === 0) inputPrimerBillete = el }"
+                          v-model.number="conteo.billetes[billete]"
+                          type="number"
+                          outlined
+                          dense
+                          bg-color="white"
+                          input-class="text-center text-weight-bolder text-h6 text-grey-9"
+                          @focus="$event.target.select()"
+                          :error="inventario && (conteo.billetes[billete] || 0) > (inventario.billetes[billete] || 0)"
+                          hide-bottom-space
+                        />
+                        <div class="disp-text text-center text-grey-6 text-weight-bold" style="font-size: 10px;">
+                          Disp: {{ inventario ? (inventario.billetes[billete] || 0) : '...' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
           </div>
 
-          <div class="col-6 column q-gutter-y-sm">
-            <div v-for="moneda in listaMonedas" :key="moneda.valor" class="row items-center justify-between">
-              <span class="text-weight-bold text-grey-8" style="width: 50px">$ {{ moneda.etiqueta }}</span>
-              <div style="width: 100px" class="column items-center">
-                <q-input v-model.number="conteo.monedas[moneda.key]" type="number" outlined dense bg-color="white" style="width: 80px" input-class="text-center text-weight-bold" @focus="$event.target.select()" :error="inventario && (conteo.monedas[moneda.key] || 0) > (inventario.monedas[moneda.invKey] || 0)" hide-bottom-space />
-                <span class="text-caption text-grey-6 text-weight-bold">Disp: {{ inventario ? (inventario.monedas[moneda.invKey] || 0) : '...' }}</span>
-              </div>
-              <span class="text-weight-bolder text-orange-9" style="width: 80px; text-align: right">{{ formatMoney((conteo.monedas[moneda.key] || 0) * moneda.valor) }}</span>
-            </div>
+          <!-- PANEL MONEDAS (Mitad derecha) -->
+          <div class="col-12 col-md-6">
+            <q-card flat bordered class="bg-white">
+              <q-card-section class="q-pa-xs bg-grey-2 text-center text-weight-bold text-grey-8 border-bottom">
+                MONEDAS
+              </q-card-section>
+              <q-card-section class="q-pa-sm">
+                <div class="row q-col-gutter-sm">
+                  <div v-for="moneda in listaMonedas" :key="moneda.valor" class="col-4">
+                    <div class="denominacion-box row items-center no-wrap">
+                      <div class="etiqueta bg-grey-3 text-grey-9 text-weight-bolder" style="font-size: 12px; padding: 2px;">
+                        ${{ moneda.etiqueta }}
+                      </div>
+                      <div class="input-container col">
+                        <q-input
+                          v-model.number="conteo.monedas[moneda.key]"
+                          type="number"
+                          outlined
+                          dense
+                          bg-color="white"
+                          input-class="text-center text-weight-bolder text-subtitle1 text-grey-9"
+                          @focus="$event.target.select()"
+                          :error="inventario && (conteo.monedas[moneda.key] || 0) > (inventario.monedas[moneda.invKey] || 0)"
+                          hide-bottom-space
+                        />
+                        <div class="disp-text text-center text-grey-6 text-weight-bold" style="font-size: 10px;">
+                          Disp: {{ inventario ? (inventario.monedas[moneda.invKey] || 0) : '...' }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
           </div>
         </div>
 
-        <q-separator class="q-my-md" color="orange-3" />
-
-        <div class="row justify-between items-center bg-white q-pa-sm border-orange rounded-borders" :class="{'bg-red-1': diferencia !== 0, 'bg-green-1 border-green': diferencia === 0}">
-          <div class="text-subtitle1 text-weight-bold text-grey-8">TOTAL CONTADO:</div>
-          <div class="text-h6 text-weight-bolder text-orange-9">{{ formatMoney(totalDinero) }}</div>
-        </div>
-        <div v-if="diferencia !== 0" class="text-center text-caption text-negative q-mt-xs text-weight-bold">
-          Faltan/Sobran: {{ formatMoney(diferencia) }} para coincidir con el monto requerido.
-        </div>
-        <div v-if="tieneExceso" class="text-center text-caption text-negative q-mt-xs text-weight-bold">
-          Fondos insuficientes en la caja para cubrir este desglose.
+        <!-- TOTALES Y AVISOS -->
+        <div class="row items-center q-mt-sm q-col-gutter-sm">
+          <div class="col">
+            <div v-if="diferencia !== 0" class="bg-red-1 text-negative border-red q-pa-sm rounded-borders text-center text-weight-bold shadow-1">
+              Faltan / Sobran: {{ formatMoney(diferencia) }} para coincidir con el monto requerido.
+            </div>
+            <div v-if="tieneExceso" class="bg-red-1 text-negative border-red q-pa-sm rounded-borders text-center text-weight-bold shadow-1 q-mt-xs">
+              Fondos insuficientes en la caja para cubrir este desglose.
+            </div>
+            <div v-if="diferencia === 0 && !tieneExceso" class="bg-green-1 text-positive border-green q-pa-sm rounded-borders text-center text-weight-bold shadow-1">
+              ¡Monto correcto! Puede confirmar la entrega.
+            </div>
+          </div>
+          
+          <div class="col-auto">
+            <div class="bg-white border-orange rounded-borders q-pa-sm text-center shadow-1" style="min-width: 250px;">
+              <div class="text-caption text-weight-bold text-grey-8">TOTAL CONTADO:</div>
+              <div class="text-h5 text-weight-bolder" :class="diferencia === 0 ? 'text-positive' : 'text-orange-9'">
+                {{ formatMoney(totalDinero) }}
+              </div>
+            </div>
+          </div>
         </div>
       </q-card-section>
 
-      <q-card-actions class="row justify-between border-top q-pa-md bg-white">
+      <q-card-actions class="row justify-between border-top q-pa-sm bg-grey-1">
         <q-btn flat color="grey-8" label="Cancelar" v-close-popup class="text-weight-bold" />
         <div>
           <q-btn v-if="tieneExceso" outline color="negative" class="text-weight-bold q-mr-md" icon="add_card" label="Ingresar Dinero" @click="abrirEntradaCaja" />
           <q-btn
             label="CONFIRMAR ENTREGA"
             color="orange-9"
-            class="text-weight-bold q-px-md"
+            class="text-weight-bold q-px-xl"
             unelevated
+            size="md"
             icon="check_circle"
             :disable="diferencia !== 0 || tieneExceso"
             @click="confirmarEnvio"
@@ -193,5 +253,33 @@
 <style scoped>
   .border-orange { border: 2px solid #fb8c00; }
   .border-green { border: 2px solid #2e7d32; }
+  .border-red { border: 2px solid #c62828; }
   .border-top { border-top: 1px solid #e0e0e0; }
+  .border-bottom { border-bottom: 1px solid #e0e0e0; }
+
+  .denominacion-box {
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  
+  .etiqueta {
+    padding: 6px;
+    min-width: 55px;
+    text-align: center;
+    border-right: 1px solid #e0e0e0;
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .input-container {
+    padding: 4px;
+    background-color: #fcfcfc;
+  }
+  
+  .q-field--outlined .q-field__control {
+    padding: 0 4px;
+  }
 </style>

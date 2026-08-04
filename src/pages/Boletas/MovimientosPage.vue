@@ -627,8 +627,9 @@
     if (hoy >= fechaVencimiento) return 0;
 
     // 4. Calcular DÍAS TRANSCURRIDOS desde la creación
-    // Normalizamos created_at reemplazando el espacio por 'T' para formato ISO compatible
-    const fechaInicio = new Date(boletaData.fecha_boleta.replace(' ', 'T'));
+    const fechaBoletaStr = boletaData.fecha_boleta.toLowerCase();
+    const fechaBoletaNorm = fechaBoletaStr.replace(/[a-z]{3}/, match => meses[match] || match);
+    const fechaInicio = new Date(fechaBoletaNorm);
     const diasTranscurridos = date.getDateDiff(hoy, fechaInicio, 'days');
 
     // 5. Aplicar lógica de escalas de descuento (Basado en VB6)
@@ -731,15 +732,15 @@
       if (res.data.ticket_data) {
 
         try {
-          if (esLiquidacion) await PrintService.imprimirTicketLiquidacion(res.data.ticket_data)
+          if (estatusOp === 'LI') await PrintService.imprimirTicketLiquidacion(res.data.ticket_data)
           else await PrintService.imprimirTicketRefrendo(res.data.ticket_data)
         }
         catch (printError) {
           console.error("Error de impresión:", printError)
           $q.notify({
             type: 'warning',
-            message: 'La operación se guardó en el sistema, pero la impresora no respondió.',
-            timeout: 4000
+            message: 'Error en impresora: ' + (printError.message || 'No respondió.'),
+            timeout: 8000
           })
         }
       }

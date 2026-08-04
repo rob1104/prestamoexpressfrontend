@@ -124,7 +124,8 @@ export const PrintService = {
       return response.data
     } catch (error) {
       console.error("Error al imprimir refrendo: ", error)
-      throw new Error(error.response?.data?.message || 'Error de comunicación con la impresora térmica.')
+      const errorMsg = error.response?.data?.message || 'Error de comunicación con la impresora térmica.';
+      throw new Error(`${errorMsg} | Payload: ${JSON.stringify(payload)}`)
     }
   },
 

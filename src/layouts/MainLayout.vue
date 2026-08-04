@@ -17,7 +17,7 @@
             <q-icon name="storefront" size="24px" />
           </q-avatar>
           <div class="gt-xs text-white" style="letter-spacing: 0.5px;">Préstamo Express <span class="text-weight-light text-grey-3">SICAE</span></div>
-          <q-badge color="accent" class="q-ml-md text-caption q-py-xs q-px-sm" rounded>v0.0.43</q-badge>
+          <q-badge color="accent" class="q-ml-md text-caption q-py-xs q-px-sm" rounded>v0.0.44</q-badge>
         </q-toolbar-title>
 
         <q-space />
